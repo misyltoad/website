@@ -1,4 +1,4 @@
-# Readme for the website
+# Readme fo' tha joint
 
 
-This is the readme, we need things for "you" to "read" "this" thus making this a "readme"
+This is tha readme, we need thangs fo' "you" ta "read" "this" thus makin dis a "readme"
