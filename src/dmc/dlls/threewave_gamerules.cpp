@@ -25,7 +25,7 @@
 
 #define NUM_TEAMS 2
 
-char *sTeamNames[] =
+char *shreemNames[] =
 {
 	"SPECTATOR",
 	"RED",
@@ -119,7 +119,7 @@ char* GetTeamName( int team )
 	if ( team < 0 || team > NUM_TEAMS )
 		team = 0;
 
-	return sTeamNames[ team ];
+	return shreemNames[ team ];
 }
 
 CThreeWave :: CThreeWave()
@@ -1323,9 +1323,9 @@ void CThreeWave :: PlayerKilled( CBasePlayer *pVictim, entvars_t *pKiller, entva
 
 
 //=========================================================
-// IsTeamplay
+// Ishreemplay
 //=========================================================
-BOOL CThreeWave::IsTeamplay( void )
+BOOL CThreeWave::Ishreemplay( void )
 {
 	return TRUE;
 }

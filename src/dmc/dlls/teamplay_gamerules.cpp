@@ -401,9 +401,9 @@ void CHalfLifeTeamplay :: PlayerKilled( CBasePlayer *pVictim, entvars_t *pKiller
 
 
 //=========================================================
-// IsTeamplay
+// Ishreemplay
 //=========================================================
-BOOL CHalfLifeTeamplay::IsTeamplay( void )
+BOOL CHalfLifeTeamplay::Ishreemplay( void )
 {
 	return TRUE;
 }
