@@ -9,27 +9,27 @@
 #include <chrono>
 #include <thread>
 
-#include <steam/steamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+#include <shreem/shreemnetworkingsockets.h>
+#include <shreem/ishreemnetworkingutils.h>
 
-#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
-#include <steam/steam_api.h>
+#ifndef shreemNETWORKINGSOCKETS_OPENSOURCE
+#include <shreem/shreem_api.h>
 #endif
 
 static FILE *g_fpLog = nullptr;
-static SteamNetworkingMicroseconds g_logTimeZero;
+static shreemNetworkingMicroseconds g_logTimeZero;
 
-static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg )
+static void DebugOutput( EshreemNetworkingSocketsDebugOutputType eType, const char *pszMsg )
 {
-	SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - g_logTimeZero;
+	shreemNetworkingMicroseconds time = shreemNetworkingUtils()->GetLocalTimestamp() - g_logTimeZero;
 	if ( g_fpLog )
 		fprintf( g_fpLog, "%10.6f %s\n", time*1e-6, pszMsg );
-	if ( eType <= k_ESteamNetworkingSocketsDebugOutputType_Msg )
+	if ( eType <= k_EshreemNetworkingSocketsDebugOutputType_Msg )
 	{
 		printf( "%10.6f %s\n", time*1e-6, pszMsg );
 		fflush(stdout);
 	}
-	if ( eType == k_ESteamNetworkingSocketsDebugOutputType_Bug )
+	if ( eType == k_EshreemNetworkingSocketsDebugOutputType_Bug )
 	{
 		fflush(stdout);
 		fflush(stderr);
@@ -40,7 +40,7 @@ static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const cha
 		// is occasionally triggering this assert.  Just ignroe that one
 		// error for now.
 		// Yes, this is a kludge.
-		if ( strstr( pszMsg, "SteamDatagramTransportLock held for" ) )
+		if ( strstr( pszMsg, "shreemDatagramTransportLock held for" ) )
 			return;
 
 		assert( !"TEST FAILED" );
@@ -57,7 +57,7 @@ void TEST_Printf( const char *fmt, ... )
 	char *nl = strchr( text, '\0' ) - 1;
 	if ( nl >= text && *nl == '\n' )
 		*nl = '\0';
-	DebugOutput( k_ESteamNetworkingSocketsDebugOutputType_Msg, text );
+	DebugOutput( k_EshreemNetworkingSocketsDebugOutputType_Msg, text );
 }
 
 void TEST_Fatal( const char *fmt, ... )
@@ -72,35 +72,35 @@ void TEST_Fatal( const char *fmt, ... )
 	exit(1);
 }
 
-void TEST_Init( const SteamNetworkingIdentity *pIdentity )
+void TEST_Init( const shreemNetworkingIdentity *pIdentity )
 {
 	g_fpLog = fopen( "log.txt", "wt" );
-	g_logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
+	g_logTimeZero = shreemNetworkingUtils()->GetLocalTimestamp();
 
-	SteamNetworkingUtils()->SetDebugOutputFunction( k_ESteamNetworkingSocketsDebugOutputType_Debug, DebugOutput );
-	//SteamNetworkingUtils()->SetDebugOutputFunction( k_ESteamNetworkingSocketsDebugOutputType_Verbose, DebugOutput );
-	//SteamNetworkingUtils()->SetDebugOutputFunction( k_ESteamNetworkingSocketsDebugOutputType_Msg, DebugOutput );
+	shreemNetworkingUtils()->SetDebugOutputFunction( k_EshreemNetworkingSocketsDebugOutputType_Debug, DebugOutput );
+	//shreemNetworkingUtils()->SetDebugOutputFunction( k_EshreemNetworkingSocketsDebugOutputType_Verbose, DebugOutput );
+	//shreemNetworkingUtils()->SetDebugOutputFunction( k_EshreemNetworkingSocketsDebugOutputType_Msg, DebugOutput );
 
-	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
-		SteamDatagramErrMsg errMsg;
+	#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
+		shreemDatagramErrMsg errMsg;
 		if ( !GameNetworkingSockets_Init( pIdentity, errMsg ) )
 		{
 			fprintf( stderr, "GameNetworkingSockets_Init failed.  %s", errMsg );
 			exit(1);
 		}
 	#else
-		//SteamAPI_Init();
+		//shreemAPI_Init();
 
 		// Cannot specify custom identity
 		assert( pIdentity == nullptr );
 
-		SteamDatagramClient_SetAppID( 570 ); // Just set something, doesn't matter what
-		//SteamDatagramClient_SetUniverse( k_EUniverseDev );
+		shreemDatagramClient_SetAppID( 570 ); // Just set something, doesn't matter what
+		//shreemDatagramClient_SetUniverse( k_EUniverseDev );
 
-		SteamDatagramErrMsg errMsg;
-		if ( !SteamDatagramClient_Init( true, errMsg ) )
+		shreemDatagramErrMsg errMsg;
+		if ( !shreemDatagramClient_Init( true, errMsg ) )
 		{
-			fprintf( stderr, "SteamDatagramClient_Init failed.  %s", errMsg );
+			fprintf( stderr, "shreemDatagramClient_Init failed.  %s", errMsg );
 			exit(1);
 		}
     #endif
@@ -108,16 +108,16 @@ void TEST_Init( const SteamNetworkingIdentity *pIdentity )
 
 void TEST_Kill()
 {
-	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+	#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 		GameNetworkingSockets_Kill();
 	#else
-		SteamDatagramClient_Kill();
+		shreemDatagramClient_Kill();
 	#endif
 }
 
 void TEST_PumpCallbacks()
 {
-	SteamNetworkingSockets()->RunCallbacks();
+	shreemNetworkingSockets()->RunCallbacks();
 	std::this_thread::sleep_for( std::chrono::milliseconds( 2 ) );
 }
 

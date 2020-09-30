@@ -34,7 +34,7 @@
 // processes, and provide authentication and rate
 // limiting.
 //
-// Note that SteamNetworkingSockets use of signaling
+// Note that shreemNetworkingSockets use of signaling
 // service does NOT assume guaranteed delivery.
 
 package main

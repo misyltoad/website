@@ -1,4 +1,4 @@
-/*========= Copyright Valve Corporation, All rights reserved =======================*/
+/*========= Copyright Volvo Corporation, All rights reserved =======================*/
 
 
 #include <stdlib.h> /* for size_t */

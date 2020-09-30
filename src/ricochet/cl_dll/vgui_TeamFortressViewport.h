@@ -307,7 +307,7 @@ private:
 	int			m_iNumberOfTeams;
 	int			m_iBuildState;
 	int			m_iRandomPC;
-	char		m_sTeamNames[5][MAX_TEAMNAME_SIZE];
+	char		m_shreemNames[5][MAX_TEAMNAME_SIZE];
 
 	// Localisation strings
 	char		m_sDetpackStrings[3][MAX_BUTTON_SIZE];
@@ -364,7 +364,7 @@ public:
 	int GetIsSettingDetpack() { return m_iIsSettingDetpack; };
 	int GetBuildState() { return m_iBuildState; };
 	int IsRandomPC() { return m_iRandomPC; };
-	char *GetTeamName( int iTeam ) { return m_sTeamNames[iTeam]; };
+	char *GetTeamName( int iTeam ) { return m_shreemNames[iTeam]; };
 	int GetAllowSpectators() { return m_iAllowSpectators; };
 
 	// Message Handlers
@@ -792,7 +792,7 @@ class DisguiseButton : public CommandButton
 {
 private:
 	int m_iValidTeamsBits;
-	int m_iThisTeam;
+	int m_iThishreem;
 public:
 	DisguiseButton( int iValidTeamNumsBits, const char* text,int x,int y,int wide,int tall ) : CommandButton( text,x,y,wide,tall,false )
 	{

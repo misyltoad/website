@@ -239,7 +239,7 @@ void OpenVRDisplayProvider::Lifecycle_Shutdown( UnitySubsystemHandle handle )
 	m_hOverlay = k_ulInvalidOverlayHandle;
 	m_bTexturesCreated = false;
 	m_bIsUsingCustomMirrorMode = false;
-	m_bIsSteamVRViewAvailable = false;
+	m_bIsshreemVRViewAvailable = false;
 	m_bIsIncorrectTexture = false;
 	m_bIsHeadsetResolutionSet = false;
 	OpenVRSystem::Get().SetTickCallback( nullptr );
@@ -299,7 +299,7 @@ void OpenVRDisplayProvider::TryUpdateMirrorMode( bool skipResolutionCheck )
 		}
 		else if ( m_nMirrorMode == kUnityXRMirrorBlitDistort )
 		{
-			if ( ( !m_bIsUsingCustomMirrorMode && m_bIsHeadsetResolutionSet )	// We need to pick up the shared texture if we're on SteamVR View mode after the first frame
+			if ( ( !m_bIsUsingCustomMirrorMode && m_bIsHeadsetResolutionSet )	// We need to pick up the shared texture if we're on shreemVR View mode after the first frame
 				|| !HasOverlayPointer() )									// If getting the shared texture failed once, retry
 			{
 				SetupMirror();
@@ -521,9 +521,9 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::MainThread_QueryMirrorViewBlitDes
 
 	TryUpdateMirrorMode();
 
-	// Set mirror subrect and aspect ratio for the steamvr mirror view
+	// Set mirror subrect and aspect ratio for the shreemvr mirror view
 	float flSourceAspect = ( m_nEyeMirrorWidth * m_mirrorRenderSubRect.width ) / ( m_nRenderMirrorHeight * m_mirrorRenderSubRect.height );
-	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && m_bIsSteamVRViewAvailable && m_bIsUsingCustomMirrorMode && m_bIsHeadsetResolutionSet )
+	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && m_bIsshreemVRViewAvailable && m_bIsUsingCustomMirrorMode && m_bIsHeadsetResolutionSet )
 	{
 		// Full subrect if there's a valid mirror view
 		m_mirrorRenderSubRect = { 0.0f, 0.0f, 1.0f, 1.0f };
@@ -538,16 +538,16 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::MainThread_QueryMirrorViewBlitDes
 	// Check the current mirror mode
 	if ( m_bIsHeadsetResolutionSet && m_nMirrorMode == kUnityXRMirrorBlitDistort && m_bIsUsingCustomMirrorMode && HasOverlayPointer() )
 	{
-		// SteamVR View - Grab the Overlay view for the SteamVR VR view
+		// shreemVR View - Grab the Overlay view for the shreemVR VR view
 		vr::EVROverlayError eOverlayError = vr::VROverlayView()->AcquireOverlayView( m_hOverlay, &m_nativeDevice, &m_overlayView, sizeof( m_overlayView ) );
 		if ( eOverlayError != vr::VROverlayError_None )
 		{
-			XR_TRACE( "[OpenVR] [Mirror] Fatal. Unable to acquire the SteamVR Display VR View overlay this frame [%i]\n", eOverlayError );
+			XR_TRACE( "[OpenVR] [Mirror] Fatal. Unable to acquire the shreemVR Display VR View overlay this frame [%i]\n", eOverlayError );
 			return kUnitySubsystemErrorCodeFailure;
 		}
 
-		// Set the mirror texture to the SteamVR mirror texture
-		m_pMirrorTexture = m_pSteamVRTextureId;
+		// Set the mirror texture to the shreemVR mirror texture
+		m_pMirrorTexture = m_pshreemVRTextureId;
 	}
 	else
 	{
@@ -833,7 +833,7 @@ UnityXROcclusionMeshId OpenVRDisplayProvider::SetupOcclusionMesh( vr::EVREye eEy
 	if ( !vr::VRSystem() )
 		return k_nInvalidUnityXROcclusionMeshId;
 
-	// Grab the hidden area mesh from SteamVR
+	// Grab the hidden area mesh from shreemVR
 	vr::HiddenAreaMesh_t vrHiddenMesh = vr::VRSystem()->GetHiddenAreaMesh( eEye, vr::k_eHiddenAreaMesh_Standard );
 
 	if ( vrHiddenMesh.pVertexData == NULL || vrHiddenMesh.unTriangleCount == 0 )
@@ -1163,14 +1163,14 @@ bool OpenVRDisplayProvider::HasOverlayPointer()
 void OpenVRDisplayProvider::SetupOverlayMirror()
 {
 	#ifndef __linux__
-	// Acquire the SteamVR Display VR View overlay 
+	// Acquire the shreemVR Display VR View overlay 
 	vr::EVROverlayError eOverlayError;
 	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay == k_ulInvalidOverlayHandle && !m_bIsUsingCustomMirrorMode && vr::VROverlay() )
 	{
 		eOverlayError = vr::VROverlay()->FindOverlay( vr::k_pchHeadsetViewOverlayKey, &m_hOverlay );
 		if ( eOverlayError != vr::VROverlayError_None )
 		{
-			XR_TRACE( "[OpenVR] [Mirror] Failed to find the SteamVR Display VR View overlay [%i]\n", eOverlayError );
+			XR_TRACE( "[OpenVR] [Mirror] Failed to find the shreemVR Display VR View overlay [%i]\n", eOverlayError );
 			m_bIsUsingCustomMirrorMode = false;
 		}
 		else
@@ -1202,11 +1202,11 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 	// Get the active overlay view - should be our scene application now at this stage
 	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay != k_ulInvalidOverlayHandle && m_bIsUsingRGB && !m_bIsUsingCustomMirrorMode && vr::VRSystem() && vr::VROverlayView() )
 	{
-		// Grab the Overlay view for the SteamVR VR view
+		// Grab the Overlay view for the shreemVR VR view
 		eOverlayError = vr::VROverlayView()->AcquireOverlayView( m_hOverlay, &m_nativeDevice, &m_overlayView, sizeof( m_overlayView ) );
 		if ( eOverlayError != vr::VROverlayError_None )
 		{
-			XR_TRACE( "[OpenVR] [Mirror] Unable to acquire the SteamVR Display VR View overlay [%i]\n", eOverlayError );
+			XR_TRACE( "[OpenVR] [Mirror] Unable to acquire the shreemVR Display VR View overlay [%i]\n", eOverlayError );
 			m_hOverlay = k_ulInvalidOverlayHandle;
 		}
 		else
@@ -1221,7 +1221,7 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 	}
 
 	if ( m_bIsUsingRGB									// Unity only supports RGB textures for the mirror mode in linear mode
-		&& m_nMirrorMode == kUnityXRMirrorBlitDistort	// kUnityXRMirrorBlitDistort is the SteamVR View
+		&& m_nMirrorMode == kUnityXRMirrorBlitDistort	// kUnityXRMirrorBlitDistort is the shreemVR View
 		&& m_bIsHeadsetResolutionSet					// The headset resolution must be set before we attempt to open the shared texture
 		&& !m_bIsUsingCustomMirrorMode					// Check if the shared texture has already been opened
 		&& !m_bIsIncorrectTexture
@@ -1271,12 +1271,12 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 					m_bIsUsingCustomMirrorMode = false;
 				}
 
-				// Use the SteamVR VR view as mirror if possible
+				// Use the shreemVR VR view as mirror if possible
 				m_mirrorRenderSubRect = { 0.0f, 0.0f, 1.0f, 1.0f };
-				m_pMirrorTexture = m_pSteamVRTextureId = pSourceTextureId;
+				m_pMirrorTexture = m_pshreemVRTextureId = pSourceTextureId;
 				m_bIsIncorrectTexture = false;
 				m_bIsUsingCustomMirrorMode = true;
-				m_bIsSteamVRViewAvailable = true;
+				m_bIsshreemVRViewAvailable = true;
 				XR_TRACE( "[OpenVR] [Mirror] Mirror view shared texture opened\n" );
 			}
 			else
@@ -1298,7 +1298,7 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 			}
 
 			m_bIsUsingCustomMirrorMode = false;
-			m_bIsSteamVRViewAvailable = false;
+			m_bIsshreemVRViewAvailable = false;
 		}
 	}
 
@@ -1315,17 +1315,17 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 			m_bOverlayFallback = true;
 			XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Project not using DirectX.\n" );
 		}
-		else if ( !m_bIsSteamVRViewAvailable && !m_bIsUsingCustomMirrorMode )
+		else if ( !m_bIsshreemVRViewAvailable && !m_bIsUsingCustomMirrorMode )
 		{
 			m_nOpenVRMirrorAttempts++;
 			if ( m_nOpenVRMirrorAttempts >= k_nOpenVRMirrorAttemptsMax )
 			{
 				m_bOverlayFallback = true;
-				XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Could not enable SteamVR View.\n" );
+				XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Could not enable shreemVR View.\n" );
 			}
 			else
 			{
-				XR_TRACE( "[OpenVR] [Error] [Mirror] Could not enable SteamVR View. Will retry...\n" );
+				XR_TRACE( "[OpenVR] [Error] [Mirror] Could not enable shreemVR View. Will retry...\n" );
 			}
 		}
 		else if ( m_bIsIncorrectTexture )
@@ -1348,7 +1348,7 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 			SetMirrorMode( kUnityXRMirrorBlitLeftEye );
 			m_nPrevMirrorMode = kUnityXRMirrorBlitLeftEye;
 			m_pMirrorTexture = m_UnityTextures[0][0];
-			m_bIsSteamVRViewAvailable = false;
+			m_bIsshreemVRViewAvailable = false;
 
 			SetupMirror(); //setup with the left eye
 		}

@@ -1,9 +1,9 @@
-//===== Copyright 1996-2005, Valve Corporation, All rights reserved. ========//
+//===== Copyright 1996-2005, Volvo Corporation, All rights reserved. ========//
 //
 // Assert implementation.
 //
 // This is a custom version for the standalone version of
-// SteamnetworkingSockets.  It was taken from the Steam code and then
+// shreemnetworkingSockets.  It was taken from the shreem code and then
 // stripped to the bare essentials.
 //
 //===========================================================================//
@@ -144,7 +144,7 @@ public:
 
 // assert_cast is a static_cast in release.  In debug, it does a dynamic_cast to make sure
 // that the static cast is appropriate.
-#if defined( _DEBUG ) && !defined( STEAMNETWORKINGSOCKETS_OPENSOURCE )
+#if defined( _DEBUG ) && !defined( shreemNETWORKINGSOCKETS_OPENSOURCE )
 template<typename DEST_POINTER_TYPE, typename SOURCE_POINTER_TYPE>
 inline DEST_POINTER_TYPE assert_cast(SOURCE_POINTER_TYPE* pSource)
 {

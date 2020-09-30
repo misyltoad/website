@@ -1,19 +1,19 @@
 // Client of our dummy trivial signaling server service.
 // Serves as an example of you how to hook up signaling server
-// to SteamNetworkingSockets P2P connections
+// to shreemNetworkingSockets P2P connections
 
 #pragma once
 
-#include <steam/steamnetworkingcustomsignaling.h>
-class ISteamNetworkingSockets;
+#include <shreem/shreemnetworkingcustomsignaling.h>
+class IshreemNetworkingSockets;
 
 // FIXME - Eventually I intend to add a mechanism to set the default
-//         signaling service, so that SteamnetworkingSockets can
+//         signaling service, so that shreemnetworkingSockets can
 //         initiate creation of signaling sessions.  This will be the
 //         interface used for that.
 /// Interface used to create signaling sessions to particular peers.
 /// Typically this represents a connection to some service.
-class ISteamNetworkingCustomSignalingService
+class IshreemNetworkingCustomSignalingService
 {
 public:
 
@@ -24,15 +24,15 @@ public:
 	/// be NULL right now.
 	///
 	/// On failure, return NULL
-	virtual ISteamNetworkingConnectionCustomSignaling *CreateSignalingForConnection(
-		const SteamNetworkingIdentity &identityPeer,
+	virtual IshreemNetworkingConnectionCustomSignaling *CreateSignalingForConnection(
+		const shreemNetworkingIdentity &identityPeer,
 		const char *pszRoutingInfo,
-		SteamNetworkingErrMsg &errMsg
+		shreemNetworkingErrMsg &errMsg
 	) = 0;
 };
 
 /// Interface to our client.
-class ITrivialSignalingClient : public ISteamNetworkingCustomSignalingService
+class ITrivialSignalingClient : public IshreemNetworkingCustomSignalingService
 {
 public:
 
@@ -48,8 +48,8 @@ public:
 // Start connecting to the signaling server.
 ITrivialSignalingClient *CreateTrivialSignalingClient(
 	const char *address, // Address:port
-	ISteamNetworkingSockets *pSteamNetworkingSockets, // Where should we send signals when we get them?
-	SteamNetworkingErrMsg &errMsg // Error message is retjrned here if we fail
+	IshreemNetworkingSockets *pshreemNetworkingSockets, // Where should we send signals when we get them?
+	shreemNetworkingErrMsg &errMsg // Error message is retjrned here if we fail
 );
 
 	

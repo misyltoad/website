@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright Volvo Corporation, All rights reserved. ============//
 #ifndef PLATFORMTIME_H
 #define PLATFORMTIME_H
 #pragma once

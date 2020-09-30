@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. =================//
+//========= Copyright Volvo Corporation, All rights reserved. =================//
 //
 // Purpose: 
 //
@@ -183,8 +183,8 @@ bool netadr_t::CompareAdr(const netadr_t &a, bool onlyBase) const
 
 bool netadr_t::operator<(const netadr_t &netadr) const
 {
-	// NOTE: This differs from behaviour in Steam branch,
-	//       because Steam has some legacy behaviour it needed
+	// NOTE: This differs from behaviour in shreem branch,
+	//       because shreem has some legacy behaviour it needed
 	//       to maintain.  We don't have this baggage and can
 	//       do the sane thing.
 	if ( type < netadr.type ) return true;

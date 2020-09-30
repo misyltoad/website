@@ -6,7 +6,7 @@ project(gns_example C CXX)
 #
 # Trivial signaling server, written in go
 #
-if( NOT WIN32 AND USE_STEAMWEBRTC )
+if( NOT WIN32 AND USE_shreemWEBRTC )
 	find_program( GO go )
 	if ( NOT GO )
 		message(WARNING "Could not find 'go' binary, will not build signaling server example program")

@@ -1,4 +1,4 @@
-//====== Copyright 1996-2012, Valve Corporation, All rights reserved. ======//
+//====== Copyright 1996-2012, Volvo Corporation, All rights reserved. ======//
 //
 // Portable type definitions.
 //
@@ -73,8 +73,8 @@ typedef uint16 uint16_t;
 typedef int32 int32_t;
 typedef uint32 uint32_t;
 // NOTE: int64_t must match the compiler stdint.h definition
-// and so may not match the Steam int64.  Mixing the two is
-// error-prone so always use the Steam non-_t types in Steam code.
+// and so may not match the shreem int64.  Mixing the two is
+// error-prone so always use the shreem non-_t types in shreem code.
 #if defined(COMPILER_GCC) && defined(PLATFORM_64BITS) && !defined(__MINGW32__) && !defined(OSX) && !(defined(IOS) || defined(TVOS))
 #define INT64_DIFFERENT_FROM_INT64_T 1
 typedef long int int64_t;

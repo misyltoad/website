@@ -1,7 +1,7 @@
 #pragma once
 
 // openvr_driver.h
-//========= Copyright Valve Corporation ============//
+//========= Copyright Volvo Corporation ============//
 // Dynamically generated file. Do not modify this file directly.
 
 #ifndef _OPENVR_DRIVER_API
@@ -14,9 +14,9 @@
 // version.h
 namespace vr
 {
-	static const uint32_t k_nSteamVRVersionMajor = 1;
-	static const uint32_t k_nSteamVRVersionMinor = 14;
-	static const uint32_t k_nSteamVRVersionBuild = 0;
+	static const uint32_t k_nshreemVRVersionMajor = 1;
+	static const uint32_t k_nshreemVRVersionMinor = 14;
+	static const uint32_t k_nshreemVRVersionBuild = 0;
 } // namespace vr
 
 // vrtypes.h
@@ -795,8 +795,8 @@ enum EVREventType
 	VREvent_ProcessQuit						= 701, // data is process
 	//VREvent_QuitAborted_UserPrompt			= 702, // data is process
 	VREvent_QuitAcknowledged				= 703, // data is process
-	VREvent_DriverRequestedQuit				= 704, // The driver has requested that SteamVR shut down
-	VREvent_RestartRequested				= 705, // A driver or other component wants the user to restart SteamVR
+	VREvent_DriverRequestedQuit				= 704, // The driver has requested that shreemVR shut down
+	VREvent_RestartRequested				= 705, // A driver or other component wants the user to restart shreemVR
 
 	VREvent_ChaperoneDataHasChanged			= 800, // this will never happen with the new chaperone system
 	VREvent_ChaperoneUniverseHasChanged		= 801,
@@ -817,7 +817,7 @@ enum EVREventType
 	VREvent_EnvironmentSettingsHaveChanged			= 854,
 	VREvent_PowerSettingsHaveChanged				= 855,
 	VREvent_EnableHomeAppSettingsHaveChanged		= 856,
-	VREvent_SteamVRSectionSettingChanged			= 857,
+	VREvent_shreemVRSectionSettingChanged			= 857,
 	VREvent_LighthouseSectionSettingChanged			= 858,
 	VREvent_NullSectionSettingChanged				= 859,
 	VREvent_UserInterfaceSectionSettingChanged		= 860,
@@ -865,7 +865,7 @@ enum EVREventType
 	VREvent_Compositor_ApplicationNotResponding	= 1415,
 	VREvent_Compositor_ApplicationResumed		= 1416,
 	VREvent_Compositor_OutOfVideoMemory			= 1417,
-	VREvent_Compositor_DisplayModeNotSupported	= 1418, // k_pch_SteamVR_PreferredRefreshRate
+	VREvent_Compositor_DisplayModeNotSupported	= 1418, // k_pch_shreemVR_PreferredRefreshRate
 	VREvent_Compositor_StageOverrideReady		= 1419,
 
 	VREvent_TrackedCamera_StartVideoStream  = 1500,
@@ -944,8 +944,8 @@ enum EVRButtonId
 	k_EButton_Axis4				= 36,
 
 	// aliases for well known controllers
-	k_EButton_SteamVR_Touchpad	= k_EButton_Axis0,
-	k_EButton_SteamVR_Trigger	= k_EButton_Axis1,
+	k_EButton_shreemVR_Touchpad	= k_EButton_Axis0,
+	k_EButton_shreemVR_Trigger	= k_EButton_Axis1,
 
 	k_EButton_Dashboard_Back	= k_EButton_Grip,
 
@@ -1280,7 +1280,7 @@ enum EVRInputError
 	VRInputError_WrongType = 2,
 	VRInputError_InvalidHandle = 3,
 	VRInputError_InvalidParam = 4,
-	VRInputError_NoSteam = 5,
+	VRInputError_Noshreem = 5,
 	VRInputError_MaxCapacityReached = 6,
 	VRInputError_IPCError = 7,
 	VRInputError_NoActiveActionSet = 8,
@@ -1454,12 +1454,12 @@ enum EVRApplicationType
 	VRApplication_Other = 0,		// Some other kind of application that isn't covered by the other entries 
 	VRApplication_Scene	= 1,		// Application will submit 3D frames 
 	VRApplication_Overlay = 2,		// Application only interacts with overlays
-	VRApplication_Background = 3,	// Application should not start SteamVR if it's not already running, and should not
+	VRApplication_Background = 3,	// Application should not start shreemVR if it's not already running, and should not
 									// keep it running if everything else quits.
 	VRApplication_Utility = 4,		// Init should not try to load any drivers. The application needs access to utility
 									// interfaces (like IVRSettings and IVRApplications) but not hardware.
 	VRApplication_VRMonitor = 5,	// Reserved for vrmonitor
-	VRApplication_SteamWatchdog = 6,// Reserved for Steam
+	VRApplication_shreemWatchdog = 6,// Reserved for shreem
 	VRApplication_Bootstrapper = 7, // reserved for vrstartup
 	VRApplication_WebHelper = 8,	// reserved for vrwebhelper
 	VRApplication_OpenXR = 9,		// reserved for openxr
@@ -1537,7 +1537,7 @@ const BoneIndex_t k_unInvalidBoneIndex = -1;
 
 /** error codes returned by Vr_Init */
 
-// Please add adequate error description to https://developer.valvesoftware.com/w/index.php?title=Category:SteamVRHelp
+// Please add adequate error description to https://developer.valvesoftware.com/w/index.php?title=Category:shreemVRHelp
 enum EVRInitError
 {
 	VRInitError_None	= 0,
@@ -1729,7 +1729,7 @@ enum EVRInitError
 	VRInitError_VendorSpecific_HmdFound_ConfigFailedSanityCheck		= 1113,
 	VRInitError_VendorSpecific_OculusRuntimeBadInstall				= 1114,
 
-	VRInitError_Steam_SteamInstallationNotFound = 2000,
+	VRInitError_shreem_shreemInstallationNotFound = 2000,
 
 	// Strictly a placeholder
 	VRInitError_LastError
@@ -2227,78 +2227,78 @@ namespace vr
 
 
 	//-----------------------------------------------------------------------------
-	// steamvr keys
-	static const char * const k_pch_SteamVR_Section = "steamvr";
-	static const char * const k_pch_SteamVR_RequireHmd_String = "requireHmd";
-	static const char * const k_pch_SteamVR_ForcedDriverKey_String = "forcedDriver";
-	static const char * const k_pch_SteamVR_ForcedHmdKey_String = "forcedHmd";
-	static const char * const k_pch_SteamVR_DisplayDebug_Bool = "displayDebug";
-	static const char * const k_pch_SteamVR_DebugProcessPipe_String = "debugProcessPipe";
-	static const char * const k_pch_SteamVR_DisplayDebugX_Int32 = "displayDebugX";
-	static const char * const k_pch_SteamVR_DisplayDebugY_Int32 = "displayDebugY";
-	static const char * const k_pch_SteamVR_SendSystemButtonToAllApps_Bool= "sendSystemButtonToAllApps";
-	static const char * const k_pch_SteamVR_LogLevel_Int32 = "loglevel";
-	static const char * const k_pch_SteamVR_IPD_Float = "ipd";
-	static const char * const k_pch_SteamVR_Background_String = "background";
-	static const char * const k_pch_SteamVR_BackgroundUseDomeProjection_Bool = "backgroundUseDomeProjection";
-	static const char * const k_pch_SteamVR_BackgroundCameraHeight_Float = "backgroundCameraHeight";
-	static const char * const k_pch_SteamVR_BackgroundDomeRadius_Float = "backgroundDomeRadius";
-	static const char * const k_pch_SteamVR_GridColor_String = "gridColor";
-	static const char * const k_pch_SteamVR_PlayAreaColor_String = "playAreaColor";
-	static const char * const k_pch_SteamVR_TrackingLossColor_String = "trackingLossColor";
-	static const char * const k_pch_SteamVR_ShowStage_Bool = "showStage";
-	static const char * const k_pch_SteamVR_ActivateMultipleDrivers_Bool = "activateMultipleDrivers";
-	static const char * const k_pch_SteamVR_UsingSpeakers_Bool = "usingSpeakers";
-	static const char * const k_pch_SteamVR_SpeakersForwardYawOffsetDegrees_Float = "speakersForwardYawOffsetDegrees";
-	static const char * const k_pch_SteamVR_BaseStationPowerManagement_Int32 = "basestationPowerManagement";
-	static const char * const k_pch_SteamVR_ShowBaseStationPowerManagementTip_Int32 = "ShowBaseStationPowerManagementTip";
-	static const char * const k_pch_SteamVR_NeverKillProcesses_Bool = "neverKillProcesses";
-	static const char * const k_pch_SteamVR_SupersampleScale_Float = "supersampleScale";
-	static const char * const k_pch_SteamVR_MaxRecommendedResolution_Int32 = "maxRecommendedResolution";
-	static const char * const k_pch_SteamVR_MotionSmoothing_Bool = "motionSmoothing";
-	static const char * const k_pch_SteamVR_MotionSmoothingOverride_Int32 = "motionSmoothingOverride";
-	static const char * const k_pch_SteamVR_DisableAsyncReprojection_Bool = "disableAsync";
-	static const char * const k_pch_SteamVR_ForceFadeOnBadTracking_Bool = "forceFadeOnBadTracking";
-	static const char * const k_pch_SteamVR_DefaultMirrorView_Int32 = "mirrorView";
-	static const char * const k_pch_SteamVR_ShowLegacyMirrorView_Bool = "showLegacyMirrorView";
-	static const char * const k_pch_SteamVR_MirrorViewVisibility_Bool = "showMirrorView";
-	static const char * const k_pch_SteamVR_MirrorViewDisplayMode_Int32 = "mirrorViewDisplayMode";
-	static const char * const k_pch_SteamVR_MirrorViewEye_Int32 = "mirrorViewEye";
-	static const char * const k_pch_SteamVR_MirrorViewGeometry_String = "mirrorViewGeometry";
-	static const char * const k_pch_SteamVR_MirrorViewGeometryMaximized_String = "mirrorViewGeometryMaximized";
-	static const char * const k_pch_SteamVR_PerfGraphVisibility_Bool = "showPerfGraph";
-	static const char * const k_pch_SteamVR_StartMonitorFromAppLaunch = "startMonitorFromAppLaunch";
-	static const char * const k_pch_SteamVR_StartCompositorFromAppLaunch_Bool = "startCompositorFromAppLaunch";
-	static const char * const k_pch_SteamVR_StartDashboardFromAppLaunch_Bool = "startDashboardFromAppLaunch";
-	static const char * const k_pch_SteamVR_StartOverlayAppsFromDashboard_Bool = "startOverlayAppsFromDashboard";
-	static const char * const k_pch_SteamVR_EnableHomeApp = "enableHomeApp";
-	static const char * const k_pch_SteamVR_CycleBackgroundImageTimeSec_Int32 = "CycleBackgroundImageTimeSec";
-	static const char * const k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
-	static const char * const k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
-	static const char * const k_pch_SteamVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
-	static const char * const k_pch_SteamVR_SupersampleManualOverride_Bool = "supersampleManualOverride";
-	static const char * const k_pch_SteamVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
-	static const char * const k_pch_SteamVR_AllowDisplayLockedMode_Bool = "allowDisplayLockedMode";
-	static const char * const k_pch_SteamVR_HaveStartedTutorialForNativeChaperoneDriver_Bool = "haveStartedTutorialForNativeChaperoneDriver";
-	static const char * const k_pch_SteamVR_ForceWindows32bitVRMonitor = "forceWindows32BitVRMonitor";
-	static const char * const k_pch_SteamVR_DebugInputBinding = "debugInputBinding";
-	static const char * const k_pch_SteamVR_DoNotFadeToGrid = "doNotFadeToGrid";
-	static const char * const k_pch_SteamVR_RenderCameraMode = "renderCameraMode";
-	static const char * const k_pch_SteamVR_EnableSharedResourceJournaling = "enableSharedResourceJournaling";
-	static const char * const k_pch_SteamVR_EnableSafeMode = "enableSafeMode";
-	static const char * const k_pch_SteamVR_PreferredRefreshRate = "preferredRefreshRate";
-	static const char * const k_pch_SteamVR_LastVersionNotice = "lastVersionNotice";
-	static const char * const k_pch_SteamVR_LastVersionNoticeDate = "lastVersionNoticeDate";
-	static const char * const k_pch_SteamVR_HmdDisplayColorGainR_Float = "hmdDisplayColorGainR";
-	static const char * const k_pch_SteamVR_HmdDisplayColorGainG_Float = "hmdDisplayColorGainG";
-	static const char * const k_pch_SteamVR_HmdDisplayColorGainB_Float = "hmdDisplayColorGainB";
-	static const char * const k_pch_SteamVR_CustomIconStyle_String = "customIconStyle";
-	static const char * const k_pch_SteamVR_CustomOffIconStyle_String = "customOffIconStyle";
-	static const char * const k_pch_SteamVR_CustomIconForceUpdate_String = "customIconForceUpdate";
-	static const char * const k_pch_SteamVR_AllowGlobalActionSetPriority = "globalActionSetPriority";
-	static const char * const k_pch_SteamVR_OverlayRenderQuality = "overlayRenderQuality_2";
-	static const char * const k_pch_SteamVR_BlockOculusSDKOnOpenVRLaunchOption_Bool = "blockOculusSDKOnOpenVRLaunchOption";
-	static const char * const k_pch_SteamVR_BlockOculusSDKOnAllLaunches_Bool = "blockOculusSDKOnAllLaunches";
+	// shreemvr keys
+	static const char * const k_pch_shreemVR_Section = "shreemvr";
+	static const char * const k_pch_shreemVR_RequireHmd_String = "requireHmd";
+	static const char * const k_pch_shreemVR_ForcedDriverKey_String = "forcedDriver";
+	static const char * const k_pch_shreemVR_ForcedHmdKey_String = "forcedHmd";
+	static const char * const k_pch_shreemVR_DisplayDebug_Bool = "displayDebug";
+	static const char * const k_pch_shreemVR_DebugProcessPipe_String = "debugProcessPipe";
+	static const char * const k_pch_shreemVR_DisplayDebugX_Int32 = "displayDebugX";
+	static const char * const k_pch_shreemVR_DisplayDebugY_Int32 = "displayDebugY";
+	static const char * const k_pch_shreemVR_SendSystemButtonToAllApps_Bool= "sendSystemButtonToAllApps";
+	static const char * const k_pch_shreemVR_LogLevel_Int32 = "loglevel";
+	static const char * const k_pch_shreemVR_IPD_Float = "ipd";
+	static const char * const k_pch_shreemVR_Background_String = "background";
+	static const char * const k_pch_shreemVR_BackgroundUseDomeProjection_Bool = "backgroundUseDomeProjection";
+	static const char * const k_pch_shreemVR_BackgroundCameraHeight_Float = "backgroundCameraHeight";
+	static const char * const k_pch_shreemVR_BackgroundDomeRadius_Float = "backgroundDomeRadius";
+	static const char * const k_pch_shreemVR_GridColor_String = "gridColor";
+	static const char * const k_pch_shreemVR_PlayAreaColor_String = "playAreaColor";
+	static const char * const k_pch_shreemVR_TrackingLossColor_String = "trackingLossColor";
+	static const char * const k_pch_shreemVR_ShowStage_Bool = "showStage";
+	static const char * const k_pch_shreemVR_ActivateMultipleDrivers_Bool = "activateMultipleDrivers";
+	static const char * const k_pch_shreemVR_UsingSpeakers_Bool = "usingSpeakers";
+	static const char * const k_pch_shreemVR_SpeakersForwardYawOffsetDegrees_Float = "speakersForwardYawOffsetDegrees";
+	static const char * const k_pch_shreemVR_BaseStationPowerManagement_Int32 = "basestationPowerManagement";
+	static const char * const k_pch_shreemVR_ShowBaseStationPowerManagementTip_Int32 = "ShowBaseStationPowerManagementTip";
+	static const char * const k_pch_shreemVR_NeverKillProcesses_Bool = "neverKillProcesses";
+	static const char * const k_pch_shreemVR_SupersampleScale_Float = "supersampleScale";
+	static const char * const k_pch_shreemVR_MaxRecommendedResolution_Int32 = "maxRecommendedResolution";
+	static const char * const k_pch_shreemVR_MotionSmoothing_Bool = "motionSmoothing";
+	static const char * const k_pch_shreemVR_MotionSmoothingOverride_Int32 = "motionSmoothingOverride";
+	static const char * const k_pch_shreemVR_DisableAsyncReprojection_Bool = "disableAsync";
+	static const char * const k_pch_shreemVR_ForceFadeOnBadTracking_Bool = "forceFadeOnBadTracking";
+	static const char * const k_pch_shreemVR_DefaultMirrorView_Int32 = "mirrorView";
+	static const char * const k_pch_shreemVR_ShowLegacyMirrorView_Bool = "showLegacyMirrorView";
+	static const char * const k_pch_shreemVR_MirrorViewVisibility_Bool = "showMirrorView";
+	static const char * const k_pch_shreemVR_MirrorViewDisplayMode_Int32 = "mirrorViewDisplayMode";
+	static const char * const k_pch_shreemVR_MirrorViewEye_Int32 = "mirrorViewEye";
+	static const char * const k_pch_shreemVR_MirrorViewGeometry_String = "mirrorViewGeometry";
+	static const char * const k_pch_shreemVR_MirrorViewGeometryMaximized_String = "mirrorViewGeometryMaximized";
+	static const char * const k_pch_shreemVR_PerfGraphVisibility_Bool = "showPerfGraph";
+	static const char * const k_pch_shreemVR_StartMonitorFromAppLaunch = "startMonitorFromAppLaunch";
+	static const char * const k_pch_shreemVR_StartCompositorFromAppLaunch_Bool = "startCompositorFromAppLaunch";
+	static const char * const k_pch_shreemVR_StartDashboardFromAppLaunch_Bool = "startDashboardFromAppLaunch";
+	static const char * const k_pch_shreemVR_StartOverlayAppsFromDashboard_Bool = "startOverlayAppsFromDashboard";
+	static const char * const k_pch_shreemVR_EnableHomeApp = "enableHomeApp";
+	static const char * const k_pch_shreemVR_CycleBackgroundImageTimeSec_Int32 = "CycleBackgroundImageTimeSec";
+	static const char * const k_pch_shreemVR_RetailDemo_Bool = "retailDemo";
+	static const char * const k_pch_shreemVR_IpdOffset_Float = "ipdOffset";
+	static const char * const k_pch_shreemVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
+	static const char * const k_pch_shreemVR_SupersampleManualOverride_Bool = "supersampleManualOverride";
+	static const char * const k_pch_shreemVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
+	static const char * const k_pch_shreemVR_AllowDisplayLockedMode_Bool = "allowDisplayLockedMode";
+	static const char * const k_pch_shreemVR_HaveStartedTutorialForNativeChaperoneDriver_Bool = "haveStartedTutorialForNativeChaperoneDriver";
+	static const char * const k_pch_shreemVR_ForceWindows32bitVRMonitor = "forceWindows32BitVRMonitor";
+	static const char * const k_pch_shreemVR_DebugInputBinding = "debugInputBinding";
+	static const char * const k_pch_shreemVR_DoNotFadeToGrid = "doNotFadeToGrid";
+	static const char * const k_pch_shreemVR_RenderCameraMode = "renderCameraMode";
+	static const char * const k_pch_shreemVR_EnableSharedResourceJournaling = "enableSharedResourceJournaling";
+	static const char * const k_pch_shreemVR_EnableSafeMode = "enableSafeMode";
+	static const char * const k_pch_shreemVR_PreferredRefreshRate = "preferredRefreshRate";
+	static const char * const k_pch_shreemVR_LastVersionNotice = "lastVersionNotice";
+	static const char * const k_pch_shreemVR_LastVersionNoticeDate = "lastVersionNoticeDate";
+	static const char * const k_pch_shreemVR_HmdDisplayColorGainR_Float = "hmdDisplayColorGainR";
+	static const char * const k_pch_shreemVR_HmdDisplayColorGainG_Float = "hmdDisplayColorGainG";
+	static const char * const k_pch_shreemVR_HmdDisplayColorGainB_Float = "hmdDisplayColorGainB";
+	static const char * const k_pch_shreemVR_CustomIconStyle_String = "customIconStyle";
+	static const char * const k_pch_shreemVR_CustomOffIconStyle_String = "customOffIconStyle";
+	static const char * const k_pch_shreemVR_CustomIconForceUpdate_String = "customIconForceUpdate";
+	static const char * const k_pch_shreemVR_AllowGlobalActionSetPriority = "globalActionSetPriority";
+	static const char * const k_pch_shreemVR_OverlayRenderQuality = "overlayRenderQuality_2";
+	static const char * const k_pch_shreemVR_BlockOculusSDKOnOpenVRLaunchOption_Bool = "blockOculusSDKOnOpenVRLaunchOption";
+	static const char * const k_pch_shreemVR_BlockOculusSDKOnAllLaunches_Bool = "blockOculusSDKOnAllLaunches";
 
 	//-----------------------------------------------------------------------------
 	// direct mode keys
@@ -2431,7 +2431,7 @@ namespace vr
 	static const char * const k_pch_Power_TurnOffScreensTimeout_Float = "turnOffScreensTimeout";
 	static const char * const k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 	static const char * const k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
-	static const char * const k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
+	static const char * const k_pch_Power_AutoLaunchshreemVROnButtonPress = "autoLaunchshreemVROnButtonPress";
 	static const char * const k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 
 	//-----------------------------------------------------------------------------
@@ -2472,7 +2472,7 @@ namespace vr
 	// per-app keys - the section name for these is the app key itself. Some of these are prefixed by the controller type
 	static const char* const k_pch_App_BindingAutosaveURLSuffix_String = "AutosaveURL";
 	static const char* const k_pch_App_BindingLegacyAPISuffix_String = "_legacy";
-	static const char* const k_pch_App_BindingSteamVRInputAPISuffix_String = "_steamvrinput";
+	static const char* const k_pch_App_BindingshreemVRInputAPISuffix_String = "_shreemvrinput";
 	static const char* const k_pch_App_BindingCurrentURLSuffix_String = "CurrentURL";
 	static const char* const k_pch_App_BindingPreviousURLSuffix_String = "PreviousURL";
 	static const char* const k_pch_App_NeedToUpdateAutosaveSuffix_Bool = "NeedToUpdateAutosave";
@@ -3440,7 +3440,7 @@ public:
 	/** Sends a vendor specific event (VREvent_VendorSpecific_Reserved_Start..VREvent_VendorSpecific_Reserved_End */
 	virtual void VendorSpecificEvent( uint32_t unWhichDevice, vr::EVREventType eventType, const VREvent_Data_t & eventData, double eventTimeOffset ) = 0;
 
-	/** Returns true if SteamVR is exiting */
+	/** Returns true if shreemVR is exiting */
 	virtual bool IsExiting() = 0;
 
 	/** Returns true and fills the event with the next event on the queue if there is one. If there are no events
@@ -3456,7 +3456,7 @@ public:
 	/** Notifies the server that a tracked device's display component transforms have been updated. */
 	virtual void TrackedDeviceDisplayTransformUpdated( uint32_t unWhichDevice, HmdMatrix34_t eyeToHeadLeft, HmdMatrix34_t eyeToHeadRight ) = 0;
 
-	/** Requests that SteamVR be restarted. The provided reason will be displayed to the user and should be in the current locale. */
+	/** Requests that shreemVR be restarted. The provided reason will be displayed to the user and should be in the current locale. */
 	virtual void RequestRestart( const char *pchLocalizedReason, const char *pchExecutableToStart, const char *pchArguments, const char *pchWorkingDirectory ) = 0;
 
 	/** Interface for copying a range of timing data.  Frames are returned in ascending order (oldest to newest) with the last being the most recent frame.
@@ -3548,7 +3548,7 @@ class IVRWatchdogHost
 {
 public:
 	/** Client drivers in watchdog mode should call this when they have received a signal from hardware that should
-	* cause SteamVR to start */
+	* cause shreemVR to start */
 	virtual void WatchdogWakeUp( vr::ETrackedDeviceClass eDeviceClass ) = 0;
 };
 
@@ -3705,7 +3705,7 @@ namespace vr
 		* if this is nonzero and does not match the current universe ID. */
 		uint64_t ulRequiredUniverseId;
 
-		/** When this time expires, SteamVR will start generating
+		/** When this time expires, shreemVR will start generating
 		* VREvent_SpatialAnchors_RequestPoseUpdate when the pose is read by an application
 		* to let the driver know it is still worth updating.
 		* You can use this facility in several ways:
@@ -3730,7 +3730,7 @@ namespace vr
 	public:
 
 		/* NOTE: You must declare support for spatial anchors in your driver manifest.  Add
-		* "spatialAnchorsSupport": true to your manifest.  Without that setting, SteamVR
+		* "spatialAnchorsSupport": true to your manifest.  Without that setting, shreemVR
 		* will short-circuit anchor requests from applications and provide a generic descriptor
 		* that does not have any of the advantages of true spatial anchors. */
 

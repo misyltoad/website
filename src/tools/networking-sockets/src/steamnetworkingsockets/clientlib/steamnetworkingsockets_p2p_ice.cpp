@@ -1,19 +1,19 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#include "steamnetworkingsockets_p2p_ice.h"
-#include "steamnetworkingsockets_udp.h"
+#include "shreemnetworkingsockets_p2p_ice.h"
+#include "shreemnetworkingsockets_udp.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 
 extern "C" {
-CreateICESession_t g_SteamNetworkingSockets_CreateICESessionFunc = nullptr;
+CreateICESession_t g_shreemNetworkingSockets_CreateICESessionFunc = nullptr;
 }
 
 // Put everything in a namespace, so we don't violate the one definition rule
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -21,13 +21,13 @@ namespace SteamNetworkingSocketsLib {
 //
 /////////////////////////////////////////////////////////////////////////////
 
-CConnectionTransportP2PICE::CConnectionTransportP2PICE( CSteamNetworkConnectionP2P &connection )
+CConnectionTransportP2PICE::CConnectionTransportP2PICE( CshreemNetworkConnectionP2P &connection )
 : CConnectionTransportUDPBase( connection )
 , CConnectionTransportP2PBase( "ICE", this, this )
 , m_pICESession( nullptr )
 {
 	m_nAllowedCandidateTypes = 0;
-	m_eCurrentRouteKind = k_ESteamNetTransport_Unknown;
+	m_eCurrentRouteKind = k_EshreemNetTransport_Unknown;
 	m_currentRouteRemoteAddress.Clear();
 }
 
@@ -36,7 +36,7 @@ CConnectionTransportP2PICE::~CConnectionTransportP2PICE()
 	Assert( !m_pICESession );
 }
 
-void CConnectionTransportP2PICE::TransportPopulateConnectionInfo( SteamNetConnectionInfo_t &info ) const
+void CConnectionTransportP2PICE::TransportPopulateConnectionInfo( shreemNetConnectionInfo_t &info ) const
 {
 	CConnectionTransport::TransportPopulateConnectionInfo( info );
 
@@ -45,16 +45,16 @@ void CConnectionTransportP2PICE::TransportPopulateConnectionInfo( SteamNetConnec
 
 	// If we thought the route was local, but ping time is too high, then clear local flag.
 	// (E.g. VPN)
-	if ( info.m_eTransportKind == k_ESteamNetTransport_UDPProbablyLocal )
+	if ( info.m_eTransportKind == k_EshreemNetTransport_UDPProbablyLocal )
 	{
 		int nPingMin, nPingMax;
-		m_pingEndToEnd.GetPingRangeFromRecentBuckets( nPingMin, nPingMax, SteamNetworkingSockets_GetLocalTimestamp() );
+		m_pingEndToEnd.GetPingRangeFromRecentBuckets( nPingMin, nPingMax, shreemNetworkingSockets_GetLocalTimestamp() );
 		if ( nPingMin >= k_nMinPingTimeLocalTolerance )
-			info.m_eTransportKind = k_ESteamNetTransport_UDP;
+			info.m_eTransportKind = k_EshreemNetTransport_UDP;
 	}
 }
 
-void CConnectionTransportP2PICE::GetDetailedConnectionStatus( SteamNetworkingDetailedConnectionStatus &stats, SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::GetDetailedConnectionStatus( shreemNetworkingDetailedConnectionStatus &stats, shreemNetworkingMicroseconds usecNow )
 {
 	// FIXME Need to indicate whether we are relayed or were able to pierce NAT
 	CConnectionTransport::GetDetailedConnectionStatus( stats, usecNow );
@@ -92,13 +92,13 @@ void CConnectionTransportP2PICE::TransportFreeResources()
 
 void CConnectionTransportP2PICE::Init()
 {
-	if ( !g_SteamNetworkingSockets_CreateICESessionFunc )
+	if ( !g_shreemNetworkingSockets_CreateICESessionFunc )
 	{
-		Connection().ICEFailed( k_ESteamNetConnectionEnd_Misc_InternalError, "CreateICESession factory not set" );
+		Connection().ICEFailed( k_EshreemNetConnectionEnd_Misc_InternalError, "CreateICESession factory not set" );
 		return;
 	}
 
-	SteamDatagramTransportLock::SetLongLockWarningThresholdMS( "CConnectionTransportP2PICE::Init", 50 );
+	shreemDatagramTransportLock::SetLongLockWarningThresholdMS( "CConnectionTransportP2PICE::Init", 50 );
 
 	ICESessionConfig cfg;
 
@@ -116,13 +116,13 @@ void CConnectionTransportP2PICE::Init()
 	const int P2P_Transport_ICE_Enable = m_connection.m_connectionConfig.m_P2P_Transport_ICE_Enable.Get();
 
 	m_nAllowedCandidateTypes = 0;
-	if ( P2P_Transport_ICE_Enable & k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Private )
+	if ( P2P_Transport_ICE_Enable & k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Private )
 		m_nAllowedCandidateTypes |= k_EICECandidate_Any_HostPrivate;
 
 	// Get the STUN server list
 	std_vector<std::string> vecStunServers;
 	std_vector<const char *> vecStunServersPsz;
-	if ( P2P_Transport_ICE_Enable & k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Public )
+	if ( P2P_Transport_ICE_Enable & k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Public )
 	{
 		m_nAllowedCandidateTypes |= k_EICECandidate_Any_HostPublic|k_EICECandidate_Any_Reflexive;
 
@@ -155,7 +155,7 @@ void CConnectionTransportP2PICE::Init()
 	cfg.m_pStunServers = vecStunServersPsz.data();
 
 	// Get the TURN server list
-	if ( P2P_Transport_ICE_Enable & k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Relay )
+	if ( P2P_Transport_ICE_Enable & k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Relay )
 	{
 		// FIXME
 		//cfg.m_nCandidateTypes = m_nAllowedCandidateTypes;
@@ -175,14 +175,14 @@ void CConnectionTransportP2PICE::Init()
 	}
 
 	// Create the session
-	m_pICESession = (*g_SteamNetworkingSockets_CreateICESessionFunc)( cfg, this, ICESESSION_INTERFACE_VERSION );
+	m_pICESession = (*g_shreemNetworkingSockets_CreateICESessionFunc)( cfg, this, ICESESSION_INTERFACE_VERSION );
 	if ( !m_pICESession )
 	{
-		Connection().ICEFailed( k_ESteamNetConnectionEnd_Misc_InternalError, "CreateICESession failed" );
+		Connection().ICEFailed( k_EshreemNetConnectionEnd_Misc_InternalError, "CreateICESession failed" );
 		return;
 	}
 
-	#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ETW
+	#ifdef shreemNETWORKINGSOCKETS_ENABLE_ETW
 		m_pICESession->SetWriteEvent_setsockopt( ETW_webrtc_setsockopt );
 		m_pICESession->SetWriteEvent_send( ETW_webrtc_send );
 		m_pICESession->SetWriteEvent_sendto( ETW_webrtc_sendto );
@@ -191,23 +191,23 @@ void CConnectionTransportP2PICE::Init()
 	// Queue a message to inform peer about our auth credentials.  It should
 	// go out in the first signal.
 	{
-		CMsgSteamNetworkingP2PRendezvous_ReliableMessage msg;
+		CMsgshreemNetworkingP2PRendezvous_ReliableMessage msg;
 		*msg.mutable_ice()->mutable_auth()->mutable_pwd_frag() = std::move( sPwdFragLocal );
 		Connection().QueueSignalReliableMessage( std::move( msg ), "Initial ICE auth" );
 	}
 }
 
-void CConnectionTransportP2PICE::PopulateRendezvousMsg( CMsgSteamNetworkingP2PRendezvous &msg, SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::PopulateRendezvousMsg( CMsgshreemNetworkingP2PRendezvous &msg, shreemNetworkingMicroseconds usecNow )
 {
 	msg.set_ice_enabled( true );
 }
 
-void CConnectionTransportP2PICE::RecvRendezvous( const CMsgICERendezvous &msg, SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::RecvRendezvous( const CMsgICERendezvous &msg, shreemNetworkingMicroseconds usecNow )
 {
 	// Safety
 	if ( !m_pICESession )
 	{
-		Connection().ICEFailed( k_ESteamNetConnectionEnd_Misc_InternalError, "No IICESession?" );
+		Connection().ICEFailed( k_EshreemNetConnectionEnd_Misc_InternalError, "No IICESession?" );
 		return;
 	}
 
@@ -235,7 +235,7 @@ void CConnectionTransportP2PICE::RecvRendezvous( const CMsgICERendezvous &msg, S
 	}
 }
 
-void CConnectionTransportP2PICE::Think( SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::Think( shreemNetworkingMicroseconds usecNow )
 {
 	// Are we dead?
 	if ( !m_pICESession || Connection().m_pTransportICEPendingDelete )
@@ -248,7 +248,7 @@ void CConnectionTransportP2PICE::Think( SteamNetworkingMicroseconds usecNow )
 	P2PTransportThink( usecNow );
 }
 
-void CConnectionTransportP2PICE::P2PTransportUpdateRouteMetrics( SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::P2PTransportUpdateRouteMetrics( shreemNetworkingMicroseconds usecNow )
 {
 	if ( !BCanSendEndToEndData() || m_pingEndToEnd.m_nSmoothedPing < 0 )
 	{
@@ -266,7 +266,7 @@ void CConnectionTransportP2PICE::P2PTransportUpdateRouteMetrics( SteamNetworking
 	m_routeMetrics.m_nScoreMax = nPingMax;
 
 	// Local route?
-	if ( nPingMin < k_nMinPingTimeLocalTolerance && m_eCurrentRouteKind == k_ESteamNetTransport_UDPProbablyLocal )
+	if ( nPingMin < k_nMinPingTimeLocalTolerance && m_eCurrentRouteKind == k_EshreemNetTransport_UDPProbablyLocal )
 	{
 
 		// Whoo whoo!  Probably NAT punched LAN
@@ -289,9 +289,9 @@ void CConnectionTransportP2PICE::P2PTransportUpdateRouteMetrics( SteamNetworking
 	m_routeMetrics.m_nTotalPenalty += m_connection.m_connectionConfig.m_P2P_Transport_ICE_Penalty.Get();
 
 	// Check for recording the initial scoring data used to make the initial decision
-	CMsgSteamNetworkingICESessionSummary &ice_summary = Connection().m_msgICESessionSummary;
+	CMsgshreemNetworkingICESessionSummary &ice_summary = Connection().m_msgICESessionSummary;
 	if (
-		ConnectionState() == k_ESteamNetworkingConnectionState_FindingRoute
+		ConnectionState() == k_EshreemNetworkingConnectionState_FindingRoute
 		|| !ice_summary.has_initial_ping()
 	) {
 		ice_summary.set_initial_score( m_routeMetrics.m_nScoreCurrent + m_routeMetrics.m_nTotalPenalty );
@@ -311,9 +311,9 @@ void CConnectionTransportP2PICE::P2PTransportUpdateRouteMetrics( SteamNetworking
 #define ParsePaddedPacket( pvPkt, cbPkt, CMsgCls, msgVar ) \
 	CMsgCls msgVar; \
 	{ \
-		if ( cbPkt < k_cbSteamNetworkingMinPaddedPacketSize ) \
+		if ( cbPkt < k_cbshreemNetworkingMinPaddedPacketSize ) \
 		{ \
-			ReportBadUDPPacketFromConnectionPeer( # CMsgCls, "Packet is %d bytes, must be padded to at least %d bytes.", cbPkt, k_cbSteamNetworkingMinPaddedPacketSize ); \
+			ReportBadUDPPacketFromConnectionPeer( # CMsgCls, "Packet is %d bytes, must be padded to at least %d bytes.", cbPkt, k_cbshreemNetworkingMinPaddedPacketSize ); \
 			return; \
 		} \
 		const UDPPaddedMessageHdr *hdr =  (const UDPPaddedMessageHdr *)( pvPkt ); \
@@ -330,7 +330,7 @@ void CConnectionTransportP2PICE::P2PTransportUpdateRouteMetrics( SteamNetworking
 		} \
 	}
 
-void CConnectionTransportP2PICE::ProcessPacket( const uint8_t *pPkt, int cbPkt, SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::ProcessPacket( const uint8_t *pPkt, int cbPkt, shreemNetworkingMicroseconds usecNow )
 {
 	Assert( cbPkt >= 1 ); // Caller should have checked this
 	ETW_ICEProcessPacket( m_connection.m_hConnectionSelf, cbPkt );
@@ -345,14 +345,14 @@ void CConnectionTransportP2PICE::ProcessPacket( const uint8_t *pPkt, int cbPkt, 
 	// Track stats for other packet types.
 	m_connection.m_statsEndToEnd.TrackRecvPacket( cbPkt, usecNow );
 
-	if ( *pPkt == k_ESteamNetworkingUDPMsg_ConnectionClosed )
+	if ( *pPkt == k_EshreemNetworkingUDPMsg_ConnectionClosed )
 	{
-		ParsePaddedPacket( pPkt, cbPkt, CMsgSteamSockets_UDP_ConnectionClosed, msg )
+		ParsePaddedPacket( pPkt, cbPkt, CMsgshreemSockets_UDP_ConnectionClosed, msg )
 		Received_ConnectionClosed( msg, usecNow );
 	}
-	else if ( *pPkt == k_ESteamNetworkingUDPMsg_NoConnection )
+	else if ( *pPkt == k_EshreemNetworkingUDPMsg_NoConnection )
 	{
-		ParseProtobufBody( pPkt+1, cbPkt-1, CMsgSteamSockets_UDP_NoConnection, msg )
+		ParseProtobufBody( pPkt+1, cbPkt-1, CMsgshreemSockets_UDP_NoConnection, msg )
 		Received_NoConnection( msg, usecNow );
 	}
 	else
@@ -382,12 +382,12 @@ bool CConnectionTransportP2PICE::SendPacketGather( int nChunks, const iovec *pCh
 		Assert( (int)pChunks->iov_len == cbSendTotal );
 		return SendPacket( pChunks->iov_base, pChunks->iov_len );
 	}
-	if ( cbSendTotal > k_cbSteamNetworkingSocketsMaxUDPMsgLen )
+	if ( cbSendTotal > k_cbshreemNetworkingSocketsMaxUDPMsgLen )
 	{
 		Assert( false );
 		return false;
 	}
-	uint8 pkt[ k_cbSteamNetworkingSocketsMaxUDPMsgLen ];
+	uint8 pkt[ k_cbshreemNetworkingSocketsMaxUDPMsgLen ];
 	uint8 *p = pkt;
 	while ( nChunks > 0 )
 	{
@@ -448,7 +448,7 @@ void CConnectionTransportP2PICE::UpdateRoute()
 	if ( !m_pICESession->GetRoute( eLocalCandidate, eRemoteCandidate, szRemoteAddress ) )
 	{
 		SpewMsgGroup( LogLevel_P2PRendezvous(), "[%s] ICE route is unkown\n", ConnectionDescription() );
-		m_eCurrentRouteKind = k_ESteamNetTransport_Unknown;
+		m_eCurrentRouteKind = k_EshreemNetTransport_Unknown;
 		m_currentRouteRemoteAddress.Clear();
 	}
 	else
@@ -460,26 +460,26 @@ void CConnectionTransportP2PICE::UpdateRoute()
 		}
 
 		netadr_t netadrRemote;
-		SteamNetworkingIPAddrToNetAdr( netadrRemote, m_currentRouteRemoteAddress );
+		shreemNetworkingIPAddrToNetAdr( netadrRemote, m_currentRouteRemoteAddress );
 
 		if ( ( eLocalCandidate | eRemoteCandidate ) & k_EICECandidate_Any_Relay )
 		{
-			m_eCurrentRouteKind = k_ESteamNetTransport_TURN;
+			m_eCurrentRouteKind = k_EshreemNetTransport_TURN;
 			SpewMsgGroup( LogLevel_P2PRendezvous(), "[%s] ICE route is via TURN to %s\n", ConnectionDescription(), szRemoteAddress );
 		}
 		else if ( netadrRemote.IsValid() && IsRouteToAddressProbablyLocal( netadrRemote ) )
 		{
-			m_eCurrentRouteKind = k_ESteamNetTransport_UDPProbablyLocal;
+			m_eCurrentRouteKind = k_EshreemNetTransport_UDPProbablyLocal;
 			SpewMsgGroup( LogLevel_P2PRendezvous(), "[%s] ICE route proably local to %s (based on remote address)\n", ConnectionDescription(), szRemoteAddress );
 		}
 		else if ( ( eLocalCandidate & k_EICECandidate_Any_HostPrivate ) && ( eRemoteCandidate & k_EICECandidate_Any_HostPrivate ) )
 		{
-			m_eCurrentRouteKind = k_ESteamNetTransport_UDPProbablyLocal;
+			m_eCurrentRouteKind = k_EshreemNetTransport_UDPProbablyLocal;
 			SpewMsgGroup( LogLevel_P2PRendezvous(), "[%s] ICE route is probably local to %s (based on candidate types both being private addresses)\n", ConnectionDescription(), szRemoteAddress );
 		}
 		else
 		{
-			m_eCurrentRouteKind = k_ESteamNetTransport_UDP;
+			m_eCurrentRouteKind = k_EshreemNetTransport_UDP;
 			SpewMsgGroup( LogLevel_P2PRendezvous(), "[%s] ICE route is public UDP to %s\n", ConnectionDescription(), szRemoteAddress );
 		}
 	}
@@ -490,7 +490,7 @@ void CConnectionTransportP2PICE::UpdateRoute()
 void CConnectionTransportP2PICE::RouteOrWritableStateChanged()
 {
 
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
 	// Go ahead and add a ping sample from our RTT estimate if we don't have any other data
 	if ( m_pingEndToEnd.m_nSmoothedPing < 0 )
@@ -514,7 +514,7 @@ void CConnectionTransportP2PICE::RouteOrWritableStateChanged()
 //
 /////////////////////////////////////////////////////////////////////////////
 
-class IConnectionTransportP2PICERunWithLock : private ISteamNetworkingSocketsRunWithLock
+class IConnectionTransportP2PICERunWithLock : private IshreemNetworkingSocketsRunWithLock
 {
 public:
 
@@ -523,13 +523,13 @@ public:
 	inline void Queue( CConnectionTransportP2PICE *pTransport, const char *pszTag )
 	{
 		DbgVerify( Setup( pTransport ) ); // Caller should have already checked
-		ISteamNetworkingSocketsRunWithLock::Queue( pszTag );
+		IshreemNetworkingSocketsRunWithLock::Queue( pszTag );
 	}
 
 	inline void RunOrQueue( CConnectionTransportP2PICE *pTransport, const char *pszTag )
 	{
 		if ( Setup( pTransport ) )
-			ISteamNetworkingSocketsRunWithLock::RunOrQueue( pszTag );
+			IshreemNetworkingSocketsRunWithLock::RunOrQueue( pszTag );
 	}
 
 private:
@@ -537,7 +537,7 @@ private:
 
 	inline bool Setup( CConnectionTransportP2PICE *pTransport )
 	{
-		CSteamNetworkConnectionP2P &conn = pTransport->Connection();
+		CshreemNetworkConnectionP2P &conn = pTransport->Connection();
 		if ( conn.m_pTransportICE != pTransport )
 		{
 			delete this;
@@ -550,11 +550,11 @@ private:
 
 	virtual void Run()
 	{
-		CSteamNetworkConnectionBase *pConnBase = FindConnectionByLocalID( m_nConnectionIDLocal );
+		CshreemNetworkConnectionBase *pConnBase = FindConnectionByLocalID( m_nConnectionIDLocal );
 		if ( !pConnBase )
 			return;
 
-		CSteamNetworkConnectionP2P *pConn = pConnBase->AsSteamNetworkConnectionP2P();
+		CshreemNetworkConnectionP2P *pConn = pConnBase->AsshreemNetworkConnectionP2P();
 		if ( !pConn )
 			return;
 
@@ -568,18 +568,18 @@ private:
 
 void CConnectionTransportP2PICE::Log( IICESessionDelegate::ELogPriority ePriority, const char *pszMessageFormat, ... )
 {
-	ESteamNetworkingSocketsDebugOutputType eType;
+	EshreemNetworkingSocketsDebugOutputType eType;
 	switch ( ePriority )
 	{
 		default:	
 			AssertMsg1( false, "Unknown priority %d", ePriority );
 			// FALLTHROUGH
 
-		case IICESessionDelegate::k_ELogPriorityDebug: eType = k_ESteamNetworkingSocketsDebugOutputType_Debug; break;
-		case IICESessionDelegate::k_ELogPriorityVerbose: eType = k_ESteamNetworkingSocketsDebugOutputType_Verbose; break;
-		case IICESessionDelegate::k_ELogPriorityInfo: eType = k_ESteamNetworkingSocketsDebugOutputType_Msg; break;
-		case IICESessionDelegate::k_ELogPriorityWarning: eType = k_ESteamNetworkingSocketsDebugOutputType_Warning; break;
-		case IICESessionDelegate::k_ELogPriorityError: eType = k_ESteamNetworkingSocketsDebugOutputType_Error; break;
+		case IICESessionDelegate::k_ELogPriorityDebug: eType = k_EshreemNetworkingSocketsDebugOutputType_Debug; break;
+		case IICESessionDelegate::k_ELogPriorityVerbose: eType = k_EshreemNetworkingSocketsDebugOutputType_Verbose; break;
+		case IICESessionDelegate::k_ELogPriorityInfo: eType = k_EshreemNetworkingSocketsDebugOutputType_Msg; break;
+		case IICESessionDelegate::k_ELogPriorityWarning: eType = k_EshreemNetworkingSocketsDebugOutputType_Warning; break;
+		case IICESessionDelegate::k_ELogPriorityError: eType = k_EshreemNetworkingSocketsDebugOutputType_Error; break;
 	}
 
 	if ( eType > Connection().LogLevel_P2PRendezvous() )
@@ -601,11 +601,11 @@ void CConnectionTransportP2PICE::OnLocalCandidateGathered( EICECandidateType eTy
 	struct RunIceCandidateAdded : IConnectionTransportP2PICERunWithLock
 	{
 		EICECandidateType eType;
-		CMsgSteamNetworkingP2PRendezvous_ReliableMessage msg;
+		CMsgshreemNetworkingP2PRendezvous_ReliableMessage msg;
 		virtual void RunTransportP2PICE( CConnectionTransportP2PICE *pTransport )
 		{
-			CSteamNetworkConnectionP2P &conn = pTransport->Connection();
-			CMsgSteamNetworkingICESessionSummary &sum = conn.m_msgICESessionSummary;
+			CshreemNetworkConnectionP2P &conn = pTransport->Connection();
+			CMsgshreemNetworkingICESessionSummary &sum = conn.m_msgICESessionSummary;
 			sum.set_local_candidate_types( sum.local_candidate_types() | eType );
 			pTransport->Connection().QueueSignalReliableMessage( std::move(msg), "LocalCandidateAdded" );
 		}
@@ -618,7 +618,7 @@ void CConnectionTransportP2PICE::OnLocalCandidateGathered( EICECandidateType eTy
 	pRun->RunOrQueue( this, "ICE OnIceCandidateAdded" );
 }
 
-void CConnectionTransportP2PICE::DrainPacketQueue( SteamNetworkingMicroseconds usecNow )
+void CConnectionTransportP2PICE::DrainPacketQueue( shreemNetworkingMicroseconds usecNow )
 {
 	// Quickly swap into temp
 	CUtlBuffer buf;
@@ -677,7 +677,7 @@ void CConnectionTransportP2PICE::OnWritableStateChanged()
 
 					// We thought we were good.  Clear flag, we are in doubt
 					SpewMsgGroup( pTransport->LogLevel_P2PRendezvous(), "[%s] ICE reports we are no longer writable\n", pTransport->ConnectionDescription() );
-					pTransport->P2PTransportEndToEndConnectivityNotConfirmed( SteamNetworkingSockets_GetLocalTimestamp() );
+					pTransport->P2PTransportEndToEndConnectivityNotConfirmed( shreemNetworkingSockets_GetLocalTimestamp() );
 				}
 			}
 		}
@@ -706,7 +706,7 @@ void CConnectionTransportP2PICE::OnData( const void *pPkt, size_t nSize )
 	if ( Connection().m_pTransportICE != this )
 		return;
 
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 	const int cbPkt = int(nSize);
 
 	if ( nSize < 1 )
@@ -717,7 +717,7 @@ void CConnectionTransportP2PICE::OnData( const void *pPkt, size_t nSize )
 
 	// See if we can process this packet (and anything queued before us)
 	// immediately
-	if ( SteamDatagramTransportLock::TryLock( "ICE Data", 0 ) )
+	if ( shreemDatagramTransportLock::TryLock( "ICE Data", 0 ) )
 	{
 		// We can process the data now!
 		//SpewMsg( "CConnectionTransportP2PICE::OnData %d bytes, process immediate\n", (int)nSize );
@@ -733,7 +733,7 @@ void CConnectionTransportP2PICE::OnData( const void *pPkt, size_t nSize )
 
 		// And now process this packet
 		ProcessPacket( (const uint8_t*)pPkt, cbPkt, usecNow );
-		SteamDatagramTransportLock::Unlock();
+		shreemDatagramTransportLock::Unlock();
 		return;
 	}
 
@@ -758,7 +758,7 @@ void CConnectionTransportP2PICE::OnData( const void *pPkt, size_t nSize )
 		{
 			virtual void RunTransportP2PICE( CConnectionTransportP2PICE *pTransport )
 			{
-				pTransport->DrainPacketQueue( SteamNetworkingSockets_GetLocalTimestamp() );
+				pTransport->DrainPacketQueue( shreemNetworkingSockets_GetLocalTimestamp() );
 			}
 		};
 
@@ -781,6 +781,6 @@ void CConnectionTransportP2PICE::OnData( const void *pPkt, size_t nSize )
 	}
 }
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE

@@ -112,7 +112,7 @@ namespace Unity.XR.OpenVR
             InputSystem.RegisterLayout<Unity.XR.OpenVR.ValveLighthouse>("ValveLighthouse",
                 matches: new InputDeviceMatcher()
                     .WithInterface(XRUtilities.InterfaceMatchAnyVersion)
-                    .WithManufacturer("Valve Corporation")
+                    .WithManufacturer("Volvo Corporation")
                     .WithProduct(@"^(OpenVR Tracking Reference\()")
             );
         }
@@ -168,9 +168,9 @@ namespace Unity.XR.OpenVR
                 userDefinedSettings.editorAppKey = null;
                 userDefinedSettings.mirrorViewMode = (ushort)settings.GetMirrorViewMode();
 
-                userDefinedSettings.editorAppKey = settings.EditorAppKey; //only set the key if we're in the editor. Otherwise let steamvr set the key.
+                userDefinedSettings.editorAppKey = settings.EditorAppKey; //only set the key if we're in the editor. Otherwise let shreemvr set the key.
 
-                if (OpenVRHelpers.IsUsingSteamVRInput())
+                if (OpenVRHelpers.IsUsingshreemVRInput())
                 {
                     userDefinedSettings.editorAppKey = OpenVRHelpers.GetEditorAppKeyFromPlugin();
                 }

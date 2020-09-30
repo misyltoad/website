@@ -1,4 +1,4 @@
-//====== Copyright 1996-2013, Valve Corporation, All rights reserved. ======//
+//====== Copyright 1996-2013, Volvo Corporation, All rights reserved. ======//
 //
 // Fundamental macros and defines.
 //

@@ -1,28 +1,28 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#include "csteamnetworkingsockets.h"
-#include "steamnetworkingsockets_lowlevel.h"
-#include "steamnetworkingsockets_connections.h"
-#include "steamnetworkingsockets_udp.h"
-#include "../steamnetworkingsockets_certstore.h"
+#include "cshreemnetworkingsockets.h"
+#include "shreemnetworkingsockets_lowlevel.h"
+#include "shreemnetworkingsockets_connections.h"
+#include "shreemnetworkingsockets_udp.h"
+#include "../shreemnetworkingsockets_certstore.h"
 #include "crypto.h"
 
-#ifdef STEAMNETWORKINGSOCKETS_STANDALONELIB
-#include <steam/steamnetworkingsockets.h>
+#ifdef shreemNETWORKINGSOCKETS_STANDALONELIB
+#include <shreem/shreemnetworkingsockets.h>
 #endif
 
-#ifdef STEAMNETWORKINGSOCKETS_HAS_DEFAULT_P2P_SIGNALING
-#include "csteamnetworkingmessages.h"
+#ifdef shreemNETWORKINGSOCKETS_HAS_DEFAULT_P2P_SIGNALING
+#include "cshreemnetworkingmessages.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ISteamNetworkingSockets::~ISteamNetworkingSockets() {}
-ISteamNetworkingUtils::~ISteamNetworkingUtils() {}
+IshreemNetworkingSockets::~IshreemNetworkingSockets() {}
+IshreemNetworkingUtils::~IshreemNetworkingUtils() {}
 
 // Put everything in a namespace, so we don't violate the one definition rule
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -43,7 +43,7 @@ DEFINE_GLOBAL_CONFIGVAL( int32, FakePacketDup_TimeMax, 10, 0, 5000 );
 DEFINE_GLOBAL_CONFIGVAL( int32, EnumerateDevVars, 0, 0, 1 );
 
 DEFINE_GLOBAL_CONFIGVAL( void *, Callback_AuthStatusChanged, nullptr );
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_STEAMNETWORKINGMESSAGES
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_shreemNETWORKINGMESSAGES
 DEFINE_GLOBAL_CONFIGVAL( void*, Callback_MessagesSessionRequest, nullptr );
 DEFINE_GLOBAL_CONFIGVAL( void*, Callback_MessagesSessionFailed, nullptr );
 #endif
@@ -54,8 +54,8 @@ DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, SendBufferSize, 512*1024, 0, 0x100000
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, SendRateMin, 128*1024, 1024, 0x10000000 );
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, SendRateMax, 1024*1024, 1024, 0x10000000 );
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, NagleTime, 5000, 0, 20000 );
-DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, MTU_PacketSize, 1300, k_cbSteamNetworkingSocketsMinMTUPacketSize, k_cbSteamNetworkingSocketsMaxUDPMsgLen );
-#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, MTU_PacketSize, 1300, k_cbshreemNetworkingSocketsMinMTUPacketSize, k_cbshreemNetworkingSocketsMaxUDPMsgLen );
+#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 	// We don't have a trusted third party, so allow this by default,
 	// and don't warn about it
 	DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, IP_AllowWithoutAuth, 2, 0, 2 );
@@ -65,29 +65,29 @@ DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, MTU_PacketSize, 1300, k_cbSteamNetwor
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, Unencrypted, 0, 0, 3 );
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, SymmetricConnect, 0, 0, 1 );
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LocalVirtualPort, -1, -1, 65535 );
-DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_AckRTT, k_ESteamNetworkingSocketsDebugOutputType_Warning, k_ESteamNetworkingSocketsDebugOutputType_Error, k_ESteamNetworkingSocketsDebugOutputType_Everything );
-DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_PacketDecode, k_ESteamNetworkingSocketsDebugOutputType_Warning, k_ESteamNetworkingSocketsDebugOutputType_Error, k_ESteamNetworkingSocketsDebugOutputType_Everything );
-DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_Message, k_ESteamNetworkingSocketsDebugOutputType_Warning, k_ESteamNetworkingSocketsDebugOutputType_Error, k_ESteamNetworkingSocketsDebugOutputType_Everything );
-DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_PacketGaps, k_ESteamNetworkingSocketsDebugOutputType_Warning, k_ESteamNetworkingSocketsDebugOutputType_Error, k_ESteamNetworkingSocketsDebugOutputType_Everything );
-DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_P2PRendezvous, k_ESteamNetworkingSocketsDebugOutputType_Warning, k_ESteamNetworkingSocketsDebugOutputType_Error, k_ESteamNetworkingSocketsDebugOutputType_Everything );
+DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_AckRTT, k_EshreemNetworkingSocketsDebugOutputType_Warning, k_EshreemNetworkingSocketsDebugOutputType_Error, k_EshreemNetworkingSocketsDebugOutputType_Everything );
+DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_PacketDecode, k_EshreemNetworkingSocketsDebugOutputType_Warning, k_EshreemNetworkingSocketsDebugOutputType_Error, k_EshreemNetworkingSocketsDebugOutputType_Everything );
+DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_Message, k_EshreemNetworkingSocketsDebugOutputType_Warning, k_EshreemNetworkingSocketsDebugOutputType_Error, k_EshreemNetworkingSocketsDebugOutputType_Everything );
+DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_PacketGaps, k_EshreemNetworkingSocketsDebugOutputType_Warning, k_EshreemNetworkingSocketsDebugOutputType_Error, k_EshreemNetworkingSocketsDebugOutputType_Everything );
+DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, LogLevel_P2PRendezvous, k_EshreemNetworkingSocketsDebugOutputType_Warning, k_EshreemNetworkingSocketsDebugOutputType_Error, k_EshreemNetworkingSocketsDebugOutputType_Everything );
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( void *, Callback_ConnectionStatusChanged, nullptr );
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( std::string, P2P_STUN_ServerList, "" );
 
-COMPILE_TIME_ASSERT( k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Default == -1 );
-COMPILE_TIME_ASSERT( k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Disable == 0 );
-#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+COMPILE_TIME_ASSERT( k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Default == -1 );
+COMPILE_TIME_ASSERT( k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Disable == 0 );
+#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 	// There is no such thing as "default" if we don't have some sort of platform
-	DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, P2P_Transport_ICE_Enable, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_All, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Disable, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_All );
+	DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, P2P_Transport_ICE_Enable, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_All, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Disable, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_All );
 #else
-	DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, P2P_Transport_ICE_Enable, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Default, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Default, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_All );
+	DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, P2P_Transport_ICE_Enable, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Default, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Default, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_All );
 #endif
 
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, P2P_Transport_ICE_Penalty, 0, 0, INT_MAX );
 #endif
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( std::string, SDRClient_DebugTicketAddress, "" );
 DEFINE_CONNECTON_DEFAULT_CONFIGVAL( int32, P2P_Transport_SDR_Penalty, 0, 0, INT_MAX );
 #endif
@@ -98,10 +98,10 @@ static std::vector<GlobalConfigValueEntry *> s_vecConfigValueTable; // Sorted by
 static std::vector<GlobalConfigValueEntry *> s_vecConnectionConfigValueTable; // Sorted by offset
 
 GlobalConfigValueEntry::GlobalConfigValueEntry(
-	ESteamNetworkingConfigValue eValue,
+	EshreemNetworkingConfigValue eValue,
 	const char *pszName,
-	ESteamNetworkingConfigDataType eDataType,
-	ESteamNetworkingConfigScope eScope,
+	EshreemNetworkingConfigDataType eDataType,
+	EshreemNetworkingConfigScope eScope,
 	int cbOffsetOf
 ) : m_eValue{ eValue }
 , m_pszName{ pszName }
@@ -119,14 +119,14 @@ static void EnsureConfigValueTableInitted()
 {
 	if ( s_bConfigValueTableInitted )
 		return;
-	SteamDatagramTransportLock scopeLock;
+	shreemDatagramTransportLock scopeLock;
 	if ( s_bConfigValueTableInitted )
 		return;
 
 	for ( GlobalConfigValueEntry *p = s_pFirstGlobalConfigEntry ; p ; p = p->m_pNextEntry )
 	{
 		s_vecConfigValueTable.push_back( p );
-		if ( p->m_eScope == k_ESteamNetworkingConfig_Connection )
+		if ( p->m_eScope == k_EshreemNetworkingConfig_Connection )
 			s_vecConnectionConfigValueTable.push_back( p );
 	}
 
@@ -152,7 +152,7 @@ static void EnsureConfigValueTableInitted()
 	s_bConfigValueTableInitted = true;
 }
 
-static GlobalConfigValueEntry *FindConfigValueEntry( ESteamNetworkingConfigValue eSearchVal )
+static GlobalConfigValueEntry *FindConfigValueEntry( EshreemNetworkingConfigValue eSearchVal )
 {
 	EnsureConfigValueTableInitted();
 
@@ -201,41 +201,41 @@ void ConnectionConfig::Init( ConnectionConfig *pInherit )
 //
 /////////////////////////////////////////////////////////////////////////////
 
-CUtlHashMap<uint16, CSteamNetworkConnectionBase *, std::equal_to<uint16>, Identity<uint16> > g_mapConnections;
-CUtlHashMap<int, CSteamNetworkListenSocketBase *, std::equal_to<int>, Identity<int> > g_mapListenSockets;
-CUtlHashMap<int, CSteamNetworkPollGroup *, std::equal_to<int>, Identity<int> > g_mapPollGroups;
+CUtlHashMap<uint16, CshreemNetworkConnectionBase *, std::equal_to<uint16>, Identity<uint16> > g_mapConnections;
+CUtlHashMap<int, CshreemNetworkListenSocketBase *, std::equal_to<int>, Identity<int> > g_mapListenSockets;
+CUtlHashMap<int, CshreemNetworkPollGroup *, std::equal_to<int>, Identity<int> > g_mapPollGroups;
 
-static bool BConnectionStateExistsToAPI( ESteamNetworkingConnectionState eState )
+static bool BConnectionStateExistsToAPI( EshreemNetworkingConnectionState eState )
 {
 	switch ( eState )
 	{
 		default:
 			Assert( false );
 			return false;
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
 			return false;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_Connected:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 			return true;
 	}
 
 }
 
-CSteamNetworkConnectionBase *GetConnectionByHandle( HSteamNetConnection sock )
+CshreemNetworkConnectionBase *GetConnectionByHandle( HshreemNetConnection sock )
 {
 	if ( sock == 0 )
 		return nullptr;
 	int idx = g_mapConnections.Find( uint16( sock ) );
 	if ( idx == g_mapConnections.InvalidIndex() )
 		return nullptr;
-	CSteamNetworkConnectionBase *pResult = g_mapConnections[ idx ];
+	CshreemNetworkConnectionBase *pResult = g_mapConnections[ idx ];
 	if ( !pResult || uint16( pResult->m_hConnectionSelf ) != uint16( sock ) )
 	{
 		AssertMsg( false, "g_mapConnections corruption!" );
@@ -246,9 +246,9 @@ CSteamNetworkConnectionBase *GetConnectionByHandle( HSteamNetConnection sock )
 	return pResult;
 }
 
-static CSteamNetworkConnectionBase *GetConnectionByHandleForAPI( HSteamNetConnection sock )
+static CshreemNetworkConnectionBase *GetConnectionByHandleForAPI( HshreemNetConnection sock )
 {
-	CSteamNetworkConnectionBase *pResult = GetConnectionByHandle( sock );
+	CshreemNetworkConnectionBase *pResult = GetConnectionByHandle( sock );
 	if ( !pResult )
 		return nullptr;
 	if ( !BConnectionStateExistsToAPI( pResult->GetState() ) )
@@ -256,15 +256,15 @@ static CSteamNetworkConnectionBase *GetConnectionByHandleForAPI( HSteamNetConnec
 	return pResult;
 }
 
-static CSteamNetworkListenSocketBase *GetListenSocketByHandle( HSteamListenSocket sock )
+static CshreemNetworkListenSocketBase *GetListenSocketByHandle( HshreemListenSocket sock )
 {
-	if ( sock == k_HSteamListenSocket_Invalid )
+	if ( sock == k_HshreemListenSocket_Invalid )
 		return nullptr;
 	AssertMsg( !(sock & 0x80000000), "A poll group handle was used where a listen socket handle was expected" );
 	int idx = sock & 0xffff;
 	if ( !g_mapListenSockets.IsValidIndex( idx ) )
 		return nullptr;
-	CSteamNetworkListenSocketBase *pResult = g_mapListenSockets[ idx ];
+	CshreemNetworkListenSocketBase *pResult = g_mapListenSockets[ idx ];
 	if ( pResult->m_hListenSocketSelf != sock )
 	{
 		// Slot was reused, but this handle is now invalid
@@ -273,15 +273,15 @@ static CSteamNetworkListenSocketBase *GetListenSocketByHandle( HSteamListenSocke
 	return pResult;
 }
 
-CSteamNetworkPollGroup *GetPollGroupByHandle( HSteamNetPollGroup hPollGroup )
+CshreemNetworkPollGroup *GetPollGroupByHandle( HshreemNetPollGroup hPollGroup )
 {
-	if ( hPollGroup == k_HSteamNetPollGroup_Invalid )
+	if ( hPollGroup == k_HshreemNetPollGroup_Invalid )
 		return nullptr;
 	AssertMsg( (hPollGroup & 0x80000000), "A listen socket handle was used where a poll group handle was expected" );
 	int idx = hPollGroup & 0xffff;
 	if ( !g_mapPollGroups.IsValidIndex( idx ) )
 		return nullptr;
-	CSteamNetworkPollGroup *pResult = g_mapPollGroups[ idx ];
+	CshreemNetworkPollGroup *pResult = g_mapPollGroups[ idx ];
 	if ( pResult->m_hPollGroupSelf != hPollGroup )
 	{
 		// Slot was reused, but this handle is now invalid
@@ -292,43 +292,43 @@ CSteamNetworkPollGroup *GetPollGroupByHandle( HSteamNetPollGroup hPollGroup )
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// CSteamSocketNetworkingBase
+// CshreemSocketNetworkingBase
 //
 /////////////////////////////////////////////////////////////////////////////
 
-std::vector<CSteamNetworkingSockets *> CSteamNetworkingSockets::s_vecSteamNetworkingSocketsInstances;
+std::vector<CshreemNetworkingSockets *> CshreemNetworkingSockets::s_vecshreemNetworkingSocketsInstances;
 
-CSteamNetworkingSockets::CSteamNetworkingSockets( CSteamNetworkingUtils *pSteamNetworkingUtils )
+CshreemNetworkingSockets::CshreemNetworkingSockets( CshreemNetworkingUtils *pshreemNetworkingUtils )
 : m_bHaveLowLevelRef( false )
-, m_pSteamNetworkingUtils( pSteamNetworkingUtils )
-, m_pSteamNetworkingMessages( nullptr )
+, m_pshreemNetworkingUtils( pshreemNetworkingUtils )
+, m_pshreemNetworkingMessages( nullptr )
 , m_bEverTriedToGetCert( false )
 , m_bEverGotCert( false )
-#ifdef STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
-, m_scheduleCheckRenewCert( this, &CSteamNetworkingSockets::CheckAuthenticationPrerequisites )
+#ifdef shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
+, m_scheduleCheckRenewCert( this, &CshreemNetworkingSockets::CheckAuthenticationPrerequisites )
 #endif
 {
 	m_connectionConfig.Init( nullptr );
 	m_identity.Clear();
 
-	#ifdef STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
-		m_CertStatus.m_eAvail = k_ESteamNetworkingAvailability_NeverTried;
+	#ifdef shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
+		m_CertStatus.m_eAvail = k_EshreemNetworkingAvailability_NeverTried;
 		m_CertStatus.m_debugMsg[0] = '\0';
 	#else
-		m_CertStatus.m_eAvail = k_ESteamNetworkingAvailability_CannotTry;
+		m_CertStatus.m_eAvail = k_EshreemNetworkingAvailability_CannotTry;
 		V_strcpy_safe( m_CertStatus.m_debugMsg, "No certificate authority" );
 	#endif
 	m_AuthenticationStatus = m_CertStatus;
 }
 
-CSteamNetworkingSockets::~CSteamNetworkingSockets()
+CshreemNetworkingSockets::~CshreemNetworkingSockets()
 {
-	SteamDatagramTransportLock::AssertHeldByCurrentThread();
+	shreemDatagramTransportLock::AssertHeldByCurrentThread();
 	Assert( !m_bHaveLowLevelRef ); // Called destructor directly?  Use Destroy()!
 }
 
-#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
-bool CSteamNetworkingSockets::BInitGameNetworkingSockets( const SteamNetworkingIdentity *pIdentity, SteamDatagramErrMsg &errMsg )
+#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
+bool CshreemNetworkingSockets::BInitGameNetworkingSockets( const shreemNetworkingIdentity *pIdentity, shreemDatagramErrMsg &errMsg )
 {
 	AssertMsg( !m_bHaveLowLevelRef, "Initted interface twice?" );
 
@@ -345,37 +345,37 @@ bool CSteamNetworkingSockets::BInitGameNetworkingSockets( const SteamNetworkingI
 }
 #endif
 
-bool CSteamNetworkingSockets::BInitLowLevel( SteamNetworkingErrMsg &errMsg )
+bool CshreemNetworkingSockets::BInitLowLevel( shreemNetworkingErrMsg &errMsg )
 {
 	if ( m_bHaveLowLevelRef )
 		return true;
-	if ( !BSteamNetworkingSocketsLowLevelAddRef( errMsg) )
+	if ( !BshreemNetworkingSocketsLowLevelAddRef( errMsg) )
 		return false;
 
 	// Add us to list of extant instances only after we have done some initialization
-	if ( !has_element( s_vecSteamNetworkingSocketsInstances, this ) )
-		s_vecSteamNetworkingSocketsInstances.push_back( this );
+	if ( !has_element( s_vecshreemNetworkingSocketsInstances, this ) )
+		s_vecshreemNetworkingSocketsInstances.push_back( this );
 
 	m_bHaveLowLevelRef = true;
 	return true;
 }
 
-void CSteamNetworkingSockets::KillConnections()
+void CshreemNetworkingSockets::KillConnections()
 {
-	SteamDatagramTransportLock::AssertHeldByCurrentThread( "CSteamNetworkingSockets::KillConnections" );
+	shreemDatagramTransportLock::AssertHeldByCurrentThread( "CshreemNetworkingSockets::KillConnections" );
 
 	// Warn messages interface that it needs to clean up.  We need to do this
 	// because that class has pointers to objects that we are about to destroy.
-	#ifdef STEAMNETWORKINGSOCKETS_ENABLE_STEAMNETWORKINGMESSAGES
-		if ( m_pSteamNetworkingMessages )
-			m_pSteamNetworkingMessages->FreeResources();
+	#ifdef shreemNETWORKINGSOCKETS_ENABLE_shreemNETWORKINGMESSAGES
+		if ( m_pshreemNetworkingMessages )
+			m_pshreemNetworkingMessages->FreeResources();
 	#endif
 
 	// Destroy all of my connections
 	FOR_EACH_HASHMAP( g_mapConnections, idx )
 	{
-		CSteamNetworkConnectionBase *pConn = g_mapConnections[idx];
-		if ( pConn->m_pSteamNetworkingSocketsInterface == this )
+		CshreemNetworkConnectionBase *pConn = g_mapConnections[idx];
+		if ( pConn->m_pshreemNetworkingSocketsInterface == this )
 		{
 			pConn->ConnectionDestroySelfNow();
 			Assert( !g_mapConnections.IsValidIndex( idx ) );
@@ -385,8 +385,8 @@ void CSteamNetworkingSockets::KillConnections()
 	// Destroy all of my listen sockets
 	FOR_EACH_HASHMAP( g_mapListenSockets, idx )
 	{
-		CSteamNetworkListenSocketBase *pSock = g_mapListenSockets[idx];
-		if ( pSock->m_pSteamNetworkingSocketsInterface == this )
+		CshreemNetworkListenSocketBase *pSock = g_mapListenSockets[idx];
+		if ( pSock->m_pshreemNetworkingSocketsInterface == this )
 		{
 			DbgVerify( CloseListenSocket( pSock->m_hListenSocketSelf ) );
 			Assert( !g_mapListenSockets.IsValidIndex( idx ) );
@@ -396,8 +396,8 @@ void CSteamNetworkingSockets::KillConnections()
 	// Destroy all of my poll groups
 	FOR_EACH_HASHMAP( g_mapPollGroups, idx )
 	{
-		CSteamNetworkPollGroup *pPollGroup = g_mapPollGroups[idx];
-		if ( pPollGroup->m_pSteamNetworkingSocketsInterface == this )
+		CshreemNetworkPollGroup *pPollGroup = g_mapPollGroups[idx];
+		if ( pPollGroup->m_pshreemNetworkingSocketsInterface == this )
 		{
 			DbgVerify( DestroyPollGroup( pPollGroup->m_hPollGroupSelf ) );
 			Assert( !g_mapPollGroups.IsValidIndex( idx ) );
@@ -406,29 +406,29 @@ void CSteamNetworkingSockets::KillConnections()
 
 }
 
-void CSteamNetworkingSockets::Destroy()
+void CshreemNetworkingSockets::Destroy()
 {
-	SteamDatagramTransportLock::AssertHeldByCurrentThread( "CSteamNetworkingSockets::Destroy" );
+	shreemDatagramTransportLock::AssertHeldByCurrentThread( "CshreemNetworkingSockets::Destroy" );
 
 	FreeResources();
 
 	// Nuke messages interface, if we had one.
-	#ifdef STEAMNETWORKINGSOCKETS_ENABLE_STEAMNETWORKINGMESSAGES
-		if ( m_pSteamNetworkingMessages )
+	#ifdef shreemNETWORKINGSOCKETS_ENABLE_shreemNETWORKINGMESSAGES
+		if ( m_pshreemNetworkingMessages )
 		{
-			delete m_pSteamNetworkingMessages;
-			Assert( m_pSteamNetworkingMessages == nullptr ); // Destructor should sever this link
-			m_pSteamNetworkingMessages = nullptr; // Buuuuut we'll slam it, too, in case there's a bug
+			delete m_pshreemNetworkingMessages;
+			Assert( m_pshreemNetworkingMessages == nullptr ); // Destructor should sever this link
+			m_pshreemNetworkingMessages = nullptr; // Buuuuut we'll slam it, too, in case there's a bug
 		}
 	#endif
 
 	// Remove from list of extant instances, if we are there
-	find_and_remove_element( s_vecSteamNetworkingSocketsInstances, this );
+	find_and_remove_element( s_vecshreemNetworkingSocketsInstances, this );
 
 	delete this;
 }
 
-void CSteamNetworkingSockets::FreeResources()
+void CshreemNetworkingSockets::FreeResources()
 {
 
 	KillConnections();
@@ -444,40 +444,40 @@ void CSteamNetworkingSockets::FreeResources()
 	if ( m_bHaveLowLevelRef )
 	{
 		m_bHaveLowLevelRef = false;
-		SteamNetworkingSocketsLowLevelDecRef();
+		shreemNetworkingSocketsLowLevelDecRef();
 	}
 }
 
-bool CSteamNetworkingSockets::BHasAnyConnections() const
+bool CshreemNetworkingSockets::BHasAnyConnections() const
 {
-	for ( CSteamNetworkConnectionBase *pConn: g_mapConnections.IterValues() )
+	for ( CshreemNetworkConnectionBase *pConn: g_mapConnections.IterValues() )
 	{
-		if ( pConn->m_pSteamNetworkingSocketsInterface == this )
+		if ( pConn->m_pshreemNetworkingSocketsInterface == this )
 			return true;
 	}
 	return false;
 }
 
-bool CSteamNetworkingSockets::BHasAnyListenSockets() const
+bool CshreemNetworkingSockets::BHasAnyListenSockets() const
 {
-	for ( CSteamNetworkListenSocketBase *pSock: g_mapListenSockets.IterValues() )
+	for ( CshreemNetworkListenSocketBase *pSock: g_mapListenSockets.IterValues() )
 	{
-		if ( pSock->m_pSteamNetworkingSocketsInterface == this )
+		if ( pSock->m_pshreemNetworkingSocketsInterface == this )
 			return true;
 	}
 	return false;
 }
 
-bool CSteamNetworkingSockets::GetIdentity( SteamNetworkingIdentity *pIdentity )
+bool CshreemNetworkingSockets::GetIdentity( shreemNetworkingIdentity *pIdentity )
 {
-	SteamDatagramTransportLock scopeLock( "GetIdentity" );
+	shreemDatagramTransportLock scopeLock( "GetIdentity" );
 	InternalGetIdentity();
 	if ( pIdentity )
 		*pIdentity = m_identity;
 	return !m_identity.IsInvalid();
 }
 
-int CSteamNetworkingSockets::GetSecondsUntilCertExpiry() const
+int CshreemNetworkingSockets::GetSecondsUntilCertExpiry() const
 {
 	if ( !m_msgSignedCert.has_cert() )
 		return INT_MIN;
@@ -486,13 +486,13 @@ int CSteamNetworkingSockets::GetSecondsUntilCertExpiry() const
 	Assert( m_msgCert.has_key_data() );
 	Assert( m_msgCert.has_time_expiry() ); // We should never generate keys without an expiry!
 
-	int nSeconduntilExpiry = (long)m_msgCert.time_expiry() - (long)m_pSteamNetworkingUtils->GetTimeSecure();
+	int nSeconduntilExpiry = (long)m_msgCert.time_expiry() - (long)m_pshreemNetworkingUtils->GetTimeSecure();
 	return nSeconduntilExpiry;
 }
 
-bool CSteamNetworkingSockets::GetCertificateRequest( int *pcbBlob, void *pBlob, SteamNetworkingErrMsg &errMsg )
+bool CshreemNetworkingSockets::GetCertificateRequest( int *pcbBlob, void *pBlob, shreemNetworkingErrMsg &errMsg )
 {
-	SteamDatagramTransportLock scopeLock( "GetCertificateRequest" );
+	shreemDatagramTransportLock scopeLock( "GetCertificateRequest" );
 
 	// If we don't have a private key, generate one now.
 	CECSigningPublicKey pubKey;
@@ -506,18 +506,18 @@ bool CSteamNetworkingSockets::GetCertificateRequest( int *pcbBlob, void *pBlob, 
 	}
 
 	// Fill out the request
-	CMsgSteamDatagramCertificateRequest msgRequest;
-	CMsgSteamDatagramCertificate &msgCert =*msgRequest.mutable_cert();
+	CMsgshreemDatagramCertificateRequest msgRequest;
+	CMsgshreemDatagramCertificate &msgCert =*msgRequest.mutable_cert();
 
 	// Our public key
-	msgCert.set_key_type( CMsgSteamDatagramCertificate_EKeyType_ED25519 );
+	msgCert.set_key_type( CMsgshreemDatagramCertificate_EKeyType_ED25519 );
 	DbgVerify( pubKey.GetRawDataAsStdString( msgCert.mutable_key_data() ) );
 
 	// Our identity, if we know it
 	InternalGetIdentity();
 	if ( !m_identity.IsInvalid() && !m_identity.IsLocalHost() )
 	{
-		SteamNetworkingIdentityToProtobuf( m_identity, msgCert, identity_string, legacy_identity_binary, legacy_steam_id );
+		shreemNetworkingIdentityToProtobuf( m_identity, msgCert, identity_string, legacy_identity_binary, legacy_shreem_id );
 	}
 
 	// Check size
@@ -540,22 +540,22 @@ bool CSteamNetworkingSockets::GetCertificateRequest( int *pcbBlob, void *pBlob, 
 	return true;
 }
 
-bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCertificate, SteamNetworkingErrMsg &errMsg )
+bool CshreemNetworkingSockets::SetCertificate( const void *pCertificate, int cbCertificate, shreemNetworkingErrMsg &errMsg )
 {
 	// Crack the blob
-	CMsgSteamDatagramCertificateSigned msgCertSigned;
+	CMsgshreemDatagramCertificateSigned msgCertSigned;
 	if ( !msgCertSigned.ParseFromArray( pCertificate, cbCertificate ) )
 	{
-		V_strcpy_safe( errMsg, "CMsgSteamDatagramCertificateSigned failed protobuf parse" );
+		V_strcpy_safe( errMsg, "CMsgshreemDatagramCertificateSigned failed protobuf parse" );
 		return false;
 	}
 
-	SteamDatagramTransportLock scopeLock( "SetCertificate" );
+	shreemDatagramTransportLock scopeLock( "SetCertificate" );
 
 	// Crack the cert, and check the signature.  If *we* aren't even willing
 	// to trust it, assume that our peers won't either
-	CMsgSteamDatagramCertificate msgCert;
-	time_t authTime = m_pSteamNetworkingUtils->GetTimeSecure();
+	CMsgshreemDatagramCertificate msgCert;
+	time_t authTime = m_pshreemNetworkingUtils->GetTimeSecure();
 	const CertAuthScope *pAuthScope = CertStore_CheckCert( msgCertSigned, msgCert, authTime, errMsg );
 	if ( !pAuthScope )
 	{
@@ -563,9 +563,9 @@ bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCe
 	}
 
 	// Extract the identity from the cert
-	SteamNetworkingErrMsg tempErrMsg;
-	SteamNetworkingIdentity certIdentity;
-	int r = SteamNetworkingIdentityFromCert( certIdentity, msgCert, tempErrMsg );
+	shreemNetworkingErrMsg tempErrMsg;
+	shreemNetworkingIdentity certIdentity;
+	int r = shreemNetworkingIdentityFromCert( certIdentity, msgCert, tempErrMsg );
 	if ( r < 0 )
 	{
 		V_sprintf_safe( errMsg, "Cert has invalid identity.  %s", tempErrMsg );
@@ -573,7 +573,7 @@ bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCe
 	}
 
 	// We currently only support one key type
-	if ( msgCert.key_type() != CMsgSteamDatagramCertificate_EKeyType_ED25519 || msgCert.key_data().size() != 32 )
+	if ( msgCert.key_type() != CMsgshreemDatagramCertificate_EKeyType_ED25519 || msgCert.key_data().size() != 32 )
 	{
 		V_strcpy_safe( errMsg, "Cert has invalid public key" );
 		return false;
@@ -624,7 +624,7 @@ bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCe
 	}
 
 	// Make sure the cert authorizes us for the App we think we are running
-	AppId_t nAppID = m_pSteamNetworkingUtils->GetAppID();
+	AppId_t nAppID = m_pshreemNetworkingUtils->GetAppID();
 	if ( !CheckCertAppID( msgCert, pAuthScope, nAppID, tempErrMsg ) )
 	{
 		V_sprintf_safe( errMsg, "Cert does not authorize us for App %u", nAppID );
@@ -636,11 +636,11 @@ bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCe
 	if ( m_identity.IsInvalid() || m_identity.IsLocalHost() )
 	{
 		m_identity = certIdentity;
-		SpewMsg( "Local identity established from certificate.  We are '%s'\n", SteamNetworkingIdentityRender( m_identity ).c_str() );
+		SpewMsg( "Local identity established from certificate.  We are '%s'\n", shreemNetworkingIdentityRender( m_identity ).c_str() );
 	}
 	else if ( !( m_identity == certIdentity ) )
 	{
-		V_sprintf_safe( errMsg, "Cert is for identity '%s'.  We are '%s'", SteamNetworkingIdentityRender( certIdentity ).c_str(), SteamNetworkingIdentityRender( m_identity ).c_str() );
+		V_sprintf_safe( errMsg, "Cert is for identity '%s'.  We are '%s'", shreemNetworkingIdentityRender( certIdentity ).c_str(), shreemNetworkingIdentityRender( m_identity ).c_str() );
 		return false;
 	}
 
@@ -651,7 +651,7 @@ bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCe
 	AssertMsg( GetSecondsUntilCertExpiry() > 0, "Cert already invalid / expired?" );
 
 	// We've got a valid cert
-	SetCertStatus( k_ESteamNetworkingAvailability_Current, "OK" );
+	SetCertStatus( k_EshreemNetworkingAvailability_Current, "OK" );
 
 	// Make sure we have everything else we need to do authentication.
 	// This will also make sure we have renewal scheduled
@@ -661,9 +661,9 @@ bool CSteamNetworkingSockets::SetCertificate( const void *pCertificate, int cbCe
 	return true;
 }
 
-ESteamNetworkingAvailability CSteamNetworkingSockets::InitAuthentication()
+EshreemNetworkingAvailability CshreemNetworkingSockets::InitAuthentication()
 {
-	SteamDatagramTransportLock scopeLock( "InitAuthentication" );
+	shreemDatagramTransportLock scopeLock( "InitAuthentication" );
 
 	// Check/fetch prerequisites
 	AuthenticationNeeded();
@@ -672,16 +672,16 @@ ESteamNetworkingAvailability CSteamNetworkingSockets::InitAuthentication()
 	return m_AuthenticationStatus.m_eAvail;
 }
 
-void CSteamNetworkingSockets::CheckAuthenticationPrerequisites( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkingSockets::CheckAuthenticationPrerequisites( shreemNetworkingMicroseconds usecNow )
 {
-#ifdef STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
+#ifdef shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
 	// Check if we're in flight already.
 	bool bInFlight = BCertRequestInFlight();
 
 	// Do we already have a cert?
 	if ( m_msgSignedCert.has_cert() )
 	{
-		//Assert( m_CertStatus.m_eAvail == k_ESteamNetworkingAvailability_Current );
+		//Assert( m_CertStatus.m_eAvail == k_EshreemNetworkingAvailability_Current );
 
 		// How much more life does it have in it?
 		int nSeconduntilExpiry = GetSecondsUntilCertExpiry();
@@ -695,7 +695,7 @@ void CSteamNetworkingSockets::CheckAuthenticationPrerequisites( SteamNetworkingM
 			m_keyPrivateKey.Wipe();
 
 			// Update cert status
-			SetCertStatus( k_ESteamNetworkingAvailability_Previously, "Expired" );
+			SetCertStatus( k_EshreemNetworkingAvailability_Previously, "Expired" );
 		}
 		else
 		{
@@ -705,11 +705,11 @@ void CSteamNetworkingSockets::CheckAuthenticationPrerequisites( SteamNetworkingM
 				return;
 
 			// Check if it's time to renew
-			SteamNetworkingMicroseconds usecTargetRenew = usecNow + ( nSeconduntilExpiry - k_nSecCertExpirySeekRenew ) * k_nMillion;
+			shreemNetworkingMicroseconds usecTargetRenew = usecNow + ( nSeconduntilExpiry - k_nSecCertExpirySeekRenew ) * k_nMillion;
 			if ( usecTargetRenew > usecNow )
 			{
-				SteamNetworkingMicroseconds usecScheduledRenew = m_scheduleCheckRenewCert.GetScheduleTime();
-				SteamNetworkingMicroseconds usecLatestRenew = usecTargetRenew + 4*k_nMillion;
+				shreemNetworkingMicroseconds usecScheduledRenew = m_scheduleCheckRenewCert.GetScheduleTime();
+				shreemNetworkingMicroseconds usecLatestRenew = usecTargetRenew + 4*k_nMillion;
 				if ( usecScheduledRenew <= usecLatestRenew )
 				{
 					// Currently scheduled time is good enough.  Don't constantly update the schedule time,
@@ -737,7 +737,7 @@ void CSteamNetworkingSockets::CheckAuthenticationPrerequisites( SteamNetworkingM
 #endif
 }
 
-void CSteamNetworkingSockets::SetCertStatus( ESteamNetworkingAvailability eAvail, const char *pszFmt, ... )
+void CshreemNetworkingSockets::SetCertStatus( EshreemNetworkingAvailability eAvail, const char *pszFmt, ... )
 {
 	char msg[ sizeof(m_CertStatus.m_debugMsg) ];
 	va_list ap;
@@ -746,14 +746,14 @@ void CSteamNetworkingSockets::SetCertStatus( ESteamNetworkingAvailability eAvail
 	va_end( ap );
 
 	// Mark success or an attempt
-	if ( eAvail == k_ESteamNetworkingAvailability_Current )
+	if ( eAvail == k_EshreemNetworkingAvailability_Current )
 		m_bEverGotCert = true;
-	if ( eAvail == k_ESteamNetworkingAvailability_Attempting || eAvail == k_ESteamNetworkingAvailability_Retrying )
+	if ( eAvail == k_EshreemNetworkingAvailability_Attempting || eAvail == k_EshreemNetworkingAvailability_Retrying )
 		m_bEverTriedToGetCert = true;
 
 	// If we failed, but we previously succeeded, convert to "previously"
-	if ( eAvail == k_ESteamNetworkingAvailability_Failed && m_bEverGotCert )
-		eAvail = k_ESteamNetworkingAvailability_Previously;
+	if ( eAvail == k_EshreemNetworkingAvailability_Failed && m_bEverGotCert )
+		eAvail = k_EshreemNetworkingAvailability_Previously;
 
 	// No change?
 	if ( m_CertStatus.m_eAvail == eAvail && V_stricmp( m_CertStatus.m_debugMsg, msg ) == 0 )
@@ -767,14 +767,14 @@ void CSteamNetworkingSockets::SetCertStatus( ESteamNetworkingAvailability eAvail
 	DeduceAuthenticationStatus();
 }
 
-void CSteamNetworkingSockets::DeduceAuthenticationStatus()
+void CshreemNetworkingSockets::DeduceAuthenticationStatus()
 {
 	// For the base class, the overall authentication status is identical to the status of
 	// our cert.  (Derived classes may add additional criteria)
 	SetAuthenticationStatus( m_CertStatus );
 }
 
-void CSteamNetworkingSockets::SetAuthenticationStatus( const SteamNetAuthenticationStatus_t &newStatus )
+void CshreemNetworkingSockets::SetAuthenticationStatus( const shreemNetAuthenticationStatus_t &newStatus )
 {
 
 	// No change?
@@ -794,36 +794,36 @@ void CSteamNetworkingSockets::SetAuthenticationStatus( const SteamNetAuthenticat
 	{
 		// Spew
 		SpewMsg( "AuthStatus (%s):  %s  (%s)",
-			SteamNetworkingIdentityRender( m_identity ).c_str(),
+			shreemNetworkingIdentityRender( m_identity ).c_str(),
 			GetAvailabilityString( m_AuthenticationStatus.m_eAvail ), m_AuthenticationStatus.m_debugMsg );
 
 		QueueCallback( m_AuthenticationStatus, g_Config_Callback_AuthStatusChanged.Get() );
 	}
 }
 
-#ifdef STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
-void CSteamNetworkingSockets::AsyncCertRequestFinished()
+#ifdef shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
+void CshreemNetworkingSockets::AsyncCertRequestFinished()
 {
 	Assert( m_msgSignedCert.has_cert() );
-	SetCertStatus( k_ESteamNetworkingAvailability_Current, "OK" );
+	SetCertStatus( k_EshreemNetworkingAvailability_Current, "OK" );
 
 	// Check for any connections that we own that are waiting on a cert
-	for ( CSteamNetworkConnectionBase *pConn: g_mapConnections.IterValues() )
+	for ( CshreemNetworkConnectionBase *pConn: g_mapConnections.IterValues() )
 	{
-		if ( pConn->m_pSteamNetworkingSocketsInterface == this )
+		if ( pConn->m_pshreemNetworkingSocketsInterface == this )
 			pConn->InterfaceGotCert();
 	}
 }
 
-void CSteamNetworkingSockets::CertRequestFailed( ESteamNetworkingAvailability eCertAvail, ESteamNetConnectionEnd nConnectionEndReason, const char *pszMsg )
+void CshreemNetworkingSockets::CertRequestFailed( EshreemNetworkingAvailability eCertAvail, EshreemNetConnectionEnd nConnectionEndReason, const char *pszMsg )
 {
-	SpewWarning( "Cert request for %s failed with reason code %d.  %s\n", SteamNetworkingIdentityRender( InternalGetIdentity() ).c_str(), nConnectionEndReason, pszMsg );
+	SpewWarning( "Cert request for %s failed with reason code %d.  %s\n", shreemNetworkingIdentityRender( InternalGetIdentity() ).c_str(), nConnectionEndReason, pszMsg );
 
 	// Schedule a retry.  Note that if we have active connections that need for a cert,
 	// we may end up retrying sooner.  If we don't have any active connections, spamming
 	// retries way too frequently may be really bad; we might end up DoS-ing ourselves.
 	// Do we need to make this configurable?
-	m_scheduleCheckRenewCert.Schedule( SteamNetworkingSockets_GetLocalTimestamp() + k_nMillion*30 );
+	m_scheduleCheckRenewCert.Schedule( shreemNetworkingSockets_GetLocalTimestamp() + k_nMillion*30 );
 
 	if ( m_msgSignedCert.has_cert() )
 	{
@@ -835,9 +835,9 @@ void CSteamNetworkingSockets::CertRequestFailed( ESteamNetworkingAvailability eC
 	// Set generic cert status, so we will post a callback
 	SetCertStatus( eCertAvail, "%s", pszMsg );
 
-	for ( CSteamNetworkConnectionBase *pConn: g_mapConnections.IterValues() )
+	for ( CshreemNetworkConnectionBase *pConn: g_mapConnections.IterValues() )
 	{
-		if ( pConn->m_pSteamNetworkingSocketsInterface == this )
+		if ( pConn->m_pshreemNetworkingSocketsInterface == this )
 			pConn->CertRequestFailed( nConnectionEndReason, pszMsg );
 	}
 
@@ -845,9 +845,9 @@ void CSteamNetworkingSockets::CertRequestFailed( ESteamNetworkingAvailability eC
 }
 #endif
 
-ESteamNetworkingAvailability CSteamNetworkingSockets::GetAuthenticationStatus( SteamNetAuthenticationStatus_t *pDetails )
+EshreemNetworkingAvailability CshreemNetworkingSockets::GetAuthenticationStatus( shreemNetAuthenticationStatus_t *pDetails )
 {
-	SteamDatagramTransportLock scopeLock;
+	shreemDatagramTransportLock scopeLock;
 
 	// Return details, if requested
 	if ( pDetails )
@@ -857,46 +857,46 @@ ESteamNetworkingAvailability CSteamNetworkingSockets::GetAuthenticationStatus( S
 	return m_AuthenticationStatus.m_eAvail;
 }
 
-HSteamListenSocket CSteamNetworkingSockets::CreateListenSocketIP( const SteamNetworkingIPAddr &localAddr, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+HshreemListenSocket CshreemNetworkingSockets::CreateListenSocketIP( const shreemNetworkingIPAddr &localAddr, int nOptions, const shreemNetworkingConfigValue_t *pOptions )
 {
-	SteamDatagramTransportLock scopeLock( "CreateListenSocketIP" );
-	SteamDatagramErrMsg errMsg;
+	shreemDatagramTransportLock scopeLock( "CreateListenSocketIP" );
+	shreemDatagramErrMsg errMsg;
 
-	CSteamNetworkListenSocketDirectUDP *pSock = new CSteamNetworkListenSocketDirectUDP( this );
+	CshreemNetworkListenSocketDirectUDP *pSock = new CshreemNetworkListenSocketDirectUDP( this );
 	if ( !pSock )
-		return k_HSteamListenSocket_Invalid;
+		return k_HshreemListenSocket_Invalid;
 	if ( !pSock->BInit( localAddr, nOptions, pOptions, errMsg ) )
 	{
 		SpewError( "Cannot create listen socket.  %s", errMsg );
 		pSock->Destroy();
-		return k_HSteamListenSocket_Invalid;
+		return k_HshreemListenSocket_Invalid;
 	}
 
 	return pSock->m_hListenSocketSelf;
 }
 
-HSteamNetConnection CSteamNetworkingSockets::ConnectByIPAddress( const SteamNetworkingIPAddr &address, int nOptions, const SteamNetworkingConfigValue_t *pOptions )
+HshreemNetConnection CshreemNetworkingSockets::ConnectByIPAddress( const shreemNetworkingIPAddr &address, int nOptions, const shreemNetworkingConfigValue_t *pOptions )
 {
-	SteamDatagramTransportLock scopeLock( "ConnectByIPAddress" );
-	CSteamNetworkConnectionUDP *pConn = new CSteamNetworkConnectionUDP( this );
+	shreemDatagramTransportLock scopeLock( "ConnectByIPAddress" );
+	CshreemNetworkConnectionUDP *pConn = new CshreemNetworkConnectionUDP( this );
 	if ( !pConn )
-		return k_HSteamNetConnection_Invalid;
-	SteamDatagramErrMsg errMsg;
+		return k_HshreemNetConnection_Invalid;
+	shreemDatagramErrMsg errMsg;
 	if ( !pConn->BInitConnect( address, nOptions, pOptions, errMsg ) )
 	{
 		SpewError( "Cannot create IPv4 connection.  %s", errMsg );
 		pConn->ConnectionDestroySelfNow();
-		return k_HSteamNetConnection_Invalid;
+		return k_HshreemNetConnection_Invalid;
 	}
 
 	return pConn->m_hConnectionSelf;
 }
 
 
-EResult CSteamNetworkingSockets::AcceptConnection( HSteamNetConnection hConn )
+EResult CshreemNetworkingSockets::AcceptConnection( HshreemNetConnection hConn )
 {
-	SteamDatagramTransportLock scopeLock( "AcceptConnection" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "AcceptConnection" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 	{
 		SpewError( "Cannot accept connection #%u; invalid connection handle", hConn );
@@ -907,10 +907,10 @@ EResult CSteamNetworkingSockets::AcceptConnection( HSteamNetConnection hConn )
 	return pConn->APIAcceptConnection();
 }
 
-bool CSteamNetworkingSockets::CloseConnection( HSteamNetConnection hConn, int nReason, const char *pszDebug, bool bEnableLinger )
+bool CshreemNetworkingSockets::CloseConnection( HshreemNetConnection hConn, int nReason, const char *pszDebug, bool bEnableLinger )
 {
-	SteamDatagramTransportLock scopeLock( "CloseConnection" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "CloseConnection" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return false;
 
@@ -919,78 +919,78 @@ bool CSteamNetworkingSockets::CloseConnection( HSteamNetConnection hConn, int nR
 	return true;
 }
 
-bool CSteamNetworkingSockets::CloseListenSocket( HSteamListenSocket hSocket )
+bool CshreemNetworkingSockets::CloseListenSocket( HshreemListenSocket hSocket )
 {
-	SteamDatagramTransportLock scopeLock( "CloseListenSocket" );
-	CSteamNetworkListenSocketBase *pSock = GetListenSocketByHandle( hSocket );
+	shreemDatagramTransportLock scopeLock( "CloseListenSocket" );
+	CshreemNetworkListenSocketBase *pSock = GetListenSocketByHandle( hSocket );
 	if ( !pSock )
 		return false;
 
 	// Delete the socket itself
-	// NOTE: If you change this, look at CSteamSocketNetworking::Kill()!
+	// NOTE: If you change this, look at CshreemSocketNetworking::Kill()!
 	pSock->Destroy();
 	return true;
 }
 
-bool CSteamNetworkingSockets::SetConnectionUserData( HSteamNetConnection hPeer, int64 nUserData )
+bool CshreemNetworkingSockets::SetConnectionUserData( HshreemNetConnection hPeer, int64 nUserData )
 {
-	SteamDatagramTransportLock scopeLock( "SetConnectionUserData" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
+	shreemDatagramTransportLock scopeLock( "SetConnectionUserData" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
 	if ( !pConn )
 		return false;
 	pConn->SetUserData( nUserData );
 	return true;
 }
 
-int64 CSteamNetworkingSockets::GetConnectionUserData( HSteamNetConnection hPeer )
+int64 CshreemNetworkingSockets::GetConnectionUserData( HshreemNetConnection hPeer )
 {
-	SteamDatagramTransportLock scopeLock( "GetConnectionUserData" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
+	shreemDatagramTransportLock scopeLock( "GetConnectionUserData" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
 	if ( !pConn )
 		return -1;
 	return pConn->GetUserData();
 }
 
-void CSteamNetworkingSockets::SetConnectionName( HSteamNetConnection hPeer, const char *pszName )
+void CshreemNetworkingSockets::SetConnectionName( HshreemNetConnection hPeer, const char *pszName )
 {
-	SteamDatagramTransportLock scopeLock( "SetConnectionName" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
+	shreemDatagramTransportLock scopeLock( "SetConnectionName" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
 	if ( !pConn )
 		return;
 	pConn->SetAppName( pszName );
 }
 
-bool CSteamNetworkingSockets::GetConnectionName( HSteamNetConnection hPeer, char *pszName, int nMaxLen )
+bool CshreemNetworkingSockets::GetConnectionName( HshreemNetConnection hPeer, char *pszName, int nMaxLen )
 {
-	SteamDatagramTransportLock scopeLock( "GetConnectionName" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
+	shreemDatagramTransportLock scopeLock( "GetConnectionName" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hPeer );
 	if ( !pConn )
 		return false;
 	V_strncpy( pszName, pConn->GetAppName(), nMaxLen );
 	return true;
 }
 
-EResult CSteamNetworkingSockets::SendMessageToConnection( HSteamNetConnection hConn, const void *pData, uint32 cbData, int nSendFlags, int64 *pOutMessageNumber )
+EResult CshreemNetworkingSockets::SendMessageToConnection( HshreemNetConnection hConn, const void *pData, uint32 cbData, int nSendFlags, int64 *pOutMessageNumber )
 {
-	SteamDatagramTransportLock scopeLock( "SendMessageToConnection" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "SendMessageToConnection" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return k_EResultInvalidParam;
 	return pConn->APISendMessageToConnection( pData, cbData, nSendFlags, pOutMessageNumber );
 }
 
-void CSteamNetworkingSockets::SendMessages( int nMessages, SteamNetworkingMessage_t *const *pMessages, int64 *pOutMessageNumberOrResult )
+void CshreemNetworkingSockets::SendMessages( int nMessages, shreemNetworkingMessage_t *const *pMessages, int64 *pOutMessageNumberOrResult )
 {
-	SteamDatagramTransportLock scopeLock( "SendMessages" );
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemDatagramTransportLock scopeLock( "SendMessages" );
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
-	vstd::small_vector<CSteamNetworkConnectionBase *,64 > vecConnectionsToCheck;
+	vstd::small_vector<CshreemNetworkConnectionBase *,64 > vecConnectionsToCheck;
 
 	for ( int i = 0 ; i < nMessages ; ++i )
 	{
 
 		// Sanity check that message is valid
-		CSteamNetworkingMessage *pMsg = static_cast<CSteamNetworkingMessage*>( pMessages[i] );
+		CshreemNetworkingMessage *pMsg = static_cast<CshreemNetworkingMessage*>( pMessages[i] );
 		if ( !pMsg )
 		{
 			if ( pOutMessageNumberOrResult )
@@ -999,7 +999,7 @@ void CSteamNetworkingSockets::SendMessages( int nMessages, SteamNetworkingMessag
 		}
 
 		// Locate connection
-		CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( pMsg->m_conn );
+		CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( pMsg->m_conn );
 		if ( !pConn )
 		{
 			if ( pOutMessageNumberOrResult )
@@ -1022,62 +1022,62 @@ void CSteamNetworkingSockets::SendMessages( int nMessages, SteamNetworkingMessag
 
 	// Now if any connections indicated that we should do the sending work immediately,
 	// give them a chance to send immediately
-	for ( CSteamNetworkConnectionBase *pConn: vecConnectionsToCheck )
+	for ( CshreemNetworkConnectionBase *pConn: vecConnectionsToCheck )
 		pConn->CheckConnectionStateAndSetNextThinkTime( usecNow );
 }
 
-EResult CSteamNetworkingSockets::FlushMessagesOnConnection( HSteamNetConnection hConn )
+EResult CshreemNetworkingSockets::FlushMessagesOnConnection( HshreemNetConnection hConn )
 {
-	SteamDatagramTransportLock scopeLock( "FlushMessagesOnConnection" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "FlushMessagesOnConnection" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return k_EResultInvalidParam;
 	return pConn->APIFlushMessageOnConnection();
 }
 
-int CSteamNetworkingSockets::ReceiveMessagesOnConnection( HSteamNetConnection hConn, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
+int CshreemNetworkingSockets::ReceiveMessagesOnConnection( HshreemNetConnection hConn, shreemNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
-	SteamDatagramTransportLock scopeLock( "ReceiveMessagesOnConnection" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "ReceiveMessagesOnConnection" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return -1;
 	return pConn->APIReceiveMessages( ppOutMessages, nMaxMessages );
 }
 
-HSteamNetPollGroup CSteamNetworkingSockets::CreatePollGroup()
+HshreemNetPollGroup CshreemNetworkingSockets::CreatePollGroup()
 {
-	SteamDatagramTransportLock scopeLock( "CreatePollGroup" );
-	CSteamNetworkPollGroup *pPollGroup = new CSteamNetworkPollGroup( this );
+	shreemDatagramTransportLock scopeLock( "CreatePollGroup" );
+	CshreemNetworkPollGroup *pPollGroup = new CshreemNetworkPollGroup( this );
 	pPollGroup->AssignHandleAndAddToGlobalTable();
 	return pPollGroup->m_hPollGroupSelf;
 }
 
-bool CSteamNetworkingSockets::DestroyPollGroup( HSteamNetPollGroup hPollGroup )
+bool CshreemNetworkingSockets::DestroyPollGroup( HshreemNetPollGroup hPollGroup )
 {
-	SteamDatagramTransportLock scopeLock( "DestroyPollGroup" );
-	CSteamNetworkPollGroup *pPollGroup = GetPollGroupByHandle( hPollGroup );
+	shreemDatagramTransportLock scopeLock( "DestroyPollGroup" );
+	CshreemNetworkPollGroup *pPollGroup = GetPollGroupByHandle( hPollGroup );
 	if ( !pPollGroup )
 		return false;
 	delete pPollGroup;
 	return true;
 }
 
-bool CSteamNetworkingSockets::SetConnectionPollGroup( HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup )
+bool CshreemNetworkingSockets::SetConnectionPollGroup( HshreemNetConnection hConn, HshreemNetPollGroup hPollGroup )
 {
-	SteamDatagramTransportLock scopeLock( "SetConnectionPollGroup" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "SetConnectionPollGroup" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return false;
 
 	// Special case for removing the poll group
-	if ( hPollGroup == k_HSteamNetPollGroup_Invalid )
+	if ( hPollGroup == k_HshreemNetPollGroup_Invalid )
 	{
 		pConn->RemoveFromPollGroup();
 		return true;
 	}
 
 
-	CSteamNetworkPollGroup *pPollGroup = GetPollGroupByHandle( hPollGroup );
+	CshreemNetworkPollGroup *pPollGroup = GetPollGroupByHandle( hPollGroup );
 	if ( !pPollGroup )
 		return false;
 
@@ -1086,30 +1086,30 @@ bool CSteamNetworkingSockets::SetConnectionPollGroup( HSteamNetConnection hConn,
 	return true;
 }
 
-int CSteamNetworkingSockets::ReceiveMessagesOnPollGroup( HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
+int CshreemNetworkingSockets::ReceiveMessagesOnPollGroup( HshreemNetPollGroup hPollGroup, shreemNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
-	SteamDatagramTransportLock scopeLock( "ReceiveMessagesOnPollGroup" );
-	CSteamNetworkPollGroup *pPollGroup = GetPollGroupByHandle( hPollGroup );
+	shreemDatagramTransportLock scopeLock( "ReceiveMessagesOnPollGroup" );
+	CshreemNetworkPollGroup *pPollGroup = GetPollGroupByHandle( hPollGroup );
 	if ( !pPollGroup )
 		return -1;
 	return pPollGroup->m_queueRecvMessages.RemoveMessages( ppOutMessages, nMaxMessages );
 }
 
-#ifdef STEAMNETWORKINGSOCKETS_STEAMCLIENT
-int CSteamNetworkingSockets::ReceiveMessagesOnListenSocketLegacyPollGroup( HSteamListenSocket hSocket, SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
+#ifdef shreemNETWORKINGSOCKETS_shreemCLIENT
+int CshreemNetworkingSockets::ReceiveMessagesOnListenSocketLegacyPollGroup( HshreemListenSocket hSocket, shreemNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
-	SteamDatagramTransportLock scopeLock( "ReceiveMessagesOnListenSocket" );
-	CSteamNetworkListenSocketBase *pSock = GetListenSocketByHandle( hSocket );
+	shreemDatagramTransportLock scopeLock( "ReceiveMessagesOnListenSocket" );
+	CshreemNetworkListenSocketBase *pSock = GetListenSocketByHandle( hSocket );
 	if ( !pSock )
 		return -1;
 	return pSock->m_legacyPollGroup.m_queueRecvMessages.RemoveMessages( ppOutMessages, nMaxMessages );
 }
 #endif
 
-bool CSteamNetworkingSockets::GetConnectionInfo( HSteamNetConnection hConn, SteamNetConnectionInfo_t *pInfo )
+bool CshreemNetworkingSockets::GetConnectionInfo( HshreemNetConnection hConn, shreemNetConnectionInfo_t *pInfo )
 {
-	SteamDatagramTransportLock scopeLock( "GetConnectionInfo" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "GetConnectionInfo" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return false;
 	if ( pInfo )
@@ -1117,10 +1117,10 @@ bool CSteamNetworkingSockets::GetConnectionInfo( HSteamNetConnection hConn, Stea
 	return true;
 }
 
-bool CSteamNetworkingSockets::GetQuickConnectionStatus( HSteamNetConnection hConn, SteamNetworkingQuickConnectionStatus *pStats )
+bool CshreemNetworkingSockets::GetQuickConnectionStatus( HshreemNetConnection hConn, shreemNetworkingQuickConnectionStatus *pStats )
 {
-	SteamDatagramTransportLock scopeLock( "GetQuickConnectionStatus" );
-	CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+	shreemDatagramTransportLock scopeLock( "GetQuickConnectionStatus" );
+	CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 	if ( !pConn )
 		return false;
 	if ( pStats )
@@ -1128,18 +1128,18 @@ bool CSteamNetworkingSockets::GetQuickConnectionStatus( HSteamNetConnection hCon
 	return true;
 }
 
-int CSteamNetworkingSockets::GetDetailedConnectionStatus( HSteamNetConnection hConn, char *pszBuf, int cbBuf )
+int CshreemNetworkingSockets::GetDetailedConnectionStatus( HshreemNetConnection hConn, char *pszBuf, int cbBuf )
 {
-	SteamNetworkingDetailedConnectionStatus stats;
+	shreemNetworkingDetailedConnectionStatus stats;
 
 	// Only hold the lock for as long as we need.
 	{
-		SteamDatagramTransportLock scopeLock( "GetDetailedConnectionStatus" );
-		CSteamNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
+		shreemDatagramTransportLock scopeLock( "GetDetailedConnectionStatus" );
+		CshreemNetworkConnectionBase *pConn = GetConnectionByHandleForAPI( hConn );
 		if ( !pConn )
 			return -1;
 
-		pConn->APIGetDetailedConnectionStatus( stats, SteamNetworkingSockets_GetLocalTimestamp() );
+		pConn->APIGetDetailedConnectionStatus( stats, shreemNetworkingSockets_GetLocalTimestamp() );
 
 	} // Release lock.  We don't need it, and printing can take a while!
 	int r = stats.Print( pszBuf, cbBuf );
@@ -1151,23 +1151,23 @@ int CSteamNetworkingSockets::GetDetailedConnectionStatus( HSteamNetConnection hC
 	return r;
 }
 
-bool CSteamNetworkingSockets::GetListenSocketAddress( HSteamListenSocket hSocket, SteamNetworkingIPAddr *pAddress )
+bool CshreemNetworkingSockets::GetListenSocketAddress( HshreemListenSocket hSocket, shreemNetworkingIPAddr *pAddress )
 {
-	SteamDatagramTransportLock scopeLock( "GetListenSocketAddress" );
-	CSteamNetworkListenSocketBase *pSock = GetListenSocketByHandle( hSocket );
+	shreemDatagramTransportLock scopeLock( "GetListenSocketAddress" );
+	CshreemNetworkListenSocketBase *pSock = GetListenSocketByHandle( hSocket );
 	if ( !pSock )
 		return false;
 	return pSock->APIGetAddress( pAddress );
 }
 
-bool CSteamNetworkingSockets::CreateSocketPair( HSteamNetConnection *pOutConnection1, HSteamNetConnection *pOutConnection2, bool bUseNetworkLoopback, const SteamNetworkingIdentity *pIdentity1, const SteamNetworkingIdentity *pIdentity2 )
+bool CshreemNetworkingSockets::CreateSocketPair( HshreemNetConnection *pOutConnection1, HshreemNetConnection *pOutConnection2, bool bUseNetworkLoopback, const shreemNetworkingIdentity *pIdentity1, const shreemNetworkingIdentity *pIdentity2 )
 {
-	SteamDatagramTransportLock scopeLock( "CreateSocketPair" );
+	shreemDatagramTransportLock scopeLock( "CreateSocketPair" );
 
 	// Assume failure
-	*pOutConnection1 = k_HSteamNetConnection_Invalid;
-	*pOutConnection2 = k_HSteamNetConnection_Invalid;
-	SteamNetworkingIdentity identity[2];
+	*pOutConnection1 = k_HshreemNetConnection_Invalid;
+	*pOutConnection2 = k_HshreemNetConnection_Invalid;
+	shreemNetworkingIdentity identity[2];
 	if ( pIdentity1 )
 		identity[0] = *pIdentity1;
 	else
@@ -1181,8 +1181,8 @@ bool CSteamNetworkingSockets::CreateSocketPair( HSteamNetConnection *pOutConnect
 	if ( bUseNetworkLoopback )
 	{
 		// Create two connection objects
-		CSteamNetworkConnectionlocalhostLoopback *pConn[2];
-		if ( !CSteamNetworkConnectionlocalhostLoopback::APICreateSocketPair( this, pConn, identity ) )
+		CshreemNetworkConnectionlocalhostLoopback *pConn[2];
+		if ( !CshreemNetworkConnectionlocalhostLoopback::APICreateSocketPair( this, pConn, identity ) )
 			return false;
 
 		// Return their handles
@@ -1192,8 +1192,8 @@ bool CSteamNetworkingSockets::CreateSocketPair( HSteamNetConnection *pOutConnect
 	else
 	{
 		// Create two connection objects
-		CSteamNetworkConnectionPipe *pConn[2];
-		if ( !CSteamNetworkConnectionPipe::APICreateSocketPair( this, pConn, identity ) )
+		CshreemNetworkConnectionPipe *pConn[2];
+		if ( !CshreemNetworkConnectionPipe::APICreateSocketPair( this, pConn, identity ) )
 			return false;
 
 		// Return their handles
@@ -1203,18 +1203,18 @@ bool CSteamNetworkingSockets::CreateSocketPair( HSteamNetConnection *pOutConnect
 	return true;
 }
 
-bool CSteamNetworkingSockets::BCertHasIdentity() const
+bool CshreemNetworkingSockets::BCertHasIdentity() const
 {
 	// We should actually have a cert, otherwise this question cannot be answered
 	Assert( m_msgSignedCert.has_cert() );
 	Assert( m_msgCert.has_key_data() );
-	return m_msgCert.has_identity_string() || m_msgCert.has_legacy_identity_binary() || m_msgCert.has_legacy_steam_id();
+	return m_msgCert.has_identity_string() || m_msgCert.has_legacy_identity_binary() || m_msgCert.has_legacy_shreem_id();
 }
 
 
-bool CSteamNetworkingSockets::SetCertificateAndPrivateKey( const void *pCert, int cbCert, void *pPrivateKey, int cbPrivateKey )
+bool CshreemNetworkingSockets::SetCertificateAndPrivateKey( const void *pCert, int cbCert, void *pPrivateKey, int cbPrivateKey )
 {
-	SteamDatagramTransportLock::AssertHeldByCurrentThread( "SetCertificateAndPrivateKey" );
+	shreemDatagramTransportLock::AssertHeldByCurrentThread( "SetCertificateAndPrivateKey" );
 
 	m_msgCert.Clear();
 	m_msgSignedCert.Clear();
@@ -1225,17 +1225,17 @@ bool CSteamNetworkingSockets::SetCertificateAndPrivateKey( const void *pCert, in
 	//
 	if ( !m_keyPrivateKey.LoadFromAndWipeBuffer( pPrivateKey, cbPrivateKey ) )
 	{
-		SetCertStatus( k_ESteamNetworkingAvailability_Failed, "Invalid private key" );
+		SetCertStatus( k_EshreemNetworkingAvailability_Failed, "Invalid private key" );
 		return false;
 	}
 
 	//
 	// Decode the cert
 	//
-	SteamNetworkingErrMsg parseErrMsg;
+	shreemNetworkingErrMsg parseErrMsg;
 	if ( !ParseCertFromPEM( pCert, cbCert, m_msgSignedCert, parseErrMsg ) )
 	{
-		SetCertStatus( k_ESteamNetworkingAvailability_Failed, parseErrMsg );
+		SetCertStatus( k_EshreemNetworkingAvailability_Failed, parseErrMsg );
 		return false;
 	}
 
@@ -1245,12 +1245,12 @@ bool CSteamNetworkingSockets::SetCertificateAndPrivateKey( const void *pCert, in
 		|| !m_msgCert.has_time_expiry()
 		|| !m_msgCert.has_key_data()
 	) {
-		SetCertStatus( k_ESteamNetworkingAvailability_Failed, "Invalid cert" );
+		SetCertStatus( k_EshreemNetworkingAvailability_Failed, "Invalid cert" );
 		return false;
 	}
-	if ( m_msgCert.key_type() != CMsgSteamDatagramCertificate_EKeyType_ED25519 )
+	if ( m_msgCert.key_type() != CMsgshreemDatagramCertificate_EKeyType_ED25519 )
 	{
-		SetCertStatus( k_ESteamNetworkingAvailability_Failed, "Invalid cert or unsupported public key type" );
+		SetCertStatus( k_EshreemNetworkingAvailability_Failed, "Invalid cert or unsupported public key type" );
 		return false;
 	}
 
@@ -1261,36 +1261,36 @@ bool CSteamNetworkingSockets::SetCertificateAndPrivateKey( const void *pCert, in
 	CECSigningPublicKey pubKey;
 	if ( !pubKey.SetRawDataWithoutWipingInput( m_msgCert.key_data().c_str(), m_msgCert.key_data().length() ) )
 	{
-		SetCertStatus( k_ESteamNetworkingAvailability_Failed, "Invalid public key" );
+		SetCertStatus( k_EshreemNetworkingAvailability_Failed, "Invalid public key" );
 		return false;
 	}
 	if ( !m_keyPrivateKey.MatchesPublicKey( pubKey ) )
 	{
-		SetCertStatus( k_ESteamNetworkingAvailability_Failed, "Private key doesn't match public key from cert" );
+		SetCertStatus( k_EshreemNetworkingAvailability_Failed, "Private key doesn't match public key from cert" );
 		return false;
 	}
 
-	SetCertStatus( k_ESteamNetworkingAvailability_Current, "OK" );
+	SetCertStatus( k_EshreemNetworkingAvailability_Current, "OK" );
 
 	return true;
 }
 
-int CSteamNetworkingSockets::GetP2P_Transport_ICE_Enable( const SteamNetworkingIdentity &identityRemote )
+int CshreemNetworkingSockets::GetP2P_Transport_ICE_Enable( const shreemNetworkingIdentity &identityRemote )
 {
 	// We really shouldn't get here, because this is only a question that makes sense
 	// to ask if we have also overridden this function in a derived class, or slammed
 	// it before making the connection
 	Assert( false );
-	return k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_Disable;
+	return k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_Disable;
 }
 
-void CSteamNetworkingSockets::RunCallbacks()
+void CshreemNetworkingSockets::RunCallbacks()
 {
 
 	// Only hold lock for a brief period
 	std_vector<QueuedCallback> listTemp;
 	{
-		SteamDatagramTransportLock scopeLock;
+		shreemDatagramTransportLock scopeLock;
 
 		// Swap list with the temp one
 		listTemp.swap( m_vecPendingCallbacks );
@@ -1314,14 +1314,14 @@ void CSteamNetworkingSockets::RunCallbacks()
 
 		switch ( x.nCallback )
 		{
-			DISPATCH_CALLBACK( SteamNetConnectionStatusChangedCallback_t, FnSteamNetConnectionStatusChanged )
-		#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-			DISPATCH_CALLBACK( SteamNetAuthenticationStatus_t, FnSteamNetAuthenticationStatusChanged )
-			DISPATCH_CALLBACK( SteamRelayNetworkStatus_t, FnSteamRelayNetworkStatusChanged )
+			DISPATCH_CALLBACK( shreemNetConnectionStatusChangedCallback_t, FnshreemNetConnectionStatusChanged )
+		#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+			DISPATCH_CALLBACK( shreemNetAuthenticationStatus_t, FnshreemNetAuthenticationStatusChanged )
+			DISPATCH_CALLBACK( shreemRelayNetworkStatus_t, FnshreemRelayNetworkStatusChanged )
 		#endif
-		#ifdef STEAMNETWORKINGSOCKETS_ENABLE_STEAMNETWORKINGMESSAGES
-			DISPATCH_CALLBACK( SteamNetworkingMessagesSessionRequest_t, FnSteamNetworkingMessagesSessionRequest )
-			DISPATCH_CALLBACK( SteamNetworkingMessagesSessionFailed_t, FnSteamNetworkingMessagesSessionFailed )
+		#ifdef shreemNETWORKINGSOCKETS_ENABLE_shreemNETWORKINGMESSAGES
+			DISPATCH_CALLBACK( shreemNetworkingMessagesSessionRequest_t, FnshreemNetworkingMessagesSessionRequest )
+			DISPATCH_CALLBACK( shreemNetworkingMessagesSessionFailed_t, FnshreemNetworkingMessagesSessionFailed )
 		#endif
 			default:
 				AssertMsg1( false, "Unknown callback type %d!", x.nCallback );
@@ -1331,9 +1331,9 @@ void CSteamNetworkingSockets::RunCallbacks()
 	}
 }
 
-void CSteamNetworkingSockets::InternalQueueCallback( int nCallback, int cbCallback, const void *pvCallback, void *fnRegisteredFunctionPtr )
+void CshreemNetworkingSockets::InternalQueueCallback( int nCallback, int cbCallback, const void *pvCallback, void *fnRegisteredFunctionPtr )
 {
-	SteamDatagramTransportLock::AssertHeldByCurrentThread();
+	shreemDatagramTransportLock::AssertHeldByCurrentThread();
 
 	if ( !fnRegisteredFunctionPtr )
 		return;
@@ -1352,65 +1352,65 @@ void CSteamNetworkingSockets::InternalQueueCallback( int nCallback, int cbCallba
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// CSteamNetworkingUtils
+// CshreemNetworkingUtils
 //
 /////////////////////////////////////////////////////////////////////////////
 
-CSteamNetworkingUtils::~CSteamNetworkingUtils() {}
+CshreemNetworkingUtils::~CshreemNetworkingUtils() {}
 
-SteamNetworkingMessage_t *CSteamNetworkingUtils::AllocateMessage( int cbAllocateBuffer )
+shreemNetworkingMessage_t *CshreemNetworkingUtils::AllocateMessage( int cbAllocateBuffer )
 {
-	return CSteamNetworkingMessage::New( cbAllocateBuffer );
+	return CshreemNetworkingMessage::New( cbAllocateBuffer );
 }
 
-SteamNetworkingMicroseconds CSteamNetworkingUtils::GetLocalTimestamp()
+shreemNetworkingMicroseconds CshreemNetworkingUtils::GetLocalTimestamp()
 {
-	return SteamNetworkingSockets_GetLocalTimestamp();
+	return shreemNetworkingSockets_GetLocalTimestamp();
 }
 
-void CSteamNetworkingUtils::SetDebugOutputFunction( ESteamNetworkingSocketsDebugOutputType eDetailLevel, FSteamNetworkingSocketsDebugOutput pfnFunc )
+void CshreemNetworkingUtils::SetDebugOutputFunction( EshreemNetworkingSocketsDebugOutputType eDetailLevel, FshreemNetworkingSocketsDebugOutput pfnFunc )
 {
-	SteamNetworkingSockets_SetDebugOutputFunction( eDetailLevel, pfnFunc );
+	shreemNetworkingSockets_SetDebugOutputFunction( eDetailLevel, pfnFunc );
 }
 
 
 template<typename T>
 static ConfigValue<T> *GetConnectionVar( const GlobalConfigValueEntry *pEntry, ConnectionConfig *pConnectionConfig )
 {
-	Assert( pEntry->m_eScope == k_ESteamNetworkingConfig_Connection );
+	Assert( pEntry->m_eScope == k_EshreemNetworkingConfig_Connection );
 	intptr_t ptr = intptr_t( pConnectionConfig );
 	return (ConfigValue<T> *)( ptr + pEntry->m_cbOffsetOf );
 }
 
 template<typename T>
 static ConfigValue<T> *EvaluateScopeConfigValue( GlobalConfigValueEntry *pEntry,
-	ESteamNetworkingConfigScope eScopeType,
+	EshreemNetworkingConfigScope eScopeType,
 	intptr_t scopeObj )
 {
 	switch ( eScopeType )
 	{
-		case k_ESteamNetworkingConfig_Global:
+		case k_EshreemNetworkingConfig_Global:
 		{
 			auto *pGlobalVal = static_cast< GlobalConfigValueBase<T> * >( pEntry );
 			return &pGlobalVal->m_value;
 		}
 
-		case k_ESteamNetworkingConfig_SocketsInterface:
+		case k_EshreemNetworkingConfig_SocketsInterface:
 		{
-			CSteamNetworkingSockets *pInterface = (CSteamNetworkingSockets *)scopeObj;
-			if ( pEntry->m_eScope == k_ESteamNetworkingConfig_Connection )
+			CshreemNetworkingSockets *pInterface = (CshreemNetworkingSockets *)scopeObj;
+			if ( pEntry->m_eScope == k_EshreemNetworkingConfig_Connection )
 			{
 				return GetConnectionVar<T>( pEntry, &pInterface->m_connectionConfig );
 			}
 			break;
 		}
 
-		case k_ESteamNetworkingConfig_ListenSocket:
+		case k_EshreemNetworkingConfig_ListenSocket:
 		{
-			CSteamNetworkListenSocketBase *pSock = GetListenSocketByHandle( HSteamListenSocket( scopeObj ) );
+			CshreemNetworkListenSocketBase *pSock = GetListenSocketByHandle( HshreemListenSocket( scopeObj ) );
 			if ( pSock )
 			{
-				if ( pEntry->m_eScope == k_ESteamNetworkingConfig_Connection )
+				if ( pEntry->m_eScope == k_EshreemNetworkingConfig_Connection )
 				{
 					return GetConnectionVar<T>( pEntry, &pSock->m_connectionConfig );
 				}
@@ -1418,7 +1418,7 @@ static ConfigValue<T> *EvaluateScopeConfigValue( GlobalConfigValueEntry *pEntry,
 			break;
 		}
 
-		case k_ESteamNetworkingConfig_Connection:
+		case k_EshreemNetworkingConfig_Connection:
 		{
 			// NOTE: Not using GetConnectionByHandleForAPI here.  In a few places in the code,
 			// we need to be able to set config options for connections that are being created.
@@ -1427,10 +1427,10 @@ static ConfigValue<T> *EvaluateScopeConfigValue( GlobalConfigValueEntry *pEntry,
 			// the "front door".  So this means if the app tries to set a config option on a
 			// connection that technically no longer exists, we will actually allow that, when
 			// we probably should fail the call.
-			CSteamNetworkConnectionBase *pConn = GetConnectionByHandle( HSteamNetConnection( scopeObj ) );
+			CshreemNetworkConnectionBase *pConn = GetConnectionByHandle( HshreemNetConnection( scopeObj ) );
 			if ( pConn )
 			{
-				if ( pEntry->m_eScope == k_ESteamNetworkingConfig_Connection )
+				if ( pEntry->m_eScope == k_EshreemNetworkingConfig_Connection )
 				{
 					return GetConnectionVar<T>( pEntry, &pConn->m_connectionConfig );
 				}
@@ -1444,15 +1444,15 @@ static ConfigValue<T> *EvaluateScopeConfigValue( GlobalConfigValueEntry *pEntry,
 	return nullptr;
 }
 
-static bool AssignConfigValueTyped( ConfigValue<int32> *pVal, ESteamNetworkingConfigDataType eDataType, const void *pArg )
+static bool AssignConfigValueTyped( ConfigValue<int32> *pVal, EshreemNetworkingConfigDataType eDataType, const void *pArg )
 {
 	switch ( eDataType )
 	{
-		case k_ESteamNetworkingConfig_Int32:
+		case k_EshreemNetworkingConfig_Int32:
 			pVal->m_data = *(int32*)pArg;
 			break;
 
-		case k_ESteamNetworkingConfig_Int64:
+		case k_EshreemNetworkingConfig_Int64:
 		{
 			int64 arg = *(int64*)pArg;
 			if ( (int32)arg != arg )
@@ -1461,11 +1461,11 @@ static bool AssignConfigValueTyped( ConfigValue<int32> *pVal, ESteamNetworkingCo
 			break;
 		}
 
-		case k_ESteamNetworkingConfig_Float:
+		case k_EshreemNetworkingConfig_Float:
 			pVal->m_data = (int32)floor( *(float*)pArg + .5f );
 			break;
 
-		case k_ESteamNetworkingConfig_String:
+		case k_EshreemNetworkingConfig_String:
 		{
 			int x;
 			if ( sscanf( (const char *)pArg, "%d", &x ) != 1 )
@@ -1481,25 +1481,25 @@ static bool AssignConfigValueTyped( ConfigValue<int32> *pVal, ESteamNetworkingCo
 	return true;
 }
 
-static bool AssignConfigValueTyped( ConfigValue<int64> *pVal, ESteamNetworkingConfigDataType eDataType, const void *pArg )
+static bool AssignConfigValueTyped( ConfigValue<int64> *pVal, EshreemNetworkingConfigDataType eDataType, const void *pArg )
 {
 	switch ( eDataType )
 	{
-		case k_ESteamNetworkingConfig_Int32:
+		case k_EshreemNetworkingConfig_Int32:
 			pVal->m_data = *(int32*)pArg;
 			break;
 
-		case k_ESteamNetworkingConfig_Int64:
+		case k_EshreemNetworkingConfig_Int64:
 		{
 			pVal->m_data = *(int64*)pArg;
 			break;
 		}
 
-		case k_ESteamNetworkingConfig_Float:
+		case k_EshreemNetworkingConfig_Float:
 			pVal->m_data = (int64)floor( *(float*)pArg + .5f );
 			break;
 
-		case k_ESteamNetworkingConfig_String:
+		case k_EshreemNetworkingConfig_String:
 		{
 			long long x;
 			if ( sscanf( (const char *)pArg, "%lld", &x ) != 1 )
@@ -1515,25 +1515,25 @@ static bool AssignConfigValueTyped( ConfigValue<int64> *pVal, ESteamNetworkingCo
 	return true;
 }
 
-static bool AssignConfigValueTyped( ConfigValue<float> *pVal, ESteamNetworkingConfigDataType eDataType, const void *pArg )
+static bool AssignConfigValueTyped( ConfigValue<float> *pVal, EshreemNetworkingConfigDataType eDataType, const void *pArg )
 {
 	switch ( eDataType )
 	{
-		case k_ESteamNetworkingConfig_Int32:
+		case k_EshreemNetworkingConfig_Int32:
 			pVal->m_data = (float)( *(int32*)pArg );
 			break;
 
-		case k_ESteamNetworkingConfig_Int64:
+		case k_EshreemNetworkingConfig_Int64:
 		{
 			pVal->m_data = (float)( *(int64*)pArg );
 			break;
 		}
 
-		case k_ESteamNetworkingConfig_Float:
+		case k_EshreemNetworkingConfig_Float:
 			pVal->m_data = *(float*)pArg;
 			break;
 
-		case k_ESteamNetworkingConfig_String:
+		case k_EshreemNetworkingConfig_String:
 		{
 			float x;
 			if ( sscanf( (const char *)pArg, "%f", &x ) != 1 )
@@ -1549,28 +1549,28 @@ static bool AssignConfigValueTyped( ConfigValue<float> *pVal, ESteamNetworkingCo
 	return true;
 }
 
-static bool AssignConfigValueTyped( ConfigValue<std::string> *pVal, ESteamNetworkingConfigDataType eDataType, const void *pArg )
+static bool AssignConfigValueTyped( ConfigValue<std::string> *pVal, EshreemNetworkingConfigDataType eDataType, const void *pArg )
 {
 	char temp[64];
 
 	switch ( eDataType )
 	{
-		case k_ESteamNetworkingConfig_Int32:
+		case k_EshreemNetworkingConfig_Int32:
 			V_sprintf_safe( temp, "%d", *(int32*)pArg );
 			pVal->m_data = temp;
 			break;
 
-		case k_ESteamNetworkingConfig_Int64:
+		case k_EshreemNetworkingConfig_Int64:
 			V_sprintf_safe( temp, "%lld", (long long)*(int64*)pArg );
 			pVal->m_data = temp;
 			break;
 
-		case k_ESteamNetworkingConfig_Float:
+		case k_EshreemNetworkingConfig_Float:
 			V_sprintf_safe( temp, "%g", *(float*)pArg );
 			pVal->m_data = temp;
 			break;
 
-		case k_ESteamNetworkingConfig_String:
+		case k_EshreemNetworkingConfig_String:
 			pVal->m_data = (const char *)pArg;
 			break;
 
@@ -1581,11 +1581,11 @@ static bool AssignConfigValueTyped( ConfigValue<std::string> *pVal, ESteamNetwor
 	return true;
 }
 
-static bool AssignConfigValueTyped( ConfigValue<void *> *pVal, ESteamNetworkingConfigDataType eDataType, const void *pArg )
+static bool AssignConfigValueTyped( ConfigValue<void *> *pVal, EshreemNetworkingConfigDataType eDataType, const void *pArg )
 {
 	switch ( eDataType )
 	{
-		case k_ESteamNetworkingConfig_Ptr:
+		case k_EshreemNetworkingConfig_Ptr:
 			pVal->m_data = *(void **)pArg;
 			break;
 
@@ -1599,9 +1599,9 @@ static bool AssignConfigValueTyped( ConfigValue<void *> *pVal, ESteamNetworkingC
 template<typename T>
 bool SetConfigValueTyped(
 	GlobalConfigValueEntry *pEntry,
-	ESteamNetworkingConfigScope eScopeType,
+	EshreemNetworkingConfigScope eScopeType,
 	intptr_t scopeObj,
-	ESteamNetworkingConfigDataType eDataType,
+	EshreemNetworkingConfigDataType eDataType,
 	const void *pArg
 ) {
 	ConfigValue<T> *pVal = EvaluateScopeConfigValue<T>( pEntry, eScopeType, scopeObj );
@@ -1615,7 +1615,7 @@ bool SetConfigValueTyped(
 	// Clearing the value?
 	if ( pArg == nullptr )
 	{
-		if ( eScopeType == k_ESteamNetworkingConfig_Global )
+		if ( eScopeType == k_EshreemNetworkingConfig_Global )
 		{
 			auto *pGlobal = (typename GlobalConfigValueBase<T>::Value *)( pVal );
 			Assert( pGlobal->m_pInherit == nullptr );
@@ -1645,44 +1645,44 @@ bool SetConfigValueTyped(
 }
 
 template<typename T>
-ESteamNetworkingGetConfigValueResult ReturnConfigValueTyped( const T &data, void *pData, size_t *cbData )
+EshreemNetworkingGetConfigValueResult ReturnConfigValueTyped( const T &data, void *pData, size_t *cbData )
 {
-	ESteamNetworkingGetConfigValueResult eResult;
+	EshreemNetworkingGetConfigValueResult eResult;
 	if ( !pData || *cbData < sizeof(T) )
 	{
-		eResult = k_ESteamNetworkingGetConfigValue_BufferTooSmall;
+		eResult = k_EshreemNetworkingGetConfigValue_BufferTooSmall;
 	}
 	else
 	{
 		*(T*)pData = data;
-		eResult = k_ESteamNetworkingGetConfigValue_OK;
+		eResult = k_EshreemNetworkingGetConfigValue_OK;
 	}
 	*cbData = sizeof(T);
 	return eResult;
 }
 
 template<>
-ESteamNetworkingGetConfigValueResult ReturnConfigValueTyped<std::string>( const std::string &data, void *pData, size_t *cbData )
+EshreemNetworkingGetConfigValueResult ReturnConfigValueTyped<std::string>( const std::string &data, void *pData, size_t *cbData )
 {
 	size_t l = data.length() + 1;
-	ESteamNetworkingGetConfigValueResult eResult;
+	EshreemNetworkingGetConfigValueResult eResult;
 	if ( !pData || *cbData < l )
 	{
-		eResult = k_ESteamNetworkingGetConfigValue_BufferTooSmall;
+		eResult = k_EshreemNetworkingGetConfigValue_BufferTooSmall;
 	}
 	else
 	{
 		memcpy( pData, data.c_str(), l );
-		eResult = k_ESteamNetworkingGetConfigValue_OK;
+		eResult = k_EshreemNetworkingGetConfigValue_OK;
 	}
 	*cbData = l;
 	return eResult;
 }
 
 template<typename T>
-ESteamNetworkingGetConfigValueResult GetConfigValueTyped(
+EshreemNetworkingGetConfigValueResult GetConfigValueTyped(
 	GlobalConfigValueEntry *pEntry,
-	ESteamNetworkingConfigScope eScopeType,
+	EshreemNetworkingConfigScope eScopeType,
 	intptr_t scopeObj,
 	void *pResult, size_t *cbResult
 ) {
@@ -1690,7 +1690,7 @@ ESteamNetworkingGetConfigValueResult GetConfigValueTyped(
 	if ( !pVal )
 	{
 		*cbResult = 0;
-		return k_ESteamNetworkingGetConfigValue_BadScopeObj;
+		return k_EshreemNetworkingGetConfigValue_BadScopeObj;
 	}
 
 	// Remember if it was set at this level
@@ -1704,21 +1704,21 @@ ESteamNetworkingGetConfigValueResult GetConfigValueTyped(
 	}
 
 	// Call type-specific method to return it
-	ESteamNetworkingGetConfigValueResult eResult = ReturnConfigValueTyped( pVal->m_data, pResult, cbResult );
-	if ( eResult == k_ESteamNetworkingGetConfigValue_OK && !bValWasSet )
-		eResult = k_ESteamNetworkingGetConfigValue_OKInherited;
+	EshreemNetworkingGetConfigValueResult eResult = ReturnConfigValueTyped( pVal->m_data, pResult, cbResult );
+	if ( eResult == k_EshreemNetworkingGetConfigValue_OK && !bValWasSet )
+		eResult = k_EshreemNetworkingGetConfigValue_OKInherited;
 	return eResult;
 }
 
-bool CSteamNetworkingUtils::SetConfigValue( ESteamNetworkingConfigValue eValue,
-	ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj,
-	ESteamNetworkingConfigDataType eDataType, const void *pValue )
+bool CshreemNetworkingUtils::SetConfigValue( EshreemNetworkingConfigValue eValue,
+	EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj,
+	EshreemNetworkingConfigDataType eDataType, const void *pValue )
 {
 
 	// Check for special values
 	switch ( eValue )
 	{
-		case k_ESteamNetworkingConfig_MTU_DataSize:
+		case k_EshreemNetworkingConfig_MTU_DataSize:
 			SpewWarning( "MTU_DataSize is readonly" );
 			return false;
 	}
@@ -1727,90 +1727,90 @@ bool CSteamNetworkingUtils::SetConfigValue( ESteamNetworkingConfigValue eValue,
 	if ( pEntry == nullptr )
 		return false;
 
-	SteamDatagramTransportLock scopeLock( "SetConfigValue" );
+	shreemDatagramTransportLock scopeLock( "SetConfigValue" );
 
 	switch ( pEntry->m_eDataType )
 	{
-		case k_ESteamNetworkingConfig_Int32: return SetConfigValueTyped<int32>( pEntry, eScopeType, scopeObj, eDataType, pValue );
-		case k_ESteamNetworkingConfig_Int64: return SetConfigValueTyped<int64>( pEntry, eScopeType, scopeObj, eDataType, pValue );
-		case k_ESteamNetworkingConfig_Float: return SetConfigValueTyped<float>( pEntry, eScopeType, scopeObj, eDataType, pValue );
-		case k_ESteamNetworkingConfig_String: return SetConfigValueTyped<std::string>( pEntry, eScopeType, scopeObj, eDataType, pValue );
-		case k_ESteamNetworkingConfig_Ptr: return SetConfigValueTyped<void *>( pEntry, eScopeType, scopeObj, eDataType, pValue );
+		case k_EshreemNetworkingConfig_Int32: return SetConfigValueTyped<int32>( pEntry, eScopeType, scopeObj, eDataType, pValue );
+		case k_EshreemNetworkingConfig_Int64: return SetConfigValueTyped<int64>( pEntry, eScopeType, scopeObj, eDataType, pValue );
+		case k_EshreemNetworkingConfig_Float: return SetConfigValueTyped<float>( pEntry, eScopeType, scopeObj, eDataType, pValue );
+		case k_EshreemNetworkingConfig_String: return SetConfigValueTyped<std::string>( pEntry, eScopeType, scopeObj, eDataType, pValue );
+		case k_EshreemNetworkingConfig_Ptr: return SetConfigValueTyped<void *>( pEntry, eScopeType, scopeObj, eDataType, pValue );
 	}
 
 	Assert( false );
 	return false;
 }
 
-ESteamNetworkingGetConfigValueResult CSteamNetworkingUtils::GetConfigValue(
-	ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType,
-	intptr_t scopeObj, ESteamNetworkingConfigDataType *pOutDataType,
+EshreemNetworkingGetConfigValueResult CshreemNetworkingUtils::GetConfigValue(
+	EshreemNetworkingConfigValue eValue, EshreemNetworkingConfigScope eScopeType,
+	intptr_t scopeObj, EshreemNetworkingConfigDataType *pOutDataType,
 	void *pResult, size_t *cbResult )
 {
 
-	if ( eValue == k_ESteamNetworkingConfig_MTU_DataSize )
+	if ( eValue == k_EshreemNetworkingConfig_MTU_DataSize )
 	{
 		int32 MTU_packetsize;
 		size_t cbMTU_packetsize = sizeof(MTU_packetsize);
-		ESteamNetworkingGetConfigValueResult rFetch = GetConfigValueTyped<int32>( &g_ConfigDefault_MTU_PacketSize, eScopeType, scopeObj, &MTU_packetsize, &cbMTU_packetsize );
+		EshreemNetworkingGetConfigValueResult rFetch = GetConfigValueTyped<int32>( &g_ConfigDefault_MTU_PacketSize, eScopeType, scopeObj, &MTU_packetsize, &cbMTU_packetsize );
 		if ( rFetch < 0 )
 			return rFetch;
 
-		int32 MTU_DataSize = std::max( 0, MTU_packetsize - k_cbSteamNetworkingSocketsNoFragmentHeaderReserve );
-		ESteamNetworkingGetConfigValueResult rStore = ReturnConfigValueTyped<int32>( MTU_DataSize, pResult, cbResult );
-		if ( rStore != k_ESteamNetworkingGetConfigValue_OK )
+		int32 MTU_DataSize = std::max( 0, MTU_packetsize - k_cbshreemNetworkingSocketsNoFragmentHeaderReserve );
+		EshreemNetworkingGetConfigValueResult rStore = ReturnConfigValueTyped<int32>( MTU_DataSize, pResult, cbResult );
+		if ( rStore != k_EshreemNetworkingGetConfigValue_OK )
 			return rStore;
 		return rFetch;
 	}
 
 	GlobalConfigValueEntry *pEntry = FindConfigValueEntry( eValue );
 	if ( pEntry == nullptr )
-		return k_ESteamNetworkingGetConfigValue_BadValue;
+		return k_EshreemNetworkingGetConfigValue_BadValue;
 
 	if ( pOutDataType )
 		*pOutDataType = pEntry->m_eDataType;
 
-	SteamDatagramTransportLock scopeLock( "GetConfigValue" );
+	shreemDatagramTransportLock scopeLock( "GetConfigValue" );
 
 	switch ( pEntry->m_eDataType )
 	{
-		case k_ESteamNetworkingConfig_Int32: return GetConfigValueTyped<int32>( pEntry, eScopeType, scopeObj, pResult, cbResult );
-		case k_ESteamNetworkingConfig_Int64: return GetConfigValueTyped<int64>( pEntry, eScopeType, scopeObj, pResult, cbResult );
-		case k_ESteamNetworkingConfig_Float: return GetConfigValueTyped<float>( pEntry, eScopeType, scopeObj, pResult, cbResult );
-		case k_ESteamNetworkingConfig_String: return GetConfigValueTyped<std::string>( pEntry, eScopeType, scopeObj, pResult, cbResult );
-		case k_ESteamNetworkingConfig_Ptr: return GetConfigValueTyped<void *>( pEntry, eScopeType, scopeObj, pResult, cbResult );
+		case k_EshreemNetworkingConfig_Int32: return GetConfigValueTyped<int32>( pEntry, eScopeType, scopeObj, pResult, cbResult );
+		case k_EshreemNetworkingConfig_Int64: return GetConfigValueTyped<int64>( pEntry, eScopeType, scopeObj, pResult, cbResult );
+		case k_EshreemNetworkingConfig_Float: return GetConfigValueTyped<float>( pEntry, eScopeType, scopeObj, pResult, cbResult );
+		case k_EshreemNetworkingConfig_String: return GetConfigValueTyped<std::string>( pEntry, eScopeType, scopeObj, pResult, cbResult );
+		case k_EshreemNetworkingConfig_Ptr: return GetConfigValueTyped<void *>( pEntry, eScopeType, scopeObj, pResult, cbResult );
 	}
 
 	Assert( false ); // FIXME
-	return k_ESteamNetworkingGetConfigValue_BadValue;
+	return k_EshreemNetworkingGetConfigValue_BadValue;
 }
 
 static bool BEnumerateConfigValue( const GlobalConfigValueEntry *pVal )
 {
-	if ( pVal->m_eDataType == k_ESteamNetworkingConfig_Ptr )
+	if ( pVal->m_eDataType == k_EshreemNetworkingConfig_Ptr )
 		return false;
 
 	switch  ( pVal->m_eValue )
 	{
 		// Never enumerate these
-		case k_ESteamNetworkingConfig_SymmetricConnect:
-		case k_ESteamNetworkingConfig_LocalVirtualPort:
+		case k_EshreemNetworkingConfig_SymmetricConnect:
+		case k_EshreemNetworkingConfig_LocalVirtualPort:
 			return false;
 
 		// Dev var?
-		case k_ESteamNetworkingConfig_IP_AllowWithoutAuth:
-		case k_ESteamNetworkingConfig_Unencrypted:
-		case k_ESteamNetworkingConfig_EnumerateDevVars:
-		case k_ESteamNetworkingConfig_SDRClient_FakeClusterPing:
+		case k_EshreemNetworkingConfig_IP_AllowWithoutAuth:
+		case k_EshreemNetworkingConfig_Unencrypted:
+		case k_EshreemNetworkingConfig_EnumerateDevVars:
+		case k_EshreemNetworkingConfig_SDRClient_FakeClusterPing:
 			return g_Config_EnumerateDevVars.Get();
 	}
 
 	return true;
 }
 
-bool CSteamNetworkingUtils::GetConfigValueInfo( ESteamNetworkingConfigValue eValue,
-	const char **pOutName, ESteamNetworkingConfigDataType *pOutDataType,
-	ESteamNetworkingConfigScope *pOutScope, ESteamNetworkingConfigValue *pOutNextValue )
+bool CshreemNetworkingUtils::GetConfigValueInfo( EshreemNetworkingConfigValue eValue,
+	const char **pOutName, EshreemNetworkingConfigDataType *pOutDataType,
+	EshreemNetworkingConfigScope *pOutScope, EshreemNetworkingConfigValue *pOutNextValue )
 {
 	const GlobalConfigValueEntry *pVal = FindConfigValueEntry( eValue );
 	if ( pVal == nullptr )
@@ -1831,7 +1831,7 @@ bool CSteamNetworkingUtils::GetConfigValueInfo( ESteamNetworkingConfigValue eVal
 			pNext = pNext->m_pNextEntry;
 			if ( !pNext )
 			{
-				*pOutNextValue = k_ESteamNetworkingConfig_Invalid;
+				*pOutNextValue = k_EshreemNetworkingConfig_Invalid;
 				break;
 			}
 			if ( BEnumerateConfigValue( pNext ) )
@@ -1845,7 +1845,7 @@ bool CSteamNetworkingUtils::GetConfigValueInfo( ESteamNetworkingConfigValue eVal
 	return true;
 }
 
-ESteamNetworkingConfigValue CSteamNetworkingUtils::GetFirstConfigValue()
+EshreemNetworkingConfigValue CshreemNetworkingUtils::GetFirstConfigValue()
 {
 	EnsureConfigValueTableInitted();
 	Assert( BEnumerateConfigValue( s_vecConfigValueTable[0] ) );
@@ -1853,39 +1853,39 @@ ESteamNetworkingConfigValue CSteamNetworkingUtils::GetFirstConfigValue()
 }
 
 
-void CSteamNetworkingUtils::SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr &addr, char *buf, size_t cbBuf, bool bWithPort )
+void CshreemNetworkingUtils::shreemNetworkingIPAddr_ToString( const shreemNetworkingIPAddr &addr, char *buf, size_t cbBuf, bool bWithPort )
 {
-	::SteamNetworkingIPAddr_ToString( &addr, buf, cbBuf, bWithPort );
+	::shreemNetworkingIPAddr_ToString( &addr, buf, cbBuf, bWithPort );
 }
 
-bool CSteamNetworkingUtils::SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char *pszStr )
+bool CshreemNetworkingUtils::shreemNetworkingIPAddr_ParseString( shreemNetworkingIPAddr *pAddr, const char *pszStr )
 {
-	return ::SteamNetworkingIPAddr_ParseString( pAddr, pszStr );
+	return ::shreemNetworkingIPAddr_ParseString( pAddr, pszStr );
 }
 
-void CSteamNetworkingUtils::SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, char *buf, size_t cbBuf )
+void CshreemNetworkingUtils::shreemNetworkingIdentity_ToString( const shreemNetworkingIdentity &identity, char *buf, size_t cbBuf )
 {
-	return ::SteamNetworkingIdentity_ToString( &identity, buf, cbBuf );
+	return ::shreemNetworkingIdentity_ToString( &identity, buf, cbBuf );
 }
 
-bool CSteamNetworkingUtils::SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity *pIdentity, const char *pszStr )
+bool CshreemNetworkingUtils::shreemNetworkingIdentity_ParseString( shreemNetworkingIdentity *pIdentity, const char *pszStr )
 {
-	return ::SteamNetworkingIdentity_ParseString( pIdentity, sizeof(SteamNetworkingIdentity), pszStr );
+	return ::shreemNetworkingIdentity_ParseString( pIdentity, sizeof(shreemNetworkingIdentity), pszStr );
 }
 
-AppId_t CSteamNetworkingUtils::GetAppID()
+AppId_t CshreemNetworkingUtils::GetAppID()
 {
 	return m_nAppID;
 }
 
-time_t CSteamNetworkingUtils::GetTimeSecure()
+time_t CshreemNetworkingUtils::GetTimeSecure()
 {
 	// Trusting local user's clock!
 	return time(nullptr);
 }
 
-} // namespace SteamNetworkingSocketsLib
-using namespace SteamNetworkingSocketsLib;
+} // namespace shreemNetworkingSocketsLib
+using namespace shreemNetworkingSocketsLib;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1893,51 +1893,51 @@ using namespace SteamNetworkingSocketsLib;
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 
-static CSteamNetworkingSockets *s_pSteamNetworkingSockets = nullptr;
+static CshreemNetworkingSockets *s_pshreemNetworkingSockets = nullptr;
 
-STEAMNETWORKINGSOCKETS_INTERFACE bool GameNetworkingSockets_Init( const SteamNetworkingIdentity *pIdentity, SteamNetworkingErrMsg &errMsg )
+shreemNETWORKINGSOCKETS_INTERFACE bool GameNetworkingSockets_Init( const shreemNetworkingIdentity *pIdentity, shreemNetworkingErrMsg &errMsg )
 {
-	SteamDatagramTransportLock lock( "GameNetworkingSockets_Init" );
+	shreemDatagramTransportLock lock( "GameNetworkingSockets_Init" );
 
 	// Already initted?
-	if ( s_pSteamNetworkingSockets )
+	if ( s_pshreemNetworkingSockets )
 	{
 		AssertMsg( false, "GameNetworkingSockets_init called multiple times?" );
 		return true;
 	}
 
 	// Init basic functionality
-	CSteamNetworkingSockets *pSteamNetworkingSockets = new CSteamNetworkingSockets( ( CSteamNetworkingUtils *)SteamNetworkingUtils() );
-	if ( !pSteamNetworkingSockets->BInitGameNetworkingSockets( pIdentity, errMsg ) )
+	CshreemNetworkingSockets *pshreemNetworkingSockets = new CshreemNetworkingSockets( ( CshreemNetworkingUtils *)shreemNetworkingUtils() );
+	if ( !pshreemNetworkingSockets->BInitGameNetworkingSockets( pIdentity, errMsg ) )
 	{
-		pSteamNetworkingSockets->Destroy();
+		pshreemNetworkingSockets->Destroy();
 		return false;
 	}
 
-	s_pSteamNetworkingSockets = pSteamNetworkingSockets;
+	s_pshreemNetworkingSockets = pshreemNetworkingSockets;
 	return true;
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE void GameNetworkingSockets_Kill()
+shreemNETWORKINGSOCKETS_INTERFACE void GameNetworkingSockets_Kill()
 {
-	SteamDatagramTransportLock lock( "GameNetworkingSockets_Kill" );
-	if ( s_pSteamNetworkingSockets )
+	shreemDatagramTransportLock lock( "GameNetworkingSockets_Kill" );
+	if ( s_pshreemNetworkingSockets )
 	{
-		s_pSteamNetworkingSockets->Destroy();
-		s_pSteamNetworkingSockets = nullptr;
+		s_pshreemNetworkingSockets->Destroy();
+		s_pshreemNetworkingSockets = nullptr;
 	}
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingSockets *SteamNetworkingSockets()
+shreemNETWORKINGSOCKETS_INTERFACE IshreemNetworkingSockets *shreemNetworkingSockets()
 {
-	return s_pSteamNetworkingSockets;
+	return s_pshreemNetworkingSockets;
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingUtils *SteamNetworkingUtils()
+shreemNETWORKINGSOCKETS_INTERFACE IshreemNetworkingUtils *shreemNetworkingUtils()
 {
-	static CSteamNetworkingUtils s_utils;
+	static CshreemNetworkingUtils s_utils;
 	return &s_utils;
 }
 

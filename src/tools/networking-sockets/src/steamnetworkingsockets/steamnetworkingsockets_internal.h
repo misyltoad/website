@@ -1,11 +1,11 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
-// Common stuff used by SteamNetworkingSockets code
+// Common stuff used by shreemNetworkingSockets code
 //
 //=============================================================================
 
-#ifndef STEAMNETWORKINGSOCKETS_INTERNAL_H
-#define STEAMNETWORKINGSOCKETS_INTERNAL_H
+#ifndef shreemNETWORKINGSOCKETS_INTERNAL_H
+#define shreemNETWORKINGSOCKETS_INTERNAL_H
 #pragma once
 
 // Socket headers
@@ -45,10 +45,10 @@
 #include <tier0/t0constants.h>
 #include <tier0/platform.h>
 #include <tier0/dbg.h>
-#ifdef STEAMNETWORKINGSOCKETS_STEAMCLIENT
+#ifdef shreemNETWORKINGSOCKETS_shreemCLIENT
 	#include <tier0/validator.h>
 #endif
-#include <steam/steamnetworkingtypes.h>
+#include <shreem/shreemnetworkingtypes.h>
 #include <tier1/netadr.h>
 #include <vstdlib/strtools.h>
 #include <vstdlib/random.h>
@@ -56,19 +56,19 @@
 #include <tier1/utlbuffer.h>
 #include "keypair.h"
 #include <tier0/memdbgoff.h>
-#include <steamnetworkingsockets_messages_certs.pb.h>
-#include <steam/isteamnetworkingutils.h> // for the rendering helpers
+#include <shreemnetworkingsockets_messages_certs.pb.h>
+#include <shreem/ishreemnetworkingutils.h> // for the rendering helpers
 
-// Running against Steam?  Then we have some default signaling.
+// Running against shreem?  Then we have some default signaling.
 // Otherwise, we don't
-#ifdef STEAMNETWORKINGSOCKETS_STEAM
-	#define STEAMNETWORKINGSOCKETS_HAS_DEFAULT_P2P_SIGNALING
-	#define STEAMNETWORKINGSOCKETS_ENABLE_STEAMNETWORKINGMESSAGES
+#ifdef shreemNETWORKINGSOCKETS_shreem
+	#define shreemNETWORKINGSOCKETS_HAS_DEFAULT_P2P_SIGNALING
+	#define shreemNETWORKINGSOCKETS_ENABLE_shreemNETWORKINGMESSAGES
 #endif
 
-#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
-	// STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT means we know how to make a cert request from some sort of certificate authority
-	#define STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
+#ifndef shreemNETWORKINGSOCKETS_OPENSOURCE
+	// shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT means we know how to make a cert request from some sort of certificate authority
+	#define shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
 #endif
 
 // Redefine the macros for byte-swapping, to sure the correct
@@ -132,7 +132,7 @@ struct iovec;
 #endif
 
 // Internal stuff goes in a private namespace
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 // Determine serialized size of protobuf msg.
 // Always return int, because size_t is dumb,
@@ -147,10 +147,10 @@ inline int ProtoMsgByteSize( const TMsg &msg )
 	#endif
 }
 
-struct SteamDatagramLinkStats;
-struct SteamDatagramLinkLifetimeStats;
-struct SteamDatagramLinkInstantaneousStats;
-struct SteamNetworkingDetailedConnectionStatus;
+struct shreemDatagramLinkStats;
+struct shreemDatagramLinkLifetimeStats;
+struct shreemDatagramLinkInstantaneousStats;
+struct shreemNetworkingDetailedConnectionStatus;
 
 // An identity operator that always returns its operand.
 // NOTE: std::hash is an identity operator on many compilers
@@ -177,29 +177,29 @@ inline int GetLastSocketError()
 /// Max size of UDP payload.  Includes API payload and
 /// any headers, but does not include IP/UDP headers
 /// (IP addresses, ports, checksum, etc.
-const int k_cbSteamNetworkingSocketsMaxUDPMsgLen = 1300;
+const int k_cbshreemNetworkingSocketsMaxUDPMsgLen = 1300;
 
 /// Do not allow MTU to be set less than this
-const int k_cbSteamNetworkingSocketsMinMTUPacketSize = 200;
+const int k_cbshreemNetworkingSocketsMinMTUPacketSize = 200;
 
 /// Overhead that we will reserve for stats, etc when calculating the max
 /// message that we won't fragment
-const int k_cbSteamNetworkingSocketsNoFragmentHeaderReserve = 100;
+const int k_cbshreemNetworkingSocketsNoFragmentHeaderReserve = 100;
 
 /// Size of security tag for AES-GCM.
 /// It would be nice to use a smaller tag, but BCrypt requires a 16-byte tag,
 /// which is what OpenSSL uses by default for TLS.
-const int k_cbSteamNetwokingSocketsEncrytionTagSize = 16;
+const int k_cbshreemNetwokingSocketsEncrytionTagSize = 16;
 
 /// Max length of plaintext and encrypted payload we will send.  AES-GCM does
 /// not use padding (but it does have the security tag).  So this can be
 /// arbitrary, it does not need to account for the block size.
-const int k_cbSteamNetworkingSocketsMaxEncryptedPayloadSend = 1248;
-const int k_cbSteamNetworkingSocketsMaxPlaintextPayloadSend = k_cbSteamNetworkingSocketsMaxEncryptedPayloadSend-k_cbSteamNetwokingSocketsEncrytionTagSize;
+const int k_cbshreemNetworkingSocketsMaxEncryptedPayloadSend = 1248;
+const int k_cbshreemNetworkingSocketsMaxPlaintextPayloadSend = k_cbshreemNetworkingSocketsMaxEncryptedPayloadSend-k_cbshreemNetwokingSocketsEncrytionTagSize;
 
 /// Use larger limits for what we are willing to receive.
-const int k_cbSteamNetworkingSocketsMaxEncryptedPayloadRecv = k_cbSteamNetworkingSocketsMaxUDPMsgLen;
-const int k_cbSteamNetworkingSocketsMaxPlaintextPayloadRecv = k_cbSteamNetworkingSocketsMaxUDPMsgLen;
+const int k_cbshreemNetworkingSocketsMaxEncryptedPayloadRecv = k_cbshreemNetworkingSocketsMaxUDPMsgLen;
+const int k_cbshreemNetworkingSocketsMaxPlaintextPayloadRecv = k_cbshreemNetworkingSocketsMaxUDPMsgLen;
 
 /// If we have a cert that is going to expire in <N secondws, try to renew it
 const int k_nSecCertExpirySeekRenew = 3600*2;
@@ -208,10 +208,10 @@ const int k_nSecCertExpirySeekRenew = 3600*2;
 /// FIXME - For relayed connections, we send some of the stats outside the encrypted block, so that
 /// they can be observed by the relay.  For direct connections, we put it in the encrypted block.
 /// So we might need to adjust this to be per connection type instead off constant.
-COMPILE_TIME_ASSERT( k_cbSteamNetworkingSocketsMaxEncryptedPayloadSend + 50 < k_cbSteamNetworkingSocketsMaxUDPMsgLen );
+COMPILE_TIME_ASSERT( k_cbshreemNetworkingSocketsMaxEncryptedPayloadSend + 50 < k_cbshreemNetworkingSocketsMaxUDPMsgLen );
 
 /// Min size of raw UDP message.
-const int k_nMinSteamDatagramUDPMsgLen = 5;
+const int k_nMinshreemDatagramUDPMsgLen = 5;
 
 /// When sending a stats message, what sort of reply is requested by the calling code?
 enum EStatsReplyRequest
@@ -224,12 +224,12 @@ enum EStatsReplyRequest
 
 /// Max time that we we should "Nagle" an ack, hoping to combine them together or
 /// piggy back on another outgoing message, before sending a standalone message.
-const SteamNetworkingMicroseconds k_usecMaxAckStatsDelay = 250*1000;
+const shreemNetworkingMicroseconds k_usecMaxAckStatsDelay = 250*1000;
 
 /// Max duration that a receiver could pend a data ack, in the hopes of trying
 /// to piggyback the ack on another outbound packet.
 /// !KLUDGE! This really ought to be application- (or connection-) specific.
-const SteamNetworkingMicroseconds k_usecMaxDataAckDelay = 50*1000;
+const shreemNetworkingMicroseconds k_usecMaxDataAckDelay = 50*1000;
 
 /// Precision of the delay ack delay values we send.  A packed value of 1 represents 2^N microseconds
 const unsigned k_usecAckDelayPacketSerializedPrecisionShift = 6;
@@ -238,38 +238,38 @@ COMPILE_TIME_ASSERT( ( (k_usecMaxAckStatsDelay*2) >> k_usecAckDelayPacketSeriali
 /// After a connection is closed, a session will hang out in a CLOSE_WAIT-like
 /// (or perhaps FIN_WAIT?) state to handle last stray packets and help both sides
 /// close cleanly.
-const SteamNetworkingMicroseconds k_usecSteamDatagramRouterCloseWait = k_nMillion*15;
+const shreemNetworkingMicroseconds k_usecshreemDatagramRouterCloseWait = k_nMillion*15;
 
 // Internal reason codes
-const int k_ESteamNetConnectionEnd_InternalRelay_SessionIdleTimeout = 9001;
-const int k_ESteamNetConnectionEnd_InternalRelay_ClientChangedTarget = 9002;
+const int k_EshreemNetConnectionEnd_InternalRelay_SessionIdleTimeout = 9001;
+const int k_EshreemNetConnectionEnd_InternalRelay_ClientChangedTarget = 9002;
 
 /// Timeout value for pings.  This basically determines the retry rate for pings.
 /// If a ping is longer than this, then really, the server should not probably not be
 /// considered available.
-const SteamNetworkingMicroseconds k_usecSteamDatagramClientPingTimeout = 0.750f * k_nMillion;
+const shreemNetworkingMicroseconds k_usecshreemDatagramClientPingTimeout = 0.750f * k_nMillion;
 
 /// Keepalive interval for currently selected router.  We send keepalive pings when
 /// we haven't heard anything from the router in a while, to see if we need
 /// to re-route.
-const SteamNetworkingMicroseconds k_usecSteamDatagramClientPrimaryRouterKeepaliveInterval = 1 * k_nMillion;
+const shreemNetworkingMicroseconds k_usecshreemDatagramClientPrimaryRouterKeepaliveInterval = 1 * k_nMillion;
 
 /// Keepalive interval for backup routers.  We send keepalive pings to
 /// make sure our backup session still exists and we could switch to it
 /// if it became necessary
-const SteamNetworkingMicroseconds k_usecSteamDatagramClientBackupRouterKeepaliveInterval = 45 * k_nMillion;
+const shreemNetworkingMicroseconds k_usecshreemDatagramClientBackupRouterKeepaliveInterval = 45 * k_nMillion;
 
 /// Keepalive interval for gameserver.  We send keepalive pings when we haven't
 /// heard anything from the gameserver in a while, in order to try and deduce
 /// where the router or gameserver are available.
-const SteamNetworkingMicroseconds k_usecSteamDatagramClientServerKeepaliveInterval = 1 * k_nMillion;
+const shreemNetworkingMicroseconds k_usecshreemDatagramClientServerKeepaliveInterval = 1 * k_nMillion;
 
 /// Timeout value for session request messages
-const SteamNetworkingMicroseconds k_usecSteamDatagramClientSessionRequestTimeout = 0.750f * k_nMillion;
+const shreemNetworkingMicroseconds k_usecshreemDatagramClientSessionRequestTimeout = 0.750f * k_nMillion;
 
 /// Router will continue to pend a client ping request for N microseconds,
 /// hoping for an opportunity to send it inline.
-const SteamNetworkingMicroseconds k_usecSteamDatagramRouterPendClientPing = 0.200*k_nMillion;
+const shreemNetworkingMicroseconds k_usecshreemDatagramRouterPendClientPing = 0.200*k_nMillion;
 
 /// When serializing a "time since I last sent a packet" value into the packet,
 /// what precision is used?  (A serialized value of 1 = 2^N microseconds.)
@@ -277,12 +277,12 @@ const unsigned k_usecTimeSinceLastPacketSerializedPrecisionShift = 4;
 
 /// "Time since last packet sent" values should be less than this.
 /// Any larger value will be discarded, and should not be sent
-const SteamNetworkingMicroseconds k_usecTimeSinceLastPacketMaxReasonable = k_nMillion/4;
+const shreemNetworkingMicroseconds k_usecTimeSinceLastPacketMaxReasonable = k_nMillion/4;
 COMPILE_TIME_ASSERT( ( k_usecTimeSinceLastPacketMaxReasonable >> k_usecTimeSinceLastPacketSerializedPrecisionShift ) < 0x8000 ); // make sure all "reasonable" values can get serialized into 16-bits
 
 ///	Don't send spacing values when packets are sent extremely close together.  The spacing
 /// should be a bit higher that our serialization precision.
-const SteamNetworkingMicroseconds k_usecTimeSinceLastPacketMinReasonable = 2 << k_usecTimeSinceLastPacketSerializedPrecisionShift;
+const shreemNetworkingMicroseconds k_usecTimeSinceLastPacketMinReasonable = 2 << k_usecTimeSinceLastPacketSerializedPrecisionShift;
 
 /// A really terrible ping score, but one that we can do some math with without overflowing
 constexpr int k_nRouteScoreHuge = INT_MAX/8;
@@ -299,7 +299,7 @@ const uint32 k_nCurrentProtocolVersion = 9;
 /// do this again, and we'll need to have more sophisticated mechanisms. 
 const uint32 k_nMinRequiredProtocolVersion = 8;
 
-/// SteamNetworkingMessages is built on top of SteamNetworkingSockets.  We use a reserved
+/// shreemNetworkingMessages is built on top of shreemNetworkingSockets.  We use a reserved
 /// virtual port for this interface
 const int k_nVirtualPort_Messages = 0x7fffffff;
 
@@ -397,9 +397,9 @@ inline const byte *DeserializeVarInt( const byte *p, const byte *end, T &x )
 	return DeserializeVarInt( const_cast<byte*>( p ), end, x );
 }
 
-void LinkStatsPrintInstantaneousToBuf( const char *pszLeader, const SteamDatagramLinkInstantaneousStats &stats, CUtlBuffer &buf );
-void LinkStatsPrintLifetimeToBuf( const char *pszLeader, const SteamDatagramLinkLifetimeStats &stats, CUtlBuffer &buf );
-void LinkStatsPrintToBuf( const char *pszLeader, const SteamDatagramLinkStats &stats, CUtlBuffer &buf );
+void LinkStatsPrintInstantaneousToBuf( const char *pszLeader, const shreemDatagramLinkInstantaneousStats &stats, CUtlBuffer &buf );
+void LinkStatsPrintLifetimeToBuf( const char *pszLeader, const shreemDatagramLinkLifetimeStats &stats, CUtlBuffer &buf );
+void LinkStatsPrintToBuf( const char *pszLeader, const shreemDatagramLinkStats &stats, CUtlBuffer &buf );
 
 class NumberPrettyPrinter
 {
@@ -461,11 +461,11 @@ extern uint64 CalculatePublicKeyID( const CECSigningPublicKey &pubKey );
 
 /// Check an arbitrary signature using the specified public key.  (It's assumed that you have
 /// already verified that this public key is from somebody you trust.)
-extern bool BCheckSignature( const std::string &signed_data, CMsgSteamDatagramCertificate_EKeyType eKeyType, const std::string &public_key, const std::string &signature, SteamDatagramErrMsg &errMsg );
+extern bool BCheckSignature( const std::string &signed_data, CMsgshreemDatagramCertificate_EKeyType eKeyType, const std::string &public_key, const std::string &signature, shreemDatagramErrMsg &errMsg );
 
 /// Parse PEM-like blob to a cert
-extern bool ParseCertFromPEM( const void *pCert, size_t cbCert, CMsgSteamDatagramCertificateSigned &outMsgSignedCert, SteamNetworkingErrMsg &errMsg );
-extern bool ParseCertFromBase64( const char *pBase64Data, size_t cbBase64Data, CMsgSteamDatagramCertificateSigned &outMsgSignedCert, SteamNetworkingErrMsg &errMsg );
+extern bool ParseCertFromPEM( const void *pCert, size_t cbCert, CMsgshreemDatagramCertificateSigned &outMsgSignedCert, shreemNetworkingErrMsg &errMsg );
+extern bool ParseCertFromBase64( const char *pBase64Data, size_t cbBase64Data, CMsgshreemDatagramCertificateSigned &outMsgSignedCert, shreemNetworkingErrMsg &errMsg );
 
 
 inline bool IsPrivateIP( uint32 unIP )
@@ -480,9 +480,9 @@ inline bool IsPrivateIP( uint32 unIP )
 	return false;
 }
 
-extern const char *GetAvailabilityString( ESteamNetworkingAvailability a );
+extern const char *GetAvailabilityString( EshreemNetworkingAvailability a );
 
-inline void SteamNetworkingIPAddrToNetAdr( netadr_t &netadr, const SteamNetworkingIPAddr &addr )
+inline void shreemNetworkingIPAddrToNetAdr( netadr_t &netadr, const shreemNetworkingIPAddr &addr )
 {
 	uint32 ipv4 = addr.GetIPv4();
 	if ( ipv4 )
@@ -492,13 +492,13 @@ inline void SteamNetworkingIPAddrToNetAdr( netadr_t &netadr, const SteamNetworki
 	netadr.SetPort( addr.m_port );
 }
 
-inline void NetAdrToSteamNetworkingIPAddr( SteamNetworkingIPAddr &addr, const netadr_t &netadr )
+inline void NetAdrToshreemNetworkingIPAddr( shreemNetworkingIPAddr &addr, const netadr_t &netadr )
 {
 	netadr.GetIPV6( addr.m_ipv6 );
 	addr.m_port = netadr.GetPort();
 }
 
-inline bool AddrEqual( const SteamNetworkingIPAddr &s, const netadr_t &n )
+inline bool AddrEqual( const shreemNetworkingIPAddr &s, const netadr_t &n )
 {
 	if ( s.m_port != n.GetPort() )
 		return false;
@@ -524,34 +524,34 @@ inline int64 NearestWithSameLowerBits( T nLowerBits, int64 nReference )
 }
 
 /// Calculate hash of identity.
-struct SteamNetworkingIdentityHash
+struct shreemNetworkingIdentityHash
 {
-	uint32 operator()( const SteamNetworkingIdentity &x ) const;
+	uint32 operator()( const shreemNetworkingIdentity &x ) const;
 };
 
-inline bool IsValidSteamIDForIdentity( CSteamID steamID )
+inline bool IsValidshreemIDForIdentity( CshreemID shreemID )
 {
-	return steamID.GetAccountID() != 0 && ( steamID.BIndividualAccount() || steamID.BGameServerAccount() );
+	return shreemID.GetAccountID() != 0 && ( shreemID.BIndividualAccount() || shreemID.BGameServerAccount() );
 }
 
-inline bool IsValidSteamIDForIdentity( uint64 steamid64 ) { return IsValidSteamIDForIdentity( CSteamID( steamid64 ) ); }
+inline bool IsValidshreemIDForIdentity( uint64 shreemid64 ) { return IsValidshreemIDForIdentity( CshreemID( shreemid64 ) ); }
 
-extern bool BSteamNetworkingIdentityToProtobufInternal( const SteamNetworkingIdentity &identity, std::string *strIdentity, CMsgSteamNetworkingIdentityLegacyBinary *msgIdentityLegacyBinary, SteamDatagramErrMsg &errMsg );
-extern bool BSteamNetworkingIdentityToProtobufInternal( const SteamNetworkingIdentity &identity, std::string *strIdentity, std::string *bytesMsgIdentityLegacyBinary, SteamDatagramErrMsg &errMsg );
-#define BSteamNetworkingIdentityToProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_steam_id, errMsg ) ( \
-		( (identity).GetSteamID64() ? (void)(msg).set_ ## field_legacy_steam_id( (identity).GetSteamID64() ) : (void)0 ), \
-		BSteamNetworkingIdentityToProtobufInternal( identity, (msg).mutable_ ## field_identity_string(), (msg).mutable_ ## field_identity_legacy_binary(), errMsg ) \
+extern bool BshreemNetworkingIdentityToProtobufInternal( const shreemNetworkingIdentity &identity, std::string *strIdentity, CMsgshreemNetworkingIdentityLegacyBinary *msgIdentityLegacyBinary, shreemDatagramErrMsg &errMsg );
+extern bool BshreemNetworkingIdentityToProtobufInternal( const shreemNetworkingIdentity &identity, std::string *strIdentity, std::string *bytesMsgIdentityLegacyBinary, shreemDatagramErrMsg &errMsg );
+#define BshreemNetworkingIdentityToProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_shreem_id, errMsg ) ( \
+		( (identity).GetshreemID64() ? (void)(msg).set_ ## field_legacy_shreem_id( (identity).GetshreemID64() ) : (void)0 ), \
+		BshreemNetworkingIdentityToProtobufInternal( identity, (msg).mutable_ ## field_identity_string(), (msg).mutable_ ## field_identity_legacy_binary(), errMsg ) \
 	)
-#define SteamNetworkingIdentityToProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_steam_id ) \
-	{ SteamDatagramErrMsg identityToProtobufErrMsg; \
-		if ( !BSteamNetworkingIdentityToProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_steam_id, identityToProtobufErrMsg ) ) { \
+#define shreemNetworkingIdentityToProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_shreem_id ) \
+	{ shreemDatagramErrMsg identityToProtobufErrMsg; \
+		if ( !BshreemNetworkingIdentityToProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_shreem_id, identityToProtobufErrMsg ) ) { \
 			AssertMsg2( false, "Failed to serialize identity to %s message.  %s", msg.GetTypeName().c_str(), identityToProtobufErrMsg ); \
 		} \
 	}
 
-extern bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &identity, const std::string &bytesMsgIdentity, SteamDatagramErrMsg &errMsg );
-extern bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &identity, const CMsgSteamNetworkingIdentityLegacyBinary &msgIdentity, SteamDatagramErrMsg &errMsg );
-extern bool BSteamNetworkingIdentityFromLegacySteamID( SteamNetworkingIdentity &identity, uint64 legacy_steam_id, SteamDatagramErrMsg &errMsg );
+extern bool BshreemNetworkingIdentityFromLegacyBinaryProtobuf( shreemNetworkingIdentity &identity, const std::string &bytesMsgIdentity, shreemDatagramErrMsg &errMsg );
+extern bool BshreemNetworkingIdentityFromLegacyBinaryProtobuf( shreemNetworkingIdentity &identity, const CMsgshreemNetworkingIdentityLegacyBinary &msgIdentity, shreemDatagramErrMsg &errMsg );
+extern bool BshreemNetworkingIdentityFromLegacyshreemID( shreemNetworkingIdentity &identity, uint64 legacy_shreem_id, shreemDatagramErrMsg &errMsg );
 
 template <typename TStatsMsg>
 inline uint32 StatsMsgImpliedFlags( const TStatsMsg &msg );
@@ -569,20 +569,20 @@ inline void SetStatsMsgFlagsIfNotImplied( TStatsMsg &msg, uint32 nFlags )
 // <0 Bad data
 // 0  No data
 // >0 OK
-#define SteamNetworkingIdentityFromProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_steam_id, errMsg ) \
+#define shreemNetworkingIdentityFromProtobuf( identity, msg, field_identity_string, field_identity_legacy_binary, field_legacy_shreem_id, errMsg ) \
 	( \
-		(msg).has_ ##field_identity_string() ? ( SteamNetworkingIdentity_ParseString( &(identity), sizeof(identity), (msg).field_identity_string().c_str() ) ? +1 : ( V_strcpy_safe( errMsg, "Failed to parse string" ), -1 ) ) \
-		: (msg).has_ ##field_identity_legacy_binary() ? ( BSteamNetworkingIdentityFromLegacyBinaryProtobuf( identity, (msg).field_identity_legacy_binary(), errMsg ) ? +1 : -1 ) \
-		: (msg).has_ ##field_legacy_steam_id() ? ( BSteamNetworkingIdentityFromLegacySteamID( identity, (msg).field_legacy_steam_id(), errMsg ) ? +1 : -1 ) \
+		(msg).has_ ##field_identity_string() ? ( shreemNetworkingIdentity_ParseString( &(identity), sizeof(identity), (msg).field_identity_string().c_str() ) ? +1 : ( V_strcpy_safe( errMsg, "Failed to parse string" ), -1 ) ) \
+		: (msg).has_ ##field_identity_legacy_binary() ? ( BshreemNetworkingIdentityFromLegacyBinaryProtobuf( identity, (msg).field_identity_legacy_binary(), errMsg ) ? +1 : -1 ) \
+		: (msg).has_ ##field_legacy_shreem_id() ? ( BshreemNetworkingIdentityFromLegacyshreemID( identity, (msg).field_legacy_shreem_id(), errMsg ) ? +1 : -1 ) \
 		: ( V_strcpy_safe( errMsg, "No identity data" ), 0 ) \
 	)
-inline int SteamNetworkingIdentityFromCert( SteamNetworkingIdentity &result, const CMsgSteamDatagramCertificate &msgCert, SteamDatagramErrMsg &errMsg )
+inline int shreemNetworkingIdentityFromCert( shreemNetworkingIdentity &result, const CMsgshreemDatagramCertificate &msgCert, shreemDatagramErrMsg &errMsg )
 {
-	return SteamNetworkingIdentityFromProtobuf( result, msgCert, identity_string, legacy_identity_binary, legacy_steam_id, errMsg );
+	return shreemNetworkingIdentityFromProtobuf( result, msgCert, identity_string, legacy_identity_binary, legacy_shreem_id, errMsg );
 }
 
 // NOTE: Does NOT check the cert signature!
-extern int SteamNetworkingIdentityFromSignedCert( SteamNetworkingIdentity &result, const CMsgSteamDatagramCertificateSigned &msgCertSigned, SteamDatagramErrMsg &errMsg );
+extern int shreemNetworkingIdentityFromSignedCert( shreemNetworkingIdentity &result, const CMsgshreemDatagramCertificateSigned &msgCertSigned, shreemDatagramErrMsg &errMsg );
 
 struct ConfigValueBase
 {
@@ -650,20 +650,20 @@ struct ConfigValue : public ConfigValueBase
 };
 
 template <typename T> struct ConfigDataTypeTraits {};
-template <> struct ConfigDataTypeTraits<int32> { const static ESteamNetworkingConfigDataType k_eDataType = k_ESteamNetworkingConfig_Int32; };
-template <> struct ConfigDataTypeTraits<int64> { const static ESteamNetworkingConfigDataType k_eDataType = k_ESteamNetworkingConfig_Int64; };
-template <> struct ConfigDataTypeTraits<float> { const static ESteamNetworkingConfigDataType k_eDataType = k_ESteamNetworkingConfig_Float; };
-template <> struct ConfigDataTypeTraits<std::string> { const static ESteamNetworkingConfigDataType k_eDataType = k_ESteamNetworkingConfig_String; };
-template <> struct ConfigDataTypeTraits<void*> { const static ESteamNetworkingConfigDataType k_eDataType = k_ESteamNetworkingConfig_Ptr; };
+template <> struct ConfigDataTypeTraits<int32> { const static EshreemNetworkingConfigDataType k_eDataType = k_EshreemNetworkingConfig_Int32; };
+template <> struct ConfigDataTypeTraits<int64> { const static EshreemNetworkingConfigDataType k_eDataType = k_EshreemNetworkingConfig_Int64; };
+template <> struct ConfigDataTypeTraits<float> { const static EshreemNetworkingConfigDataType k_eDataType = k_EshreemNetworkingConfig_Float; };
+template <> struct ConfigDataTypeTraits<std::string> { const static EshreemNetworkingConfigDataType k_eDataType = k_EshreemNetworkingConfig_String; };
+template <> struct ConfigDataTypeTraits<void*> { const static EshreemNetworkingConfigDataType k_eDataType = k_EshreemNetworkingConfig_Ptr; };
 
 struct GlobalConfigValueEntry
 {
-	GlobalConfigValueEntry( ESteamNetworkingConfigValue eValue, const char *pszName, ESteamNetworkingConfigDataType eDataType, ESteamNetworkingConfigScope eScope, int cbOffsetOf );
+	GlobalConfigValueEntry( EshreemNetworkingConfigValue eValue, const char *pszName, EshreemNetworkingConfigDataType eDataType, EshreemNetworkingConfigScope eScope, int cbOffsetOf );
 
-	ESteamNetworkingConfigValue const m_eValue;
+	EshreemNetworkingConfigValue const m_eValue;
 	const char *const m_pszName;
-	ESteamNetworkingConfigDataType const m_eDataType;
-	ESteamNetworkingConfigScope const m_eScope;
+	EshreemNetworkingConfigDataType const m_eDataType;
+	EshreemNetworkingConfigScope const m_eScope;
 	int const m_cbOffsetOf;
 	GlobalConfigValueEntry *m_pNextEntry;
 
@@ -696,13 +696,13 @@ template<> inline void GlobalConfigValueEntry::Clamp<float>( float &val ) { val 
 template<typename T>
 struct GlobalConfigValueBase : GlobalConfigValueEntry
 {
-	GlobalConfigValueBase( ESteamNetworkingConfigValue eValue, const char *pszName, ESteamNetworkingConfigScope eScope, int cbOffsetOf, const T &defaultValue )
+	GlobalConfigValueBase( EshreemNetworkingConfigValue eValue, const char *pszName, EshreemNetworkingConfigScope eScope, int cbOffsetOf, const T &defaultValue )
 	: GlobalConfigValueEntry( eValue, pszName, ConfigDataTypeTraits<T>::k_eDataType, eScope, cbOffsetOf )
 	, m_value{defaultValue}
 	{
 		GlobalConfigValueEntry::NoLimits<T>();
 	}
-	GlobalConfigValueBase( ESteamNetworkingConfigValue eValue, const char *pszName, ESteamNetworkingConfigScope eScope, int cbOffsetOf, const T &defaultValue, const T &minVal, const T &maxVal )
+	GlobalConfigValueBase( EshreemNetworkingConfigValue eValue, const char *pszName, EshreemNetworkingConfigScope eScope, int cbOffsetOf, const T &defaultValue, const T &minVal, const T &maxVal )
 	: GlobalConfigValueEntry( eValue, pszName, ConfigDataTypeTraits<T>::k_eDataType, eScope, cbOffsetOf )
 	, m_value{defaultValue}
 	{
@@ -727,10 +727,10 @@ struct GlobalConfigValueBase : GlobalConfigValueEntry
 template<typename T>
 struct GlobalConfigValue : GlobalConfigValueBase<T>
 {
-	GlobalConfigValue( ESteamNetworkingConfigValue eValue, const char *pszName, const T &defaultValue )
-	: GlobalConfigValueBase<T>( eValue, pszName, k_ESteamNetworkingConfig_Global, 0, defaultValue ) {}
-	GlobalConfigValue( ESteamNetworkingConfigValue eValue, const char *pszName, const T &defaultValue, const T &minVal, const T &maxVal )
-	: GlobalConfigValueBase<T>( eValue, pszName, k_ESteamNetworkingConfig_Global, 0, defaultValue, minVal, maxVal ) {}
+	GlobalConfigValue( EshreemNetworkingConfigValue eValue, const char *pszName, const T &defaultValue )
+	: GlobalConfigValueBase<T>( eValue, pszName, k_EshreemNetworkingConfig_Global, 0, defaultValue ) {}
+	GlobalConfigValue( EshreemNetworkingConfigValue eValue, const char *pszName, const T &defaultValue, const T &minVal, const T &maxVal )
+	: GlobalConfigValueBase<T>( eValue, pszName, k_EshreemNetworkingConfig_Global, 0, defaultValue, minVal, maxVal ) {}
 };
 
 struct ConnectionConfig
@@ -755,13 +755,13 @@ struct ConnectionConfig
 
 	ConfigValue<void *> m_Callback_ConnectionStatusChanged;
 
-	#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+	#ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 		ConfigValue<std::string> m_P2P_STUN_ServerList;
 		ConfigValue<int32> m_P2P_Transport_ICE_Enable;
 		ConfigValue<int32> m_P2P_Transport_ICE_Penalty;
 	#endif
 
-	#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+	#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 		ConfigValue<std::string> m_SDRClient_DebugTicketAddress;
 		ConfigValue<int32> m_P2P_Transport_SDR_Penalty;
 	#endif
@@ -772,10 +772,10 @@ struct ConnectionConfig
 template<typename T>
 struct ConnectionConfigDefaultValue : GlobalConfigValueBase<T>
 {
-	ConnectionConfigDefaultValue( ESteamNetworkingConfigValue eValue, const char *pszName, int cbOffsetOf, const T &defaultValue )
-	: GlobalConfigValueBase<T>( eValue, pszName, k_ESteamNetworkingConfig_Connection, cbOffsetOf, defaultValue ) {}
-	ConnectionConfigDefaultValue( ESteamNetworkingConfigValue eValue, const char *pszName, int cbOffsetOf, const T &defaultValue, const T &minVal, const T &maxVal )
-	: GlobalConfigValueBase<T>( eValue, pszName, k_ESteamNetworkingConfig_Connection, cbOffsetOf, defaultValue, minVal, maxVal ) {}
+	ConnectionConfigDefaultValue( EshreemNetworkingConfigValue eValue, const char *pszName, int cbOffsetOf, const T &defaultValue )
+	: GlobalConfigValueBase<T>( eValue, pszName, k_EshreemNetworkingConfig_Connection, cbOffsetOf, defaultValue ) {}
+	ConnectionConfigDefaultValue( EshreemNetworkingConfigValue eValue, const char *pszName, int cbOffsetOf, const T &defaultValue, const T &minVal, const T &maxVal )
+	: GlobalConfigValueBase<T>( eValue, pszName, k_EshreemNetworkingConfig_Connection, cbOffsetOf, defaultValue, minVal, maxVal ) {}
 };
 
 extern GlobalConfigValue<float> g_Config_FakePacketLoss_Send;
@@ -790,12 +790,12 @@ extern GlobalConfigValue<float> g_Config_FakePacketDup_Recv;
 extern GlobalConfigValue<int32> g_Config_FakePacketDup_TimeMax;
 extern GlobalConfigValue<int32> g_Config_EnumerateDevVars;
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_STEAMNETWORKINGMESSAGES
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_shreemNETWORKINGMESSAGES
 extern GlobalConfigValue<void*> g_Config_Callback_MessagesSessionRequest;
 extern GlobalConfigValue<void*> g_Config_Callback_MessagesSessionFailed;
 #endif
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 extern GlobalConfigValue<int32> g_Config_SDRClient_ConsecutitivePingTimeoutsFailInitial;
 extern GlobalConfigValue<int32> g_Config_SDRClient_ConsecutitivePingTimeoutsFail;
 extern GlobalConfigValue<int32> g_Config_SDRClient_MinPingsBeforePingAccurate;
@@ -806,7 +806,7 @@ extern GlobalConfigValue<std::string> g_Config_SDRClient_ForceProxyAddr;
 extern GlobalConfigValue<std::string> g_Config_SDRClient_FakeClusterPing;
 #endif
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 extern ConnectionConfigDefaultValue< std::string > g_ConfigDefault_P2P_STUN_ServerList;
 #endif
 
@@ -815,9 +815,9 @@ extern ConnectionConfigDefaultValue< std::string > g_ConfigDefault_P2P_STUN_Serv
 #define V_offsetof(class, field) (int)((intptr_t)&((class *)(0+sizeof(intptr_t)))->field - sizeof(intptr_t))
 
 #define DEFINE_GLOBAL_CONFIGVAL( type, name, ... ) \
-	GlobalConfigValue<type> g_Config_##name( k_ESteamNetworkingConfig_##name, #name, __VA_ARGS__ )
+	GlobalConfigValue<type> g_Config_##name( k_EshreemNetworkingConfig_##name, #name, __VA_ARGS__ )
 #define DEFINE_CONNECTON_DEFAULT_CONFIGVAL( type, name, ... ) \
-	ConnectionConfigDefaultValue<type> g_ConfigDefault_##name( k_ESteamNetworkingConfig_##name, #name, V_offsetof(ConnectionConfig, m_##name), __VA_ARGS__ )
+	ConnectionConfigDefaultValue<type> g_ConfigDefault_##name( k_EshreemNetworkingConfig_##name, #name, V_offsetof(ConnectionConfig, m_##name), __VA_ARGS__ )
 
 inline bool RandomBoolWithOdds( float odds )
 {
@@ -827,7 +827,7 @@ inline bool RandomBoolWithOdds( float odds )
 	return WeakRandomFloat( 0, 100.0 ) < odds;
 }
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 
 #include <tier0/memdbgon.h>
 
@@ -835,27 +835,27 @@ inline bool RandomBoolWithOdds( float odds )
 // 0 = disabled
 // 1 = sometimes
 // 2 = max
-#ifndef STEAMNETWORKINGSOCKETS_SNP_PARANOIA
+#ifndef shreemNETWORKINGSOCKETS_SNP_PARANOIA
 	#ifdef _DEBUG
-		#define STEAMNETWORKINGSOCKETS_SNP_PARANOIA 2
+		#define shreemNETWORKINGSOCKETS_SNP_PARANOIA 2
 	#else
-		#define STEAMNETWORKINGSOCKETS_SNP_PARANOIA 0
+		#define shreemNETWORKINGSOCKETS_SNP_PARANOIA 0
 	#endif
 #endif
 
-#if ( STEAMNETWORKINGSOCKETS_SNP_PARANOIA > 0 ) && ( defined(__GNUC__ ) && defined( __linux__ ) && !defined( __ANDROID__ ) )
-	#define STEAMNETWORKINGSOCKETS_USE_GNU_DEBUG_MAP
+#if ( shreemNETWORKINGSOCKETS_SNP_PARANOIA > 0 ) && ( defined(__GNUC__ ) && defined( __linux__ ) && !defined( __ANDROID__ ) )
+	#define shreemNETWORKINGSOCKETS_USE_GNU_DEBUG_MAP
 	#include <debug/map>
 #endif
 
 // Declare std_vector and std_map in our namespace.  They use debug versions when available,
 // a custom allocator
-namespace SteamNetworkingSocketsLib
+namespace shreemNetworkingSocketsLib
 {
 
 	// Custom allocator that use malloc/free (and right now, those are #defines
 	// that go to our own functions if we are overriding memory allocation.)
-	#ifdef STEAMNETWORKINGSOCKETS_ENABLE_MEM_OVERRIDE
+	#ifdef shreemNETWORKINGSOCKETS_ENABLE_MEM_OVERRIDE
 		template <typename T>
 		struct Allocator
 		{
@@ -871,7 +871,7 @@ namespace SteamNetworkingSocketsLib
 		template <typename T> using Allocator = std::allocator<T>;
 	#endif
 
-	#ifdef STEAMNETWORKINGSOCKETS_USE_GNU_DEBUG_MAP
+	#ifdef shreemNETWORKINGSOCKETS_USE_GNU_DEBUG_MAP
 		// Use debug version of std::map
 		template< typename K, typename V, typename L = std::less<K> >
 		using std_map = __gnu_debug::map<K,V,L, Allocator< std::pair<const K, V> > >;
@@ -982,7 +982,7 @@ inline int len( const std::map<K,V,L,A> &map )
 	return (int)map.size();
 }
 
-#ifdef STEAMNETWORKINGSOCKETS_USE_GNU_DEBUG_MAP
+#ifdef shreemNETWORKINGSOCKETS_USE_GNU_DEBUG_MAP
 	template <typename K, typename V, typename L, typename A>
 	inline int len( const __gnu_debug::map<K,V,L,A> &map )
 	{
@@ -1331,4 +1331,4 @@ namespace vstd
 
 } // namespace vstd
 
-#endif // STEAMNETWORKINGSOCKETS_INTERNAL_H
+#endif // shreemNETWORKINGSOCKETS_INTERNAL_H

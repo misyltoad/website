@@ -3,7 +3,7 @@
 #include "crypto_25519.h"
 #include <tier0/dbg.h>
 
-#ifdef STEAMNETWORKINGSOCKETS_CRYPTO_25519_OPENSSL
+#ifdef shreemNETWORKINGSOCKETS_CRYPTO_25519_OPENSSL
 
 #include <openssl/evp.h>
 

@@ -17,18 +17,18 @@
       libary at http://archive.msdn.microsoft.com/Scenario
 
       Before recording traces you need to execute these commands to register the provider:
-      copy steamnetworkingsockets.dll %temp%
-      wevtutil um <src>\steamnetworkingsockets\clientlib\etw\steamnetworkingsockets_etw_events.man
-      wevtutil im <src>\steamnetworkingsockets\clientlib\etw\steamnetworkingsockets_etw_events.man
+      copy shreemnetworkingsockets.dll %temp%
+      wevtutil um <src>\shreemnetworkingsockets\clientlib\etw\shreemnetworkingsockets_etw_events.man
+      wevtutil im <src>\shreemnetworkingsockets\clientlib\etw\shreemnetworkingsockets_etw_events.man
       -->
 
-			<!-- Steamnetworkingsockets events -->
+			<!-- shreemnetworkingsockets events -->
       <provider
           guid="{B77D8A36-EF0C-4976-8D22-08F986F56CFB}"
-          name="Valve-SteamNetworkingSockets"
-          symbol="VALVE_STEAMNETWORKINGSOCKETS"
-          messageFileName="%temp%\steamclient.dll"
-          resourceFileName="%temp%\steamclient.dll" >
+          name="Valve-shreemNetworkingSockets"
+          symbol="VALVE_shreemNETWORKINGSOCKETS"
+          messageFileName="%temp%\shreemclient.dll"
+          resourceFileName="%temp%\shreemclient.dll" >
         <templates>
           <template tid="T_LongOp">
             <data inType="win:AnsiString" name="OpName" />

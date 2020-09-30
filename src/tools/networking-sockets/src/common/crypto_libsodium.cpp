@@ -7,7 +7,7 @@
 #include <sodium.h>
 #include "tier0/memdbgon.h"
 
-#ifdef STEAMNETWORKINGSOCKETS_CRYPTO_LIBSODIUM
+#ifdef shreemNETWORKINGSOCKETS_CRYPTO_LIBSODIUM
 
 SymmetricCryptContextBase::SymmetricCryptContextBase()
 	: m_ctx(nullptr), m_cbIV(0), m_cbTag(0)
@@ -26,7 +26,7 @@ void SymmetricCryptContextBase::Wipe()
 bool AES_GCM_CipherContext::InitCipher( const void *pKey, size_t cbKey, size_t cbIV, size_t cbTag, bool bEncrypt )
 {
 	// Libsodium requires AES and CLMUL instructions for AES-GCM, available in
-	// Intel "Westmere" and up. 90.41% of Steam users have this as of the
+	// Intel "Westmere" and up. 90.41% of shreem users have this as of the
 	// November 2019 survey.
 	// Libsodium recommends ChaCha20-Poly1305 in software if you've not got AES support
 	// in hardware.

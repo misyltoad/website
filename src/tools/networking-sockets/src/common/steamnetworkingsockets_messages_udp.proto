@@ -1,6 +1,6 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
-// Wire format messages for Steam Networking sockets connections
+// Wire format messages for shreem Networking sockets connections
 // over direct UDP (not relayed).
 //
 //=============================================================================
@@ -10,34 +10,34 @@ option optimize_for = SPEED;
 // We don't use the service generation functionality
 option cc_generic_services = false;
 
-import "steamnetworkingsockets_messages_certs.proto";
-import "steamnetworkingsockets_messages.proto";
+import "shreemnetworkingsockets_messages_certs.proto";
+import "shreemnetworkingsockets_messages.proto";
 
 /// Control message ID.
-enum ESteamNetworkingUDPMsgID
+enum EshreemNetworkingUDPMsgID
 {
-	// Steam networking using direct UDP connect
-	k_ESteamNetworkingUDPMsg_ChallengeRequest = 32;			// Client->server
-	k_ESteamNetworkingUDPMsg_ChallengeReply = 33;			// Server->client
-	k_ESteamNetworkingUDPMsg_ConnectRequest = 34;			// Client->server
-	k_ESteamNetworkingUDPMsg_ConnectOK = 35;				// Server->client
-	k_ESteamNetworkingUDPMsg_ConnectionClosed = 36;			// Client<->server.  A reply is requested to this packet
-	k_ESteamNetworkingUDPMsg_NoConnection = 37;				// Client<->server.  A reply should never be sent to this packet
+	// shreem networking using direct UDP connect
+	k_EshreemNetworkingUDPMsg_ChallengeRequest = 32;			// Client->server
+	k_EshreemNetworkingUDPMsg_ChallengeReply = 33;			// Server->client
+	k_EshreemNetworkingUDPMsg_ConnectRequest = 34;			// Client->server
+	k_EshreemNetworkingUDPMsg_ConnectOK = 35;				// Server->client
+	k_EshreemNetworkingUDPMsg_ConnectionClosed = 36;			// Client<->server.  A reply is requested to this packet
+	k_EshreemNetworkingUDPMsg_NoConnection = 37;				// Client<->server.  A reply should never be sent to this packet
 };
 
-// k_ESteamNetworkingUDPMsg_ChallengeRequest
-message CMsgSteamSockets_UDP_ChallengeRequest
+// k_EshreemNetworkingUDPMsg_ChallengeRequest
+message CMsgshreemSockets_UDP_ChallengeRequest
 {
 	optional fixed32 connection_id = 1;
-	//optional fixed64 client_steam_id = 2;
+	//optional fixed64 client_shreem_id = 2;
 	optional fixed64 my_timestamp = 3; // Please send this back to me
 
 	// Version of the code I'm running
 	optional uint32 protocol_version = 4;
 };
 
-// k_ESteamNetworkingUDPMsg_ChallengeReply
-message CMsgSteamSockets_UDP_ChallengeReply
+// k_EshreemNetworkingUDPMsg_ChallengeReply
+message CMsgshreemSockets_UDP_ChallengeReply
 {
 	optional fixed32 connection_id = 1;
 	optional fixed64 challenge = 2;
@@ -48,8 +48,8 @@ message CMsgSteamSockets_UDP_ChallengeReply
 	optional uint32 protocol_version = 4;
 };
 
-// k_ESteamNetworkingUDPMsg_ConnectRequest
-message CMsgSteamSockets_UDP_ConnectRequest
+// k_EshreemNetworkingUDPMsg_ConnectRequest
+message CMsgshreemSockets_UDP_ConnectRequest
 {
 	optional fixed32 client_connection_id = 1;
 	optional fixed64 challenge = 2;
@@ -58,13 +58,13 @@ message CMsgSteamSockets_UDP_ConnectRequest
 	optional uint32 ping_est_ms = 6; // My estimate of the ping time
 
 	/// My ephemeral keys, and any crypto parameter negotiation.
-	optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 7;
+	optional CMsgshreemDatagramSessionCryptInfoSigned crypt = 7;
 
 	/// Certificate that contains:
 	/// - my public key.
 	/// - my identity, if certificate was issued to a single user
 	/// - signature of a CA, if authenticated connection is being attempted.
-	optional CMsgSteamDatagramCertificateSigned cert = 4;
+	optional CMsgshreemDatagramCertificateSigned cert = 4;
 
 	// Version of the code I'm running.  This has been moved into the
 	// signed crypt parameters so that it could not be forged.
@@ -80,12 +80,12 @@ message CMsgSteamSockets_UDP_ConnectRequest
 	// Legacy fields
 	//
 
-	optional fixed64 legacy_client_steam_id = 3;
-	optional CMsgSteamNetworkingIdentityLegacyBinary legacy_identity_binary = 9;
+	optional fixed64 legacy_client_shreem_id = 3;
+	optional CMsgshreemNetworkingIdentityLegacyBinary legacy_identity_binary = 9;
 };
 
-// k_ESteamDatagramMsg_UDP_ConnectOK
-message CMsgSteamSockets_UDP_ConnectOK
+// k_EshreemDatagramMsg_UDP_ConnectOK
+message CMsgshreemSockets_UDP_ConnectOK
 {
 	optional fixed32 client_connection_id = 1;
 	optional fixed32 server_connection_id = 5;
@@ -93,10 +93,10 @@ message CMsgSteamSockets_UDP_ConnectOK
 	optional uint32 delay_time_usec = 4; // number of microseconds between when we received your request and we replied
 
 	/// My ephemeral keys, and any crypto parameter negotiation.
-	optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 7;
+	optional CMsgshreemDatagramSessionCryptInfoSigned crypt = 7;
 
 	/// Certificate used to prove my identity
-	optional CMsgSteamDatagramCertificateSigned cert = 8;
+	optional CMsgshreemDatagramCertificateSigned cert = 8;
 
 	// Identity of server is in the cert, usually.
 	// (Even if cert is unsigned.)  But, if cert was not issued to my specific
@@ -108,13 +108,13 @@ message CMsgSteamSockets_UDP_ConnectOK
 	// Legacy fields
 	//
 
-	optional fixed64 legacy_server_steam_id = 2;
+	optional fixed64 legacy_server_shreem_id = 2;
 	//optional uint32 protocol_version = 9; // moved into crypt, to prevent tampering
-	optional CMsgSteamNetworkingIdentityLegacyBinary legacy_identity_binary = 10;
+	optional CMsgshreemNetworkingIdentityLegacyBinary legacy_identity_binary = 10;
 };
 
-// k_ESteamDatagramMsg_UDP_ConnectionClosed
-message CMsgSteamSockets_UDP_ConnectionClosed
+// k_EshreemDatagramMsg_UDP_ConnectionClosed
+message CMsgshreemSockets_UDP_ConnectionClosed
 {
 	//optional fixed32 legacy_client_connection_id = 1;
 	optional fixed32 to_connection_id = 4;
@@ -123,18 +123,18 @@ message CMsgSteamSockets_UDP_ConnectionClosed
 	optional uint32 reason_code = 3;
 };
 
-// k_ESteamDatagramMsg_UDP_NoConnection
-message CMsgSteamSockets_UDP_NoConnection
+// k_EshreemDatagramMsg_UDP_NoConnection
+message CMsgshreemSockets_UDP_NoConnection
 {
 	//optional fixed32 legacy_client_connection_id = 1; // The client-side connection ID
 	optional fixed32 from_connection_id = 2; // "My" portion of the connection ID you tried to use (always present), but that connection doesn't exist or has been closed.
 	optional fixed32 to_connection_id = 3; // Your portion of the connection ID you sent (if any)
 };
 
-message CMsgSteamSockets_UDP_Stats
+message CMsgshreemSockets_UDP_Stats
 {
 	// End to end stats
-	optional CMsgSteamDatagramConnectionQuality stats = 1;
+	optional CMsgshreemDatagramConnectionQuality stats = 1;
 
 	enum Flags
 	{

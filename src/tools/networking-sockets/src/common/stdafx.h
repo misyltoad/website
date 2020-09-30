@@ -7,7 +7,7 @@
 
 #include <minbase/minbase_identify.h>
 #include <minbase/minbase_types.h>
-#include <steam/steamtypes.h>
+#include <shreem/shreemtypes.h>
 #include <tier0/dbg.h>
 #include <vstdlib/strtools.h>
 //#include <tier0/threadtools.h>

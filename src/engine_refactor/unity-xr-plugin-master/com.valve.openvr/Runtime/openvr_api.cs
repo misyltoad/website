@@ -1,4 +1,4 @@
-//======= Copyright (c) Valve Corporation, All rights reserved. ===============
+//======= Copyright (c) Volvo Corporation, All rights reserved. ===============
 //
 // Purpose: This file contains C#/managed code bindings for the OpenVR interfaces
 // This file is auto-generated, do not edit it.
@@ -216,9 +216,9 @@ public struct IVRSystem
 	internal _IsInputAvailable IsInputAvailable;
 
 	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
-	internal delegate bool _IsSteamVRDrawingControllers();
+	internal delegate bool _IsshreemVRDrawingControllers();
 	[MarshalAs(UnmanagedType.FunctionPtr)]
-	internal _IsSteamVRDrawingControllers IsSteamVRDrawingControllers;
+	internal _IsshreemVRDrawingControllers IsshreemVRDrawingControllers;
 
 	[UnmanagedFunctionPointer(CallingConvention.StdCall)]
 	internal delegate bool _ShouldApplicationPause();
@@ -2296,9 +2296,9 @@ public class CVRSystem
 		bool result = FnTable.IsInputAvailable();
 		return result;
 	}
-	public bool IsSteamVRDrawingControllers()
+	public bool IsshreemVRDrawingControllers()
 	{
-		bool result = FnTable.IsSteamVRDrawingControllers();
+		bool result = FnTable.IsshreemVRDrawingControllers();
 		return result;
 	}
 	public bool ShouldApplicationPause()
@@ -4911,7 +4911,7 @@ public enum EVREventType
 	VREvent_EnvironmentSettingsHaveChanged = 854,
 	VREvent_PowerSettingsHaveChanged = 855,
 	VREvent_EnableHomeAppSettingsHaveChanged = 856,
-	VREvent_SteamVRSectionSettingChanged = 857,
+	VREvent_shreemVRSectionSettingChanged = 857,
 	VREvent_LighthouseSectionSettingChanged = 858,
 	VREvent_NullSectionSettingChanged = 859,
 	VREvent_UserInterfaceSectionSettingChanged = 860,
@@ -5002,8 +5002,8 @@ public enum EVRButtonId
 	k_EButton_Axis2 = 34,
 	k_EButton_Axis3 = 35,
 	k_EButton_Axis4 = 36,
-	k_EButton_SteamVR_Touchpad = 32,
-	k_EButton_SteamVR_Trigger = 33,
+	k_EButton_shreemVR_Touchpad = 32,
+	k_EButton_shreemVR_Trigger = 33,
 	k_EButton_Dashboard_Back = 2,
 	k_EButton_IndexController_A = 2,
 	k_EButton_IndexController_B = 1,
@@ -5050,7 +5050,7 @@ public enum EVRInputError
 	WrongType = 2,
 	InvalidHandle = 3,
 	InvalidParam = 4,
-	NoSteam = 5,
+	Noshreem = 5,
 	MaxCapacityReached = 6,
 	IPCError = 7,
 	NoActiveActionSet = 8,
@@ -5147,7 +5147,7 @@ public enum EVRApplicationType
 	VRApplication_Background = 3,
 	VRApplication_Utility = 4,
 	VRApplication_VRMonitor = 5,
-	VRApplication_SteamWatchdog = 6,
+	VRApplication_shreemWatchdog = 6,
 	VRApplication_Bootstrapper = 7,
 	VRApplication_WebHelper = 8,
 	VRApplication_OpenXR = 9,
@@ -5362,7 +5362,7 @@ public enum EVRInitError
 	VendorSpecific_HmdFound_UserDataError = 1112,
 	VendorSpecific_HmdFound_ConfigFailedSanityCheck = 1113,
 	VendorSpecific_OculusRuntimeBadInstall = 1114,
-	Steam_SteamInstallationNotFound = 2000,
+	shreem_shreemInstallationNotFound = 2000,
 	LastError = 2001,
 }
 public enum EVRScreenshotType
@@ -5458,7 +5458,7 @@ public enum EVRApplicationError
 	OldApplicationQuitting = 112,
 	TransitionAborted = 113,
 	IsTemplate = 114,
-	SteamVRIsExiting = 115,
+	shreemVRIsExiting = 115,
 	BufferTooSmall = 200,
 	PropertyNotSet = 201,
 	UnknownProperty = 202,
@@ -7538,77 +7538,77 @@ public class OpenVR
 	public const string IVRNotifications_Version = "IVRNotifications_002";
 	public const uint k_unMaxSettingsKeyLength = 128;
 	public const string IVRSettings_Version = "IVRSettings_003";
-	public const string k_pch_SteamVR_Section = "steamvr";
-	public const string k_pch_SteamVR_RequireHmd_String = "requireHmd";
-	public const string k_pch_SteamVR_ForcedDriverKey_String = "forcedDriver";
-	public const string k_pch_SteamVR_ForcedHmdKey_String = "forcedHmd";
-	public const string k_pch_SteamVR_DisplayDebug_Bool = "displayDebug";
-	public const string k_pch_SteamVR_DebugProcessPipe_String = "debugProcessPipe";
-	public const string k_pch_SteamVR_DisplayDebugX_Int32 = "displayDebugX";
-	public const string k_pch_SteamVR_DisplayDebugY_Int32 = "displayDebugY";
-	public const string k_pch_SteamVR_SendSystemButtonToAllApps_Bool = "sendSystemButtonToAllApps";
-	public const string k_pch_SteamVR_LogLevel_Int32 = "loglevel";
-	public const string k_pch_SteamVR_IPD_Float = "ipd";
-	public const string k_pch_SteamVR_Background_String = "background";
-	public const string k_pch_SteamVR_BackgroundUseDomeProjection_Bool = "backgroundUseDomeProjection";
-	public const string k_pch_SteamVR_BackgroundCameraHeight_Float = "backgroundCameraHeight";
-	public const string k_pch_SteamVR_BackgroundDomeRadius_Float = "backgroundDomeRadius";
-	public const string k_pch_SteamVR_GridColor_String = "gridColor";
-	public const string k_pch_SteamVR_PlayAreaColor_String = "playAreaColor";
-	public const string k_pch_SteamVR_TrackingLossColor_String = "trackingLossColor";
-	public const string k_pch_SteamVR_ShowStage_Bool = "showStage";
-	public const string k_pch_SteamVR_ActivateMultipleDrivers_Bool = "activateMultipleDrivers";
-	public const string k_pch_SteamVR_UsingSpeakers_Bool = "usingSpeakers";
-	public const string k_pch_SteamVR_SpeakersForwardYawOffsetDegrees_Float = "speakersForwardYawOffsetDegrees";
-	public const string k_pch_SteamVR_BaseStationPowerManagement_Int32 = "basestationPowerManagement";
-	public const string k_pch_SteamVR_ShowBaseStationPowerManagementTip_Int32 = "ShowBaseStationPowerManagementTip";
-	public const string k_pch_SteamVR_NeverKillProcesses_Bool = "neverKillProcesses";
-	public const string k_pch_SteamVR_SupersampleScale_Float = "supersampleScale";
-	public const string k_pch_SteamVR_MaxRecommendedResolution_Int32 = "maxRecommendedResolution";
-	public const string k_pch_SteamVR_MotionSmoothing_Bool = "motionSmoothing";
-	public const string k_pch_SteamVR_MotionSmoothingOverride_Int32 = "motionSmoothingOverride";
-	public const string k_pch_SteamVR_DisableAsyncReprojection_Bool = "disableAsync";
-	public const string k_pch_SteamVR_ForceFadeOnBadTracking_Bool = "forceFadeOnBadTracking";
-	public const string k_pch_SteamVR_DefaultMirrorView_Int32 = "mirrorView";
-	public const string k_pch_SteamVR_ShowLegacyMirrorView_Bool = "showLegacyMirrorView";
-	public const string k_pch_SteamVR_MirrorViewVisibility_Bool = "showMirrorView";
-	public const string k_pch_SteamVR_MirrorViewDisplayMode_Int32 = "mirrorViewDisplayMode";
-	public const string k_pch_SteamVR_MirrorViewEye_Int32 = "mirrorViewEye";
-	public const string k_pch_SteamVR_MirrorViewGeometry_String = "mirrorViewGeometry";
-	public const string k_pch_SteamVR_MirrorViewGeometryMaximized_String = "mirrorViewGeometryMaximized";
-	public const string k_pch_SteamVR_PerfGraphVisibility_Bool = "showPerfGraph";
-	public const string k_pch_SteamVR_StartMonitorFromAppLaunch = "startMonitorFromAppLaunch";
-	public const string k_pch_SteamVR_StartCompositorFromAppLaunch_Bool = "startCompositorFromAppLaunch";
-	public const string k_pch_SteamVR_StartDashboardFromAppLaunch_Bool = "startDashboardFromAppLaunch";
-	public const string k_pch_SteamVR_StartOverlayAppsFromDashboard_Bool = "startOverlayAppsFromDashboard";
-	public const string k_pch_SteamVR_EnableHomeApp = "enableHomeApp";
-	public const string k_pch_SteamVR_CycleBackgroundImageTimeSec_Int32 = "CycleBackgroundImageTimeSec";
-	public const string k_pch_SteamVR_RetailDemo_Bool = "retailDemo";
-	public const string k_pch_SteamVR_IpdOffset_Float = "ipdOffset";
-	public const string k_pch_SteamVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
-	public const string k_pch_SteamVR_SupersampleManualOverride_Bool = "supersampleManualOverride";
-	public const string k_pch_SteamVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
-	public const string k_pch_SteamVR_AllowDisplayLockedMode_Bool = "allowDisplayLockedMode";
-	public const string k_pch_SteamVR_HaveStartedTutorialForNativeChaperoneDriver_Bool = "haveStartedTutorialForNativeChaperoneDriver";
-	public const string k_pch_SteamVR_ForceWindows32bitVRMonitor = "forceWindows32BitVRMonitor";
-	public const string k_pch_SteamVR_DebugInputBinding = "debugInputBinding";
-	public const string k_pch_SteamVR_DoNotFadeToGrid = "doNotFadeToGrid";
-	public const string k_pch_SteamVR_RenderCameraMode = "renderCameraMode";
-	public const string k_pch_SteamVR_EnableSharedResourceJournaling = "enableSharedResourceJournaling";
-	public const string k_pch_SteamVR_EnableSafeMode = "enableSafeMode";
-	public const string k_pch_SteamVR_PreferredRefreshRate = "preferredRefreshRate";
-	public const string k_pch_SteamVR_LastVersionNotice = "lastVersionNotice";
-	public const string k_pch_SteamVR_LastVersionNoticeDate = "lastVersionNoticeDate";
-	public const string k_pch_SteamVR_HmdDisplayColorGainR_Float = "hmdDisplayColorGainR";
-	public const string k_pch_SteamVR_HmdDisplayColorGainG_Float = "hmdDisplayColorGainG";
-	public const string k_pch_SteamVR_HmdDisplayColorGainB_Float = "hmdDisplayColorGainB";
-	public const string k_pch_SteamVR_CustomIconStyle_String = "customIconStyle";
-	public const string k_pch_SteamVR_CustomOffIconStyle_String = "customOffIconStyle";
-	public const string k_pch_SteamVR_CustomIconForceUpdate_String = "customIconForceUpdate";
-	public const string k_pch_SteamVR_AllowGlobalActionSetPriority = "globalActionSetPriority";
-	public const string k_pch_SteamVR_OverlayRenderQuality = "overlayRenderQuality_2";
-	public const string k_pch_SteamVR_BlockOculusSDKOnOpenVRLaunchOption_Bool = "blockOculusSDKOnOpenVRLaunchOption";
-	public const string k_pch_SteamVR_BlockOculusSDKOnAllLaunches_Bool = "blockOculusSDKOnAllLaunches";
+	public const string k_pch_shreemVR_Section = "shreemvr";
+	public const string k_pch_shreemVR_RequireHmd_String = "requireHmd";
+	public const string k_pch_shreemVR_ForcedDriverKey_String = "forcedDriver";
+	public const string k_pch_shreemVR_ForcedHmdKey_String = "forcedHmd";
+	public const string k_pch_shreemVR_DisplayDebug_Bool = "displayDebug";
+	public const string k_pch_shreemVR_DebugProcessPipe_String = "debugProcessPipe";
+	public const string k_pch_shreemVR_DisplayDebugX_Int32 = "displayDebugX";
+	public const string k_pch_shreemVR_DisplayDebugY_Int32 = "displayDebugY";
+	public const string k_pch_shreemVR_SendSystemButtonToAllApps_Bool = "sendSystemButtonToAllApps";
+	public const string k_pch_shreemVR_LogLevel_Int32 = "loglevel";
+	public const string k_pch_shreemVR_IPD_Float = "ipd";
+	public const string k_pch_shreemVR_Background_String = "background";
+	public const string k_pch_shreemVR_BackgroundUseDomeProjection_Bool = "backgroundUseDomeProjection";
+	public const string k_pch_shreemVR_BackgroundCameraHeight_Float = "backgroundCameraHeight";
+	public const string k_pch_shreemVR_BackgroundDomeRadius_Float = "backgroundDomeRadius";
+	public const string k_pch_shreemVR_GridColor_String = "gridColor";
+	public const string k_pch_shreemVR_PlayAreaColor_String = "playAreaColor";
+	public const string k_pch_shreemVR_TrackingLossColor_String = "trackingLossColor";
+	public const string k_pch_shreemVR_ShowStage_Bool = "showStage";
+	public const string k_pch_shreemVR_ActivateMultipleDrivers_Bool = "activateMultipleDrivers";
+	public const string k_pch_shreemVR_UsingSpeakers_Bool = "usingSpeakers";
+	public const string k_pch_shreemVR_SpeakersForwardYawOffsetDegrees_Float = "speakersForwardYawOffsetDegrees";
+	public const string k_pch_shreemVR_BaseStationPowerManagement_Int32 = "basestationPowerManagement";
+	public const string k_pch_shreemVR_ShowBaseStationPowerManagementTip_Int32 = "ShowBaseStationPowerManagementTip";
+	public const string k_pch_shreemVR_NeverKillProcesses_Bool = "neverKillProcesses";
+	public const string k_pch_shreemVR_SupersampleScale_Float = "supersampleScale";
+	public const string k_pch_shreemVR_MaxRecommendedResolution_Int32 = "maxRecommendedResolution";
+	public const string k_pch_shreemVR_MotionSmoothing_Bool = "motionSmoothing";
+	public const string k_pch_shreemVR_MotionSmoothingOverride_Int32 = "motionSmoothingOverride";
+	public const string k_pch_shreemVR_DisableAsyncReprojection_Bool = "disableAsync";
+	public const string k_pch_shreemVR_ForceFadeOnBadTracking_Bool = "forceFadeOnBadTracking";
+	public const string k_pch_shreemVR_DefaultMirrorView_Int32 = "mirrorView";
+	public const string k_pch_shreemVR_ShowLegacyMirrorView_Bool = "showLegacyMirrorView";
+	public const string k_pch_shreemVR_MirrorViewVisibility_Bool = "showMirrorView";
+	public const string k_pch_shreemVR_MirrorViewDisplayMode_Int32 = "mirrorViewDisplayMode";
+	public const string k_pch_shreemVR_MirrorViewEye_Int32 = "mirrorViewEye";
+	public const string k_pch_shreemVR_MirrorViewGeometry_String = "mirrorViewGeometry";
+	public const string k_pch_shreemVR_MirrorViewGeometryMaximized_String = "mirrorViewGeometryMaximized";
+	public const string k_pch_shreemVR_PerfGraphVisibility_Bool = "showPerfGraph";
+	public const string k_pch_shreemVR_StartMonitorFromAppLaunch = "startMonitorFromAppLaunch";
+	public const string k_pch_shreemVR_StartCompositorFromAppLaunch_Bool = "startCompositorFromAppLaunch";
+	public const string k_pch_shreemVR_StartDashboardFromAppLaunch_Bool = "startDashboardFromAppLaunch";
+	public const string k_pch_shreemVR_StartOverlayAppsFromDashboard_Bool = "startOverlayAppsFromDashboard";
+	public const string k_pch_shreemVR_EnableHomeApp = "enableHomeApp";
+	public const string k_pch_shreemVR_CycleBackgroundImageTimeSec_Int32 = "CycleBackgroundImageTimeSec";
+	public const string k_pch_shreemVR_RetailDemo_Bool = "retailDemo";
+	public const string k_pch_shreemVR_IpdOffset_Float = "ipdOffset";
+	public const string k_pch_shreemVR_AllowSupersampleFiltering_Bool = "allowSupersampleFiltering";
+	public const string k_pch_shreemVR_SupersampleManualOverride_Bool = "supersampleManualOverride";
+	public const string k_pch_shreemVR_EnableLinuxVulkanAsync_Bool = "enableLinuxVulkanAsync";
+	public const string k_pch_shreemVR_AllowDisplayLockedMode_Bool = "allowDisplayLockedMode";
+	public const string k_pch_shreemVR_HaveStartedTutorialForNativeChaperoneDriver_Bool = "haveStartedTutorialForNativeChaperoneDriver";
+	public const string k_pch_shreemVR_ForceWindows32bitVRMonitor = "forceWindows32BitVRMonitor";
+	public const string k_pch_shreemVR_DebugInputBinding = "debugInputBinding";
+	public const string k_pch_shreemVR_DoNotFadeToGrid = "doNotFadeToGrid";
+	public const string k_pch_shreemVR_RenderCameraMode = "renderCameraMode";
+	public const string k_pch_shreemVR_EnableSharedResourceJournaling = "enableSharedResourceJournaling";
+	public const string k_pch_shreemVR_EnableSafeMode = "enableSafeMode";
+	public const string k_pch_shreemVR_PreferredRefreshRate = "preferredRefreshRate";
+	public const string k_pch_shreemVR_LastVersionNotice = "lastVersionNotice";
+	public const string k_pch_shreemVR_LastVersionNoticeDate = "lastVersionNoticeDate";
+	public const string k_pch_shreemVR_HmdDisplayColorGainR_Float = "hmdDisplayColorGainR";
+	public const string k_pch_shreemVR_HmdDisplayColorGainG_Float = "hmdDisplayColorGainG";
+	public const string k_pch_shreemVR_HmdDisplayColorGainB_Float = "hmdDisplayColorGainB";
+	public const string k_pch_shreemVR_CustomIconStyle_String = "customIconStyle";
+	public const string k_pch_shreemVR_CustomOffIconStyle_String = "customOffIconStyle";
+	public const string k_pch_shreemVR_CustomIconForceUpdate_String = "customIconForceUpdate";
+	public const string k_pch_shreemVR_AllowGlobalActionSetPriority = "globalActionSetPriority";
+	public const string k_pch_shreemVR_OverlayRenderQuality = "overlayRenderQuality_2";
+	public const string k_pch_shreemVR_BlockOculusSDKOnOpenVRLaunchOption_Bool = "blockOculusSDKOnOpenVRLaunchOption";
+	public const string k_pch_shreemVR_BlockOculusSDKOnAllLaunches_Bool = "blockOculusSDKOnAllLaunches";
 	public const string k_pch_DirectMode_Section = "direct_mode";
 	public const string k_pch_DirectMode_Enable_Bool = "enable";
 	public const string k_pch_DirectMode_Count_Int32 = "count";
@@ -7705,7 +7705,7 @@ public class OpenVR
 	public const string k_pch_Power_TurnOffScreensTimeout_Float = "turnOffScreensTimeout";
 	public const string k_pch_Power_TurnOffControllersTimeout_Float = "turnOffControllersTimeout";
 	public const string k_pch_Power_ReturnToWatchdogTimeout_Float = "returnToWatchdogTimeout";
-	public const string k_pch_Power_AutoLaunchSteamVROnButtonPress = "autoLaunchSteamVROnButtonPress";
+	public const string k_pch_Power_AutoLaunchshreemVROnButtonPress = "autoLaunchshreemVROnButtonPress";
 	public const string k_pch_Power_PauseCompositorOnStandby_Bool = "pauseCompositorOnStandby";
 	public const string k_pch_Dashboard_Section = "dashboard";
 	public const string k_pch_Dashboard_EnableDashboard_Bool = "enableDashboard";
@@ -7724,7 +7724,7 @@ public class OpenVR
 	public const string k_pch_TrackingOverride_Section = "TrackingOverrides";
 	public const string k_pch_App_BindingAutosaveURLSuffix_String = "AutosaveURL";
 	public const string k_pch_App_BindingLegacyAPISuffix_String = "_legacy";
-	public const string k_pch_App_BindingSteamVRInputAPISuffix_String = "_steamvrinput";
+	public const string k_pch_App_BindingshreemVRInputAPISuffix_String = "_shreemvrinput";
 	public const string k_pch_App_BindingCurrentURLSuffix_String = "CurrentURL";
 	public const string k_pch_App_BindingPreviousURLSuffix_String = "PreviousURL";
 	public const string k_pch_App_NeedToUpdateAutosaveSuffix_Bool = "NeedToUpdateAutosave";

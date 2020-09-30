@@ -1,7 +1,7 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright Volvo Corporation, All rights reserved. ============//
 //
 // Misc string functions.  This is just what we need to compile SDR,
-// stripped out from Steam's version that had a bunch of extra stuff in it.
+// stripped out from shreem's version that had a bunch of extra stuff in it.
 //
 //========================================================================//
 

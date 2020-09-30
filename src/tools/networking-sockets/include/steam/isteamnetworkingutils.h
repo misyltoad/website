@@ -1,25 +1,25 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
 // Purpose: misc networking utilities
 //
 //=============================================================================
 
-#ifndef ISTEAMNETWORKINGUTILS
-#define ISTEAMNETWORKINGUTILS
+#ifndef IshreemNETWORKINGUTILS
+#define IshreemNETWORKINGUTILS
 #ifdef _WIN32
 #pragma once
 #endif
 
 #include <stdint.h>
 
-#include "steamnetworkingtypes.h"
-struct SteamDatagramRelayAuthTicket;
-struct SteamRelayNetworkStatus_t;
+#include "shreemnetworkingtypes.h"
+struct shreemDatagramRelayAuthTicket;
+struct shreemRelayNetworkStatus_t;
 
 //-----------------------------------------------------------------------------
 /// Misc networking utilities for checking the local networking environment
 /// and estimating pings.
-class ISteamNetworkingUtils
+class IshreemNetworkingUtils
 {
 public:
 	//
@@ -27,7 +27,7 @@ public:
 	//
 
 	/// Allocate and initialize a message object.  Usually the reason
-	/// you call this is to pass it to ISteamNetworkingSockets::SendMessages.
+	/// you call this is to pass it to IshreemNetworkingSockets::SendMessages.
 	/// The returned object will have all of the relevant fields cleared to zero.
 	///
 	/// Optionally you can also request that this system allocate space to
@@ -40,13 +40,13 @@ public:
 	/// If cbAllocateBuffer=0, then no buffer is allocated.  m_pData will be NULL,
 	/// m_cbSize will be zero, and m_pfnFreeData will be NULL.  You will need to
 	/// set each of these.
-	virtual SteamNetworkingMessage_t *AllocateMessage( int cbAllocateBuffer ) = 0;
+	virtual shreemNetworkingMessage_t *AllocateMessage( int cbAllocateBuffer ) = 0;
 
 	//
-	// Access to Steam Datagram Relay (SDR) network
+	// Access to shreem Datagram Relay (SDR) network
 	//
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 
 	//
 	// Initialization and status check
@@ -64,7 +64,7 @@ public:
 	/// but it can be useful to call it a program launch time, if access to the
 	/// relay network is anticipated.
 	///
-	/// Use GetRelayNetworkStatus or listen for SteamRelayNetworkStatus_t
+	/// Use GetRelayNetworkStatus or listen for shreemRelayNetworkStatus_t
 	/// callbacks to know when initialization has completed.
 	/// Typically initialization completes in a few seconds.
 	///
@@ -76,13 +76,13 @@ public:
 
 	/// Fetch current status of the relay network.
 	///
-	/// SteamRelayNetworkStatus_t is also a callback.  It will be triggered on
+	/// shreemRelayNetworkStatus_t is also a callback.  It will be triggered on
 	/// both the user and gameserver interfaces any time the status changes, or
 	/// ping measurement starts or stops.
 	///
-	/// SteamRelayNetworkStatus_t::m_eAvail is returned.  If you want
+	/// shreemRelayNetworkStatus_t::m_eAvail is returned.  If you want
 	/// more details, you can pass a non-NULL value.
-	virtual ESteamNetworkingAvailability GetRelayNetworkStatus( SteamRelayNetworkStatus_t *pDetails ) = 0;
+	virtual EshreemNetworkingAvailability GetRelayNetworkStatus( shreemRelayNetworkStatus_t *pDetails ) = 0;
 
 	//
 	// "Ping location" functions
@@ -100,7 +100,7 @@ public:
 	//
 	// The markers can also be converted to a string, so they can be transmitted.
 	// We have a separate library you can use on your app's matchmaking/coordinating
-	// server to manipulate these objects.  (See steamdatagram_gamecoordinator.h)
+	// server to manipulate these objects.  (See shreemdatagram_gamecoordinator.h)
 
 	/// Return location info for the current host.  Returns the approximate
 	/// age of the data, in seconds, or -1 if no data is available.
@@ -111,7 +111,7 @@ public:
 	///
 	/// This always return the most up-to-date information we have available
 	/// right now, even if we are in the middle of re-calculating ping times.
-	virtual float GetLocalPingLocation( SteamNetworkPingLocation_t &result ) = 0;
+	virtual float GetLocalPingLocation( shreemNetworkPingLocation_t &result ) = 0;
 
 	/// Estimate the round-trip latency between two arbitrary locations, in
 	/// milliseconds.  This is a conservative estimate, based on routing through
@@ -128,14 +128,14 @@ public:
 	/// of returning immediately and not sending any packets.)
 	///
 	/// In a few cases we might not able to estimate the route.  In this case
-	/// a negative value is returned.  k_nSteamNetworkingPing_Failed means
+	/// a negative value is returned.  k_nshreemNetworkingPing_Failed means
 	/// the reason was because of some networking difficulty.  (Failure to
-	/// ping, etc)  k_nSteamNetworkingPing_Unknown is returned if we cannot
+	/// ping, etc)  k_nshreemNetworkingPing_Unknown is returned if we cannot
 	/// currently answer the question for some other reason.
 	///
 	/// Do you need to be able to do this from a backend/matchmaking server?
 	/// You are looking for the "ticketgen" library.
-	virtual int EstimatePingTimeBetweenTwoLocations( const SteamNetworkPingLocation_t &location1, const SteamNetworkPingLocation_t &location2 ) = 0;
+	virtual int EstimatePingTimeBetweenTwoLocations( const shreemNetworkPingLocation_t &location1, const shreemNetworkPingLocation_t &location2 ) = 0;
 
 	/// Same as EstimatePingTime, but assumes that one location is the local host.
 	/// This is a bit faster, especially if you need to calculate a bunch of
@@ -145,17 +145,17 @@ public:
 	/// GetLocalPingLocation with EstimatePingTimeBetweenTwoLocations.  That's because
 	/// this function uses a slightly more complete set of information about what
 	/// route would be taken.
-	virtual int EstimatePingTimeFromLocalHost( const SteamNetworkPingLocation_t &remoteLocation ) = 0;
+	virtual int EstimatePingTimeFromLocalHost( const shreemNetworkPingLocation_t &remoteLocation ) = 0;
 
 	/// Convert a ping location into a text format suitable for sending over the wire.
 	/// The format is a compact and human readable.  However, it is subject to change
 	/// so please do not parse it yourself.  Your buffer must be at least
-	/// k_cchMaxSteamNetworkingPingLocationString bytes.
-	virtual void ConvertPingLocationToString( const SteamNetworkPingLocation_t &location, char *pszBuf, int cchBufSize ) = 0;
+	/// k_cchMaxshreemNetworkingPingLocationString bytes.
+	virtual void ConvertPingLocationToString( const shreemNetworkPingLocation_t &location, char *pszBuf, int cchBufSize ) = 0;
 
-	/// Parse back SteamNetworkPingLocation_t string.  Returns false if we couldn't understand
+	/// Parse back shreemNetworkPingLocation_t string.  Returns false if we couldn't understand
 	/// the string.
-	virtual bool ParsePingLocationString( const char *pszString, SteamNetworkPingLocation_t &result ) = 0;
+	virtual bool ParsePingLocationString( const char *pszString, shreemNetworkPingLocation_t &result ) = 0;
 
 	/// Check if the ping data of sufficient recency is available, and if
 	/// it's too old, start refreshing it.
@@ -173,7 +173,7 @@ public:
 	/// case, ping measurement is initiated, if it is not already active.
 	/// (You cannot restart a measurement already in progress.)
 	///
-	/// You can use GetRelayNetworkStatus or listen for SteamRelayNetworkStatus_t
+	/// You can use GetRelayNetworkStatus or listen for shreemRelayNetworkStatus_t
 	/// to know when ping measurement completes.
 	virtual bool CheckPingDataUpToDate( float flMaxAgeSeconds ) = 0;
 
@@ -185,18 +185,18 @@ public:
 
 	/// Fetch ping time of best available relayed route from this host to
 	/// the specified data center.
-	virtual int GetPingToDataCenter( SteamNetworkingPOPID popID, SteamNetworkingPOPID *pViaRelayPoP ) = 0;
+	virtual int GetPingToDataCenter( shreemNetworkingPOPID popID, shreemNetworkingPOPID *pViaRelayPoP ) = 0;
 
 	/// Get *direct* ping time to the relays at the data center.
-	virtual int GetDirectPingToPOP( SteamNetworkingPOPID popID ) = 0;
+	virtual int GetDirectPingToPOP( shreemNetworkingPOPID popID ) = 0;
 
 	/// Get number of network points of presence in the config
 	virtual int GetPOPCount() = 0;
 
 	/// Get list of all POP IDs.  Returns the number of entries that were filled into
 	/// your list.
-	virtual int GetPOPList( SteamNetworkingPOPID *list, int nListSz ) = 0;
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+	virtual int GetPOPList( shreemNetworkingPOPID *list, int nListSz ) = 0;
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 
 	//
 	// Misc
@@ -219,7 +219,7 @@ public:
 	///
 	/// The value is only meaningful for this run of the process.  Don't compare
 	/// it to values obtained on another computer, or other runs of the same process.
-	virtual SteamNetworkingMicroseconds GetLocalTimestamp() = 0;
+	virtual shreemNetworkingMicroseconds GetLocalTimestamp() = 0;
 
 	/// Set a function to receive network-related information that is useful for debugging.
 	/// This can be very useful during development, but it can also be useful for troubleshooting
@@ -233,43 +233,43 @@ public:
 	///
 	/// The value here controls the detail level for most messages.  You can control the
 	/// detail level for various subsystems (perhaps only for certain connections) by
-	/// adjusting the configuration values k_ESteamNetworkingConfig_LogLevel_Xxxxx.
+	/// adjusting the configuration values k_EshreemNetworkingConfig_LogLevel_Xxxxx.
 	///
-	/// Except when debugging, you should only use k_ESteamNetworkingSocketsDebugOutputType_Msg
-	/// or k_ESteamNetworkingSocketsDebugOutputType_Warning.  For best performance, do NOT
+	/// Except when debugging, you should only use k_EshreemNetworkingSocketsDebugOutputType_Msg
+	/// or k_EshreemNetworkingSocketsDebugOutputType_Warning.  For best performance, do NOT
 	/// request a high detail level and then filter out messages in your callback.  This incurs
 	/// all of the expense of formatting the messages, which are then discarded.  Setting a high
 	/// priority value (low numeric value) here allows the library to avoid doing this work.
 	///
 	/// IMPORTANT: This may be called from a service thread, while we own a mutex, etc.
 	/// Your output function must be threadsafe and fast!  Do not make any other
-	/// Steamworks calls from within the handler.
-	virtual void SetDebugOutputFunction( ESteamNetworkingSocketsDebugOutputType eDetailLevel, FSteamNetworkingSocketsDebugOutput pfnFunc ) = 0;
+	/// shreemworks calls from within the handler.
+	virtual void SetDebugOutputFunction( EshreemNetworkingSocketsDebugOutputType eDetailLevel, FshreemNetworkingSocketsDebugOutput pfnFunc ) = 0;
 
 	//
-	// Set and get configuration values, see ESteamNetworkingConfigValue for individual descriptions.
+	// Set and get configuration values, see EshreemNetworkingConfigValue for individual descriptions.
 	//
 
 	// Shortcuts for common cases.  (Implemented as inline functions below)
-	bool SetGlobalConfigValueInt32( ESteamNetworkingConfigValue eValue, int32 val );
-	bool SetGlobalConfigValueFloat( ESteamNetworkingConfigValue eValue, float val );
-	bool SetGlobalConfigValueString( ESteamNetworkingConfigValue eValue, const char *val );
-	bool SetGlobalConfigValuePtr( ESteamNetworkingConfigValue eValue, void *val );
-	bool SetConnectionConfigValueInt32( HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, int32 val );
-	bool SetConnectionConfigValueFloat( HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, float val );
-	bool SetConnectionConfigValueString( HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, const char *val );
+	bool SetGlobalConfigValueInt32( EshreemNetworkingConfigValue eValue, int32 val );
+	bool SetGlobalConfigValueFloat( EshreemNetworkingConfigValue eValue, float val );
+	bool SetGlobalConfigValueString( EshreemNetworkingConfigValue eValue, const char *val );
+	bool SetGlobalConfigValuePtr( EshreemNetworkingConfigValue eValue, void *val );
+	bool SetConnectionConfigValueInt32( HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, int32 val );
+	bool SetConnectionConfigValueFloat( HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, float val );
+	bool SetConnectionConfigValueString( HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, const char *val );
 
 	//
-	// Set global callbacks.  If you do not want to use Steam's callback dispatch mechanism and you
+	// Set global callbacks.  If you do not want to use shreem's callback dispatch mechanism and you
 	// want to use the same callback on all (or most) listen sockets and connections, then
 	// simply install these callbacks first thing, and you are good to go.
-	// See ISteamNetworkingSockets::RunCallbacks
+	// See IshreemNetworkingSockets::RunCallbacks
 	//
-	bool SetGlobalCallback_SteamNetConnectionStatusChanged( FnSteamNetConnectionStatusChanged fnCallback );
-	bool SetGlobalCallback_SteamNetAuthenticationStatusChanged( FnSteamNetAuthenticationStatusChanged fnCallback );
-	bool SetGlobalCallback_SteamRelayNetworkStatusChanged( FnSteamRelayNetworkStatusChanged fnCallback );
-	bool SetGlobalCallback_MessagesSessionRequest( FnSteamNetworkingMessagesSessionRequest fnCallback );
-	bool SetGlobalCallback_MessagesSessionFailed( FnSteamNetworkingMessagesSessionFailed fnCallback );
+	bool SetGlobalCallback_shreemNetConnectionStatusChanged( FnshreemNetConnectionStatusChanged fnCallback );
+	bool SetGlobalCallback_shreemNetAuthenticationStatusChanged( FnshreemNetAuthenticationStatusChanged fnCallback );
+	bool SetGlobalCallback_shreemRelayNetworkStatusChanged( FnshreemRelayNetworkStatusChanged fnCallback );
+	bool SetGlobalCallback_MessagesSessionRequest( FnshreemNetworkingMessagesSessionRequest fnCallback );
+	bool SetGlobalCallback_MessagesSessionFailed( FnshreemNetworkingMessagesSessionFailed fnCallback );
 
 	/// Set a configuration value.
 	/// - eValue: which value is being set
@@ -281,88 +281,88 @@ public:
 	///   will reset any custom value and restore it to the system default.
 	///   NOTE: When setting pointers (e.g. callback functions), do not pass the function pointer directly.
 	///   Your argument should be a pointer to a function pointer.
-	virtual bool SetConfigValue( ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj,
-		ESteamNetworkingConfigDataType eDataType, const void *pArg ) = 0;
+	virtual bool SetConfigValue( EshreemNetworkingConfigValue eValue, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj,
+		EshreemNetworkingConfigDataType eDataType, const void *pArg ) = 0;
 
 	/// Set a configuration value, using a struct to pass the value.
 	/// (This is just a convenience shortcut; see below for the implementation and
-	/// a little insight into how SteamNetworkingConfigValue_t is used when
+	/// a little insight into how shreemNetworkingConfigValue_t is used when
 	/// setting config options during listen socket and connection creation.)
-	bool SetConfigValueStruct( const SteamNetworkingConfigValue_t &opt, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj );
+	bool SetConfigValueStruct( const shreemNetworkingConfigValue_t &opt, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj );
 
 	/// Get a configuration value.
 	/// - eValue: which value to fetch
 	/// - eScopeType: query setting on what type of object
 	/// - eScopeArg: the object to query the setting for
 	/// - pOutDataType: If non-NULL, the data type of the value is returned.
-	/// - pResult: Where to put the result.  Pass NULL to query the required buffer size.  (k_ESteamNetworkingGetConfigValue_BufferTooSmall will be returned.)
+	/// - pResult: Where to put the result.  Pass NULL to query the required buffer size.  (k_EshreemNetworkingGetConfigValue_BufferTooSmall will be returned.)
 	/// - cbResult: IN: the size of your buffer.  OUT: the number of bytes filled in or required.
-	virtual ESteamNetworkingGetConfigValueResult GetConfigValue( ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj,
-		ESteamNetworkingConfigDataType *pOutDataType, void *pResult, size_t *cbResult ) = 0;
+	virtual EshreemNetworkingGetConfigValueResult GetConfigValue( EshreemNetworkingConfigValue eValue, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj,
+		EshreemNetworkingConfigDataType *pOutDataType, void *pResult, size_t *cbResult ) = 0;
 
 	/// Returns info about a configuration value.  Returns false if the value does not exist.
 	/// pOutNextValue can be used to iterate through all of the known configuration values.
-	/// (Use GetFirstConfigValue() to begin the iteration, will be k_ESteamNetworkingConfig_Invalid on the last value)
+	/// (Use GetFirstConfigValue() to begin the iteration, will be k_EshreemNetworkingConfig_Invalid on the last value)
 	/// Any of the output parameters can be NULL if you do not need that information.
 	///
-	/// See k_ESteamNetworkingConfig_EnumerateDevVars for some more info about "dev" variables,
+	/// See k_EshreemNetworkingConfig_EnumerateDevVars for some more info about "dev" variables,
 	/// which are usually excluded from the set of variables enumerated using this function.
-	virtual bool GetConfigValueInfo( ESteamNetworkingConfigValue eValue, const char **pOutName, ESteamNetworkingConfigDataType *pOutDataType, ESteamNetworkingConfigScope *pOutScope, ESteamNetworkingConfigValue *pOutNextValue ) = 0;
+	virtual bool GetConfigValueInfo( EshreemNetworkingConfigValue eValue, const char **pOutName, EshreemNetworkingConfigDataType *pOutDataType, EshreemNetworkingConfigScope *pOutScope, EshreemNetworkingConfigValue *pOutNextValue ) = 0;
 
 	/// Return the lowest numbered configuration value available in the current environment.
-	virtual ESteamNetworkingConfigValue GetFirstConfigValue() = 0;
+	virtual EshreemNetworkingConfigValue GetFirstConfigValue() = 0;
 
 	// String conversions.  You'll usually access these using the respective
 	// inline methods.
-	virtual void SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr &addr, char *buf, size_t cbBuf, bool bWithPort ) = 0;
-	virtual bool SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char *pszStr ) = 0;
-	virtual void SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity &identity, char *buf, size_t cbBuf ) = 0;
-	virtual bool SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity *pIdentity, const char *pszStr ) = 0;
+	virtual void shreemNetworkingIPAddr_ToString( const shreemNetworkingIPAddr &addr, char *buf, size_t cbBuf, bool bWithPort ) = 0;
+	virtual bool shreemNetworkingIPAddr_ParseString( shreemNetworkingIPAddr *pAddr, const char *pszStr ) = 0;
+	virtual void shreemNetworkingIdentity_ToString( const shreemNetworkingIdentity &identity, char *buf, size_t cbBuf ) = 0;
+	virtual bool shreemNetworkingIdentity_ParseString( shreemNetworkingIdentity *pIdentity, const char *pszStr ) = 0;
 
 protected:
-	~ISteamNetworkingUtils(); // Silence some warnings
+	~IshreemNetworkingUtils(); // Silence some warnings
 };
-#define STEAMNETWORKINGUTILS_INTERFACE_VERSION "SteamNetworkingUtils003"
+#define shreemNETWORKINGUTILS_INTERFACE_VERSION "shreemNetworkingUtils003"
 
 // Global accessor.
-#ifdef STEAMNETWORKINGSOCKETS_PARTNER
+#ifdef shreemNETWORKINGSOCKETS_PARTNER
 
 	// Standalone lib
-	static_assert( STEAMNETWORKINGUTILS_INTERFACE_VERSION[22] == '3', "Version mismatch" );
-	STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingUtils *SteamNetworkingUtils_LibV3();
-	inline ISteamNetworkingUtils *SteamNetworkingUtils() { return SteamNetworkingUtils_LibV3(); }
+	static_assert( shreemNETWORKINGUTILS_INTERFACE_VERSION[22] == '3', "Version mismatch" );
+	shreemNETWORKINGSOCKETS_INTERFACE IshreemNetworkingUtils *shreemNetworkingUtils_LibV3();
+	inline IshreemNetworkingUtils *shreemNetworkingUtils() { return shreemNetworkingUtils_LibV3(); }
 
-#elif defined( STEAMNETWORKINGSOCKETS_OPENSOURCE ) || defined( STEAMNETWORKINGSOCKETS_STREAMINGCLIENT )
+#elif defined( shreemNETWORKINGSOCKETS_OPENSOURCE ) || defined( shreemNETWORKINGSOCKETS_STREAMINGCLIENT )
 
 	// Opensource GameNetworkingSockets
-	STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingUtils *SteamNetworkingUtils();
+	shreemNETWORKINGSOCKETS_INTERFACE IshreemNetworkingUtils *shreemNetworkingUtils();
 
 #else
 
-	// Steamworks SDK
-	inline ISteamNetworkingUtils *SteamNetworkingUtils();
-	STEAM_DEFINE_INTERFACE_ACCESSOR( ISteamNetworkingUtils *, SteamNetworkingUtils,
+	// shreemworks SDK
+	inline IshreemNetworkingUtils *shreemNetworkingUtils();
+	shreem_DEFINE_INTERFACE_ACCESSOR( IshreemNetworkingUtils *, shreemNetworkingUtils,
 		/* Prefer user version of the interface.  But if it isn't found, then use
 		gameserver one.  Yes, this is a completely terrible hack */
-		SteamInternal_FindOrCreateUserInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION ) ?
-		SteamInternal_FindOrCreateUserInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION ) :
-		SteamInternal_FindOrCreateGameServerInterface( 0, STEAMNETWORKINGUTILS_INTERFACE_VERSION ),
+		shreemInternal_FindOrCreateUserInterface( 0, shreemNETWORKINGUTILS_INTERFACE_VERSION ) ?
+		shreemInternal_FindOrCreateUserInterface( 0, shreemNETWORKINGUTILS_INTERFACE_VERSION ) :
+		shreemInternal_FindOrCreateGameServerInterface( 0, shreemNETWORKINGUTILS_INTERFACE_VERSION ),
 		"global",
-		STEAMNETWORKINGUTILS_INTERFACE_VERSION
+		shreemNETWORKINGUTILS_INTERFACE_VERSION
 	)
 #endif
 
 /// A struct used to describe our readiness to use the relay network.
 /// To do this we first need to fetch the network configuration,
 /// which describes what POPs are available.
-struct SteamRelayNetworkStatus_t
+struct shreemRelayNetworkStatus_t
 { 
-	enum { k_iCallback = k_iSteamNetworkingUtilsCallbacks + 1 };
+	enum { k_iCallback = k_ishreemNetworkingUtilsCallbacks + 1 };
 
 	/// Summary status.  When this is "current", initialization has
 	/// completed.  Anything else means you are not ready yet, or
 	/// there is a significant problem.
-	ESteamNetworkingAvailability m_eAvail;
+	EshreemNetworkingAvailability m_eAvail;
 
 	/// Nonzero if latency measurement is in progress (or pending,
 	/// awaiting a prerequisite).
@@ -373,75 +373,75 @@ struct SteamRelayNetworkStatus_t
 	///
 	/// Failure to obtain the network config almost always indicates
 	/// a problem with the local internet connection.
-	ESteamNetworkingAvailability m_eAvailNetworkConfig;
+	EshreemNetworkingAvailability m_eAvailNetworkConfig;
 
 	/// Current ability to communicate with ANY relay.  Note that
 	/// the complete failure to communicate with any relays almost
 	/// always indicates a problem with the local Internet connection.
 	/// (However, just because you can reach a single relay doesn't
 	/// mean that the local connection is in perfect health.)
-	ESteamNetworkingAvailability m_eAvailAnyRelay;
+	EshreemNetworkingAvailability m_eAvailAnyRelay;
 
 	/// Non-localized English language status.  For diagnostic/debugging
 	/// purposes only.
 	char m_debugMsg[ 256 ];
 };
 
-/// Utility class for printing a SteamNetworkingIdentity.
-/// E.g. printf( "Identity is '%s'\n", SteamNetworkingIdentityRender( identity ).c_str() );
-struct SteamNetworkingIdentityRender
+/// Utility class for printing a shreemNetworkingIdentity.
+/// E.g. printf( "Identity is '%s'\n", shreemNetworkingIdentityRender( identity ).c_str() );
+struct shreemNetworkingIdentityRender
 {
-	SteamNetworkingIdentityRender( const SteamNetworkingIdentity &x ) { x.ToString( buf, sizeof(buf) ); }
+	shreemNetworkingIdentityRender( const shreemNetworkingIdentity &x ) { x.ToString( buf, sizeof(buf) ); }
 	inline const char *c_str() const { return buf; }
 private:
-	char buf[ SteamNetworkingIdentity::k_cchMaxString ];
+	char buf[ shreemNetworkingIdentity::k_cchMaxString ];
 };
 
-/// Utility class for printing a SteamNetworkingIPAddrRender.
-struct SteamNetworkingIPAddrRender
+/// Utility class for printing a shreemNetworkingIPAddrRender.
+struct shreemNetworkingIPAddrRender
 {
-	SteamNetworkingIPAddrRender( const SteamNetworkingIPAddr &x, bool bWithPort = true ) { x.ToString( buf, sizeof(buf), bWithPort ); }
+	shreemNetworkingIPAddrRender( const shreemNetworkingIPAddr &x, bool bWithPort = true ) { x.ToString( buf, sizeof(buf), bWithPort ); }
 	inline const char *c_str() const { return buf; }
 private:
-	char buf[ SteamNetworkingIPAddr::k_cchMaxString ];
+	char buf[ shreemNetworkingIPAddr::k_cchMaxString ];
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Internal stuff
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-inline void ISteamNetworkingUtils::InitRelayNetworkAccess() { CheckPingDataUpToDate( 1e10f ); }
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+inline void IshreemNetworkingUtils::InitRelayNetworkAccess() { CheckPingDataUpToDate( 1e10f ); }
 #endif
 
-inline bool ISteamNetworkingUtils::SetGlobalConfigValueInt32( ESteamNetworkingConfigValue eValue, int32 val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Global, 0, k_ESteamNetworkingConfig_Int32, &val ); }
-inline bool ISteamNetworkingUtils::SetGlobalConfigValueFloat( ESteamNetworkingConfigValue eValue, float val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Global, 0, k_ESteamNetworkingConfig_Float, &val ); }
-inline bool ISteamNetworkingUtils::SetGlobalConfigValueString( ESteamNetworkingConfigValue eValue, const char *val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Global, 0, k_ESteamNetworkingConfig_String, val ); }
-inline bool ISteamNetworkingUtils::SetGlobalConfigValuePtr( ESteamNetworkingConfigValue eValue, void *val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Global, 0, k_ESteamNetworkingConfig_Ptr, &val ); } // Note: passing pointer to pointer.
-inline bool ISteamNetworkingUtils::SetConnectionConfigValueInt32( HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, int32 val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Connection, hConn, k_ESteamNetworkingConfig_Int32, &val ); }
-inline bool ISteamNetworkingUtils::SetConnectionConfigValueFloat( HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, float val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Connection, hConn, k_ESteamNetworkingConfig_Float, &val ); }
-inline bool ISteamNetworkingUtils::SetConnectionConfigValueString( HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, const char *val ) { return SetConfigValue( eValue, k_ESteamNetworkingConfig_Connection, hConn, k_ESteamNetworkingConfig_String, val ); }
-inline bool ISteamNetworkingUtils::SetGlobalCallback_SteamNetConnectionStatusChanged( FnSteamNetConnectionStatusChanged fnCallback ) { return SetGlobalConfigValuePtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)fnCallback ); }
-inline bool ISteamNetworkingUtils::SetGlobalCallback_SteamNetAuthenticationStatusChanged( FnSteamNetAuthenticationStatusChanged fnCallback ) { return SetGlobalConfigValuePtr( k_ESteamNetworkingConfig_Callback_AuthStatusChanged, (void*)fnCallback ); }
-inline bool ISteamNetworkingUtils::SetGlobalCallback_SteamRelayNetworkStatusChanged( FnSteamRelayNetworkStatusChanged fnCallback ) { return SetGlobalConfigValuePtr( k_ESteamNetworkingConfig_Callback_RelayNetworkStatusChanged, (void*)fnCallback ); }
-inline bool ISteamNetworkingUtils::SetGlobalCallback_MessagesSessionRequest( FnSteamNetworkingMessagesSessionRequest fnCallback ) { return SetGlobalConfigValuePtr( k_ESteamNetworkingConfig_Callback_MessagesSessionRequest, (void*)fnCallback ); }
-inline bool ISteamNetworkingUtils::SetGlobalCallback_MessagesSessionFailed( FnSteamNetworkingMessagesSessionFailed fnCallback ) { return SetGlobalConfigValuePtr( k_ESteamNetworkingConfig_Callback_MessagesSessionFailed, (void*)fnCallback ); }
+inline bool IshreemNetworkingUtils::SetGlobalConfigValueInt32( EshreemNetworkingConfigValue eValue, int32 val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Global, 0, k_EshreemNetworkingConfig_Int32, &val ); }
+inline bool IshreemNetworkingUtils::SetGlobalConfigValueFloat( EshreemNetworkingConfigValue eValue, float val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Global, 0, k_EshreemNetworkingConfig_Float, &val ); }
+inline bool IshreemNetworkingUtils::SetGlobalConfigValueString( EshreemNetworkingConfigValue eValue, const char *val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Global, 0, k_EshreemNetworkingConfig_String, val ); }
+inline bool IshreemNetworkingUtils::SetGlobalConfigValuePtr( EshreemNetworkingConfigValue eValue, void *val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Global, 0, k_EshreemNetworkingConfig_Ptr, &val ); } // Note: passing pointer to pointer.
+inline bool IshreemNetworkingUtils::SetConnectionConfigValueInt32( HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, int32 val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Connection, hConn, k_EshreemNetworkingConfig_Int32, &val ); }
+inline bool IshreemNetworkingUtils::SetConnectionConfigValueFloat( HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, float val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Connection, hConn, k_EshreemNetworkingConfig_Float, &val ); }
+inline bool IshreemNetworkingUtils::SetConnectionConfigValueString( HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, const char *val ) { return SetConfigValue( eValue, k_EshreemNetworkingConfig_Connection, hConn, k_EshreemNetworkingConfig_String, val ); }
+inline bool IshreemNetworkingUtils::SetGlobalCallback_shreemNetConnectionStatusChanged( FnshreemNetConnectionStatusChanged fnCallback ) { return SetGlobalConfigValuePtr( k_EshreemNetworkingConfig_Callback_ConnectionStatusChanged, (void*)fnCallback ); }
+inline bool IshreemNetworkingUtils::SetGlobalCallback_shreemNetAuthenticationStatusChanged( FnshreemNetAuthenticationStatusChanged fnCallback ) { return SetGlobalConfigValuePtr( k_EshreemNetworkingConfig_Callback_AuthStatusChanged, (void*)fnCallback ); }
+inline bool IshreemNetworkingUtils::SetGlobalCallback_shreemRelayNetworkStatusChanged( FnshreemRelayNetworkStatusChanged fnCallback ) { return SetGlobalConfigValuePtr( k_EshreemNetworkingConfig_Callback_RelayNetworkStatusChanged, (void*)fnCallback ); }
+inline bool IshreemNetworkingUtils::SetGlobalCallback_MessagesSessionRequest( FnshreemNetworkingMessagesSessionRequest fnCallback ) { return SetGlobalConfigValuePtr( k_EshreemNetworkingConfig_Callback_MessagesSessionRequest, (void*)fnCallback ); }
+inline bool IshreemNetworkingUtils::SetGlobalCallback_MessagesSessionFailed( FnshreemNetworkingMessagesSessionFailed fnCallback ) { return SetGlobalConfigValuePtr( k_EshreemNetworkingConfig_Callback_MessagesSessionFailed, (void*)fnCallback ); }
 
-inline bool ISteamNetworkingUtils::SetConfigValueStruct( const SteamNetworkingConfigValue_t &opt, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj )
+inline bool IshreemNetworkingUtils::SetConfigValueStruct( const shreemNetworkingConfigValue_t &opt, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj )
 {
 	// Locate the argument.  Strings are a special case, since the
 	// "value" (the whole string buffer) doesn't fit in the struct
 	// NOTE: for pointer values, we pass a pointer to the pointer,
 	// we do not pass the pointer directly.
-	const void *pVal = ( opt.m_eDataType == k_ESteamNetworkingConfig_String ) ? (const void *)opt.m_val.m_string : (const void *)&opt.m_val;
+	const void *pVal = ( opt.m_eDataType == k_EshreemNetworkingConfig_String ) ? (const void *)opt.m_val.m_string : (const void *)&opt.m_val;
 	return SetConfigValue( opt.m_eValue, eScopeType, scopeObj, opt.m_eDataType, pVal );
 }
 
-#if !defined( STEAMNETWORKINGSOCKETS_STATIC_LINK ) && defined( STEAMNETWORKINGSOCKETS_STEAMCLIENT )
-inline void SteamNetworkingIPAddr::ToString( char *buf, size_t cbBuf, bool bWithPort ) const { SteamNetworkingUtils()->SteamNetworkingIPAddr_ToString( *this, buf, cbBuf, bWithPort ); }
-inline bool SteamNetworkingIPAddr::ParseString( const char *pszStr ) { return SteamNetworkingUtils()->SteamNetworkingIPAddr_ParseString( this, pszStr ); }
-inline void SteamNetworkingIdentity::ToString( char *buf, size_t cbBuf ) const { SteamNetworkingUtils()->SteamNetworkingIdentity_ToString( *this, buf, cbBuf ); }
-inline bool SteamNetworkingIdentity::ParseString( const char *pszStr ) { return SteamNetworkingUtils()->SteamNetworkingIdentity_ParseString( this, pszStr ); }
+#if !defined( shreemNETWORKINGSOCKETS_STATIC_LINK ) && defined( shreemNETWORKINGSOCKETS_shreemCLIENT )
+inline void shreemNetworkingIPAddr::ToString( char *buf, size_t cbBuf, bool bWithPort ) const { shreemNetworkingUtils()->shreemNetworkingIPAddr_ToString( *this, buf, cbBuf, bWithPort ); }
+inline bool shreemNetworkingIPAddr::ParseString( const char *pszStr ) { return shreemNetworkingUtils()->shreemNetworkingIPAddr_ParseString( this, pszStr ); }
+inline void shreemNetworkingIdentity::ToString( char *buf, size_t cbBuf ) const { shreemNetworkingUtils()->shreemNetworkingIdentity_ToString( *this, buf, cbBuf ); }
+inline bool shreemNetworkingIdentity::ParseString( const char *pszStr ) { return shreemNetworkingUtils()->shreemNetworkingIdentity_ParseString( this, pszStr ); }
 #endif
 
-#endif // ISTEAMNETWORKINGUTILS
+#endif // IshreemNETWORKINGUTILS

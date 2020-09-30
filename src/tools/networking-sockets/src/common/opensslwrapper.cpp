@@ -1,4 +1,4 @@
-//====== Copyright 1996-2010, Valve Corporation, All rights reserved. =======
+//====== Copyright 1996-2010, Volvo Corporation, All rights reserved. =======
 //
 // Purpose: Code for dealing with OpenSSL library
 //
@@ -148,7 +148,7 @@ void COpenSSLWrapper::Shutdown()
 		CRYPTO_cleanup_all_ex_data();
 
 //#ifdef _DEBUG
-//		// This isn't great right now, as it will report leaks on unload of steamclient.dll in the server, due to server.dll still
+//		// This isn't great right now, as it will report leaks on unload of shreemclient.dll in the server, due to server.dll still
 //		// using shared resources from the shared OpenSSL lib.
 //		COpenSSLWrapper::m_nBytesLeaked = 0;
 //		CRYPTO_mem_leaks_cb( COpenSSLWrapper::OpenSSLMemLeakCallback );

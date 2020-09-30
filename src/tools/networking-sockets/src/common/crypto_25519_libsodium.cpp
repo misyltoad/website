@@ -3,7 +3,7 @@
 
 #include <tier0/dbg.h>
 
-#ifdef STEAMNETWORKINGSOCKETS_CRYPTO_25519_LIBSODIUM
+#ifdef shreemNETWORKINGSOCKETS_CRYPTO_25519_LIBSODIUM
 
 #include <sodium.h>
 

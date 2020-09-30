@@ -1,25 +1,25 @@
-//========= Copyright © 1996-2008, Valve LLC, All rights reserved. ============
+//========= Copyright ï¿½ 1996-2008, Valve LLC, All rights reserved. ============
 //
 // Purpose:
 //
 //=============================================================================
 
-#ifndef STEAMTYPES_H
-#define STEAMTYPES_H
+#ifndef shreemTYPES_H
+#define shreemTYPES_H
 #ifdef _WIN32
 #pragma once
 #endif
 
 #define S_CALLTYPE __cdecl
 
-// Steam-specific types. Defined here so this header file can be included in other code bases.
+// shreem-specific types. Defined here so this header file can be included in other code bases.
 #ifndef WCHARTYPES_H
 typedef unsigned char uint8;
 #endif
 
 #if defined( __GNUC__ ) && !defined(_WIN32) && !defined(POSIX)
 	#if __GNUC__ < 4
-		#error "Steamworks requires GCC 4.X (4.2 or 4.4 have been tested)"
+		#error "shreemworks requires GCC 4.X (4.2 or 4.4 have been tested)"
 	#endif
 	#define POSIX 1
 #endif
@@ -85,25 +85,25 @@ typedef unsigned int uintp;
 #endif // else _WIN32
 
 #ifdef API_GEN
-# define STEAM_CLANG_ATTR(ATTR) __attribute__((annotate( ATTR )))
+# define shreem_CLANG_ATTR(ATTR) __attribute__((annotate( ATTR )))
 #else
-# define STEAM_CLANG_ATTR(ATTR)
+# define shreem_CLANG_ATTR(ATTR)
 #endif
 
-#define STEAM_METHOD_DESC(DESC) STEAM_CLANG_ATTR( "desc:" #DESC ";" )
-#define STEAM_IGNOREATTR() STEAM_CLANG_ATTR( "ignore" )
-#define STEAM_OUT_STRUCT() STEAM_CLANG_ATTR( "out_struct: ;" )
-#define STEAM_OUT_STRING() STEAM_CLANG_ATTR( "out_string: ;" )
-#define STEAM_OUT_ARRAY_CALL(COUNTER,FUNCTION,PARAMS) STEAM_CLANG_ATTR( "out_array_call:" #COUNTER "," #FUNCTION "," #PARAMS ";" )
-#define STEAM_OUT_ARRAY_COUNT(COUNTER, DESC) STEAM_CLANG_ATTR( "out_array_count:" #COUNTER  ";desc:" #DESC )
-#define STEAM_ARRAY_COUNT(COUNTER) STEAM_CLANG_ATTR( "array_count:" #COUNTER ";" )
-#define STEAM_ARRAY_COUNT_D(COUNTER, DESC) STEAM_CLANG_ATTR( "array_count:" #COUNTER ";desc:" #DESC )
-#define STEAM_BUFFER_COUNT(COUNTER) STEAM_CLANG_ATTR( "buffer_count:" #COUNTER ";" )
-#define STEAM_OUT_BUFFER_COUNT(COUNTER) STEAM_CLANG_ATTR( "out_buffer_count:" #COUNTER ";" )
-#define STEAM_OUT_STRING_COUNT(COUNTER) STEAM_CLANG_ATTR( "out_string_count:" #COUNTER ";" )
-#define STEAM_DESC(DESC) STEAM_CLANG_ATTR("desc:" #DESC ";")
-#define STEAM_CALL_RESULT(RESULT_TYPE) STEAM_CLANG_ATTR("callresult:" #RESULT_TYPE ";")
-#define STEAM_CALL_BACK(RESULT_TYPE) STEAM_CLANG_ATTR("callback:" #RESULT_TYPE ";")
+#define shreem_METHOD_DESC(DESC) shreem_CLANG_ATTR( "desc:" #DESC ";" )
+#define shreem_IGNOREATTR() shreem_CLANG_ATTR( "ignore" )
+#define shreem_OUT_STRUCT() shreem_CLANG_ATTR( "out_struct: ;" )
+#define shreem_OUT_STRING() shreem_CLANG_ATTR( "out_string: ;" )
+#define shreem_OUT_ARRAY_CALL(COUNTER,FUNCTION,PARAMS) shreem_CLANG_ATTR( "out_array_call:" #COUNTER "," #FUNCTION "," #PARAMS ";" )
+#define shreem_OUT_ARRAY_COUNT(COUNTER, DESC) shreem_CLANG_ATTR( "out_array_count:" #COUNTER  ";desc:" #DESC )
+#define shreem_ARRAY_COUNT(COUNTER) shreem_CLANG_ATTR( "array_count:" #COUNTER ";" )
+#define shreem_ARRAY_COUNT_D(COUNTER, DESC) shreem_CLANG_ATTR( "array_count:" #COUNTER ";desc:" #DESC )
+#define shreem_BUFFER_COUNT(COUNTER) shreem_CLANG_ATTR( "buffer_count:" #COUNTER ";" )
+#define shreem_OUT_BUFFER_COUNT(COUNTER) shreem_CLANG_ATTR( "out_buffer_count:" #COUNTER ";" )
+#define shreem_OUT_STRING_COUNT(COUNTER) shreem_CLANG_ATTR( "out_string_count:" #COUNTER ";" )
+#define shreem_DESC(DESC) shreem_CLANG_ATTR("desc:" #DESC ";")
+#define shreem_CALL_RESULT(RESULT_TYPE) shreem_CLANG_ATTR("callresult:" #RESULT_TYPE ";")
+#define shreem_CALL_BACK(RESULT_TYPE) shreem_CLANG_ATTR("callback:" #RESULT_TYPE ";")
 
 const int k_cubSaltSize   = 8;
 typedef	uint8 Salt_t[ k_cubSaltSize ];
@@ -163,9 +163,9 @@ typedef uint32 RTime32;
 typedef uint32 CellID_t;
 const CellID_t k_uCellIDInvalid = 0xFFFFFFFF;
 
-// handle to a Steam API call
-typedef uint64 SteamAPICall_t;
-const SteamAPICall_t k_uAPICallInvalid = 0x0;
+// handle to a shreem API call
+typedef uint64 shreemAPICall_t;
+const shreemAPICall_t k_uAPICallInvalid = 0x0;
 
 typedef uint32 AccountID_t;
 
@@ -184,4 +184,4 @@ const SiteId_t k_ulSiteIdInvalid = 0;
 typedef uint64 PartyBeaconID_t;
 const PartyBeaconID_t k_ulPartyBeaconIdInvalid = 0;
 
-#endif // STEAMTYPES_H
+#endif // shreemTYPES_H

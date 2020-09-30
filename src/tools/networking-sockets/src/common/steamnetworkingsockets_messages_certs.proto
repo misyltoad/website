@@ -1,6 +1,6 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
-// Wire format messages for Steam networking authentication structures
+// Wire format messages for shreem networking authentication structures
 //
 //=============================================================================
 syntax = "proto2";
@@ -16,14 +16,14 @@ option cc_generic_services = false;
 // identity types without updating all old clients that may possibly interact
 // with the new identity type.  In many cases, the old client doesn't really
 // need to "understand" the type, and the string format actually works great.
-message CMsgSteamNetworkingIdentityLegacyBinary
+message CMsgshreemNetworkingIdentityLegacyBinary
 {
 
 	// We don't use a seperate "type" field, we just use the
 	// presence of the appropriate fields.  (On the wire, we
 	// really do have a type field.)
 
-	optional fixed64 steam_id = 16;
+	optional fixed64 shreem_id = 16;
 
 	optional bytes generic_bytes = 2;
 	optional string generic_string = 3;
@@ -35,7 +35,7 @@ message CMsgSteamNetworkingIdentityLegacyBinary
 // the signature is generated.  (It is broken into a separate
 // message to make it easy to keep the exact bytes that were
 // signed intact during transport.)
-message CMsgSteamDatagramCertificate
+message CMsgshreemDatagramCertificate
 {
 	enum EKeyType
 	{
@@ -51,8 +51,8 @@ message CMsgSteamDatagramCertificate
 	//
 
 	// Single user key?  This might not be set if the key is shared!
-	optional fixed64 legacy_steam_id = 4;
-	optional CMsgSteamNetworkingIdentityLegacyBinary legacy_identity_binary = 11;
+	optional fixed64 legacy_shreem_id = 4;
+	optional CMsgshreemNetworkingIdentityLegacyBinary legacy_identity_binary = 11;
 	optional string identity_string = 12;
 
 	// Allow any server in particular data centers to use it?
@@ -71,11 +71,11 @@ message CMsgSteamDatagramCertificate
 };
 
 // Certificate signed by a certificate authority.
-message CMsgSteamDatagramCertificateSigned
+message CMsgshreemDatagramCertificateSigned
 {
 	// The public key associated with my identity.  This is a longer standing key
 	// that can be used for multiple connections.  It's a serialized
-	// version of CMsgSteamDatagramCertificate, but because the signature
+	// version of CMsgshreemDatagramCertificate, but because the signature
 	// is based on a particular serialization of that message, we keep the
 	// original serialization here.
 	optional bytes cert = 4;
@@ -97,13 +97,13 @@ message CMsgSteamDatagramCertificateSigned
 }
 
 // A request by a client to a CA to issue a cert.
-message CMsgSteamDatagramCertificateRequest
+message CMsgshreemDatagramCertificateRequest
 {
 	// An unsigned cert.  The requestor will populate the fields
 	// appropriate to the request.  (Who do you thin you are,
 	// what app(s) would you like access for, etc)  Most importantly,
 	// the caller must fill in the public key they want to use
-	optional CMsgSteamDatagramCertificate cert = 1;
+	optional CMsgshreemDatagramCertificate cert = 1;
 }
 
 // Do not remove this comment due to a bug on the Mac OS X protobuf compiler

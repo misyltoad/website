@@ -1,24 +1,24 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#ifndef STEAMNETWORKINGSOCKETS_P2P_ICE_H
-#define STEAMNETWORKINGSOCKETS_P2P_ICE_H
+#ifndef shreemNETWORKINGSOCKETS_P2P_ICE_H
+#define shreemNETWORKINGSOCKETS_P2P_ICE_H
 #pragma once
 
-#include "steamnetworkingsockets_p2p.h"
-#include "steamnetworkingsockets_udp.h"
+#include "shreemnetworkingsockets_p2p.h"
+#include "shreemnetworkingsockets_udp.h"
 #include <mutex>
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 
-#include "../../external/steamwebrtc/ice_session.h"
+#include "../../external/shreemwebrtc/ice_session.h"
 
-extern "C" CreateICESession_t g_SteamNetworkingSockets_CreateICESessionFunc;
+extern "C" CreateICESession_t g_shreemNetworkingSockets_CreateICESessionFunc;
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 constexpr int k_nMinPingTimeLocalTolerance = 5;
 
-class CSteamNetworkConnectionP2P;
+class CshreemNetworkConnectionP2P;
 struct UDPSendPacketContext_t;
 
 /// Transport for peer-to-peer connection using WebRTC
@@ -29,29 +29,29 @@ class CConnectionTransportP2PICE final
 , private IICESessionDelegate
 {
 public:
-	CConnectionTransportP2PICE( CSteamNetworkConnectionP2P &connection );
+	CConnectionTransportP2PICE( CshreemNetworkConnectionP2P &connection );
 	virtual ~CConnectionTransportP2PICE();
 
-	inline CSteamNetworkConnectionP2P &Connection() const { return *assert_cast< CSteamNetworkConnectionP2P *>( &m_connection ); }
-	inline ISteamNetworkingConnectionCustomSignaling *Signaling() const { return Connection().m_pSignaling; }
+	inline CshreemNetworkConnectionP2P &Connection() const { return *assert_cast< CshreemNetworkConnectionP2P *>( &m_connection ); }
+	inline IshreemNetworkingConnectionCustomSignaling *Signaling() const { return Connection().m_pSignaling; }
 
 	void Init();
 
 	// CConnectionTransport overrides
-	virtual void TransportPopulateConnectionInfo( SteamNetConnectionInfo_t &info ) const override;
-	virtual void GetDetailedConnectionStatus( SteamNetworkingDetailedConnectionStatus &stats, SteamNetworkingMicroseconds usecNow ) override;
+	virtual void TransportPopulateConnectionInfo( shreemNetConnectionInfo_t &info ) const override;
+	virtual void GetDetailedConnectionStatus( shreemNetworkingDetailedConnectionStatus &stats, shreemNetworkingMicroseconds usecNow ) override;
 	virtual void TransportFreeResources() override;
 	virtual bool BCanSendEndToEndData() const override;
 
 	// IThinker
-	virtual void Think( SteamNetworkingMicroseconds usecNow ) override;
+	virtual void Think( shreemNetworkingMicroseconds usecNow ) override;
 
 	// CConnectionTransportP2PBase
-	virtual void P2PTransportUpdateRouteMetrics( SteamNetworkingMicroseconds usecNow ) override;
+	virtual void P2PTransportUpdateRouteMetrics( shreemNetworkingMicroseconds usecNow ) override;
 
 	/// Fill in SDR-specific fields to signal
-	void PopulateRendezvousMsg( CMsgSteamNetworkingP2PRendezvous &msg, SteamNetworkingMicroseconds usecNow );
-	void RecvRendezvous( const CMsgICERendezvous &msg, SteamNetworkingMicroseconds usecNow );
+	void PopulateRendezvousMsg( CMsgshreemNetworkingP2PRendezvous &msg, shreemNetworkingMicroseconds usecNow );
+	void RecvRendezvous( const CMsgICERendezvous &msg, shreemNetworkingMicroseconds usecNow );
 
 	inline int LogLevel_P2PRendezvous() const { return m_connection.m_connectionConfig.m_LogLevel_P2PRendezvous.Get(); }
 
@@ -61,8 +61,8 @@ public:
 
 	//EICECandidateType m_eCurrentRouteLocalCandidateType;
 	//EICECandidateType m_eCurrentRouteRemoteCandidateType;
-	SteamNetworkingIPAddr m_currentRouteRemoteAddress;
-	ESteamNetTransportKind m_eCurrentRouteKind;
+	shreemNetworkingIPAddr m_currentRouteRemoteAddress;
+	EshreemNetTransportKind m_eCurrentRouteKind;
 	int m_nAllowedCandidateTypes; // k_EICECandidate_xxx
 
 private:
@@ -78,8 +78,8 @@ private:
 	void RouteOrWritableStateChanged();
 	void UpdateRoute();
 
-	void DrainPacketQueue( SteamNetworkingMicroseconds usecNow );
-	void ProcessPacket( const uint8_t *pData, int cbPkt, SteamNetworkingMicroseconds usecNow );
+	void DrainPacketQueue( shreemNetworkingMicroseconds usecNow );
+	void ProcessPacket( const uint8_t *pData, int cbPkt, shreemNetworkingMicroseconds usecNow );
 
 	// Implements CConnectionTransportUDPBase
 	virtual bool SendPacket( const void *pkt, int cbPkt ) override;
@@ -88,8 +88,8 @@ private:
 	virtual void RecvValidUDPDataPacket( UDPRecvPacketContext_t &ctx ) override;
 };
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 
-#endif // STEAMNETWORKINGSOCKETS_P2P_ICE_H
+#endif // shreemNETWORKINGSOCKETS_P2P_ICE_H

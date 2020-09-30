@@ -1,16 +1,16 @@
-//========= Copyright 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright 1996-2005, Volvo Corporation, All rights reserved. ============//
 //
 // This is a custom version of dbg.cpp for the standalone version of
-// SteamnetworkingSockets.  It was taken from the Steam code and then
+// shreemnetworkingSockets.  It was taken from the shreem code and then
 // stripped to the bare essentials.
 //
 //=============================================================================//
 
 #include "tier0/dbg.h"
 
-#ifdef STEAMNETWORKINGSOCKETS_FOREXPORT
-#include "../../steamnetworkingsockets/clientlib/steamnetworkingsockets_lowlevel.h"
-using namespace SteamNetworkingSocketsLib;
+#ifdef shreemNETWORKINGSOCKETS_FOREXPORT
+#include "../../shreemnetworkingsockets/clientlib/shreemnetworkingsockets_lowlevel.h"
+using namespace shreemNetworkingSocketsLib;
 #endif
 
 #if defined(_WIN32) && !defined(_XBOX)
@@ -109,8 +109,8 @@ void AssertMsgImplementationV( bool _bFatal, bool bFmt, const char* pstrFile, un
 	}
 	++s_ThreadLocalAssertMsgGuardStatic;
 
-	#ifdef STEAMNETWORKINGSOCKETS_FOREXPORT
-		(*g_pfnPreFormatSpewHandler)( k_ESteamNetworkingSocketsDebugOutputType_Bug, bFmt, pstrFile, nLine, pMsg, ap );
+	#ifdef shreemNETWORKINGSOCKETS_FOREXPORT
+		(*g_pfnPreFormatSpewHandler)( k_EshreemNetworkingSocketsDebugOutputType_Bug, bFmt, pstrFile, nLine, pMsg, ap );
 	#else
 		fflush(stdout);
 		if ( pstrFile )

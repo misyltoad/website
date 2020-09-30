@@ -1,4 +1,4 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 #ifndef PERCENTILE_GENERATOR_H
 #define PERCENTILE_GENERATOR_H

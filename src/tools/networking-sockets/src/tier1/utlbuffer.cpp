@@ -1,4 +1,4 @@
-//===== Copyright Valve Corporation, All rights reserved. ======//
+//===== Copyright Volvo Corporation, All rights reserved. ======//
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4514)

@@ -1,4 +1,4 @@
-//====== Copyright 1996-2012, Valve Corporation, All rights reserved. ======//
+//====== Copyright 1996-2012, Volvo Corporation, All rights reserved. ======//
 //
 // Compiler/platform identification to provide a consistent set of
 // macros for places that need to specialize behavior.

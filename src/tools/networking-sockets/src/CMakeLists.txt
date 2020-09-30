@@ -8,28 +8,28 @@ find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
 set(GNS_PROTOS
-	"common/steamnetworkingsockets_messages_certs.proto"
-	"common/steamnetworkingsockets_messages.proto"
-	"common/steamnetworkingsockets_messages_udp.proto"
+	"common/shreemnetworkingsockets_messages_certs.proto"
+	"common/shreemnetworkingsockets_messages.proto"
+	"common/shreemnetworkingsockets_messages_udp.proto"
 	)
 
 set(GNS_SRCS
 	"common/crypto_textencode.cpp"
 	"common/keypair.cpp"
-	"common/steamid.cpp"
-	"steamnetworkingsockets/clientlib/csteamnetworkingsockets.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_flat.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_connections.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_lowlevel.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_p2p.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_p2p_ice.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_snp.cpp"
-	"steamnetworkingsockets/clientlib/steamnetworkingsockets_udp.cpp"
-	"steamnetworkingsockets/steamnetworkingsockets_certs.cpp"
-	"steamnetworkingsockets/steamnetworkingsockets_certstore.cpp"
-	"steamnetworkingsockets/steamnetworkingsockets_shared.cpp"
-	"steamnetworkingsockets/steamnetworkingsockets_stats.cpp"
-	"steamnetworkingsockets/steamnetworkingsockets_thinker.cpp"
+	"common/shreemid.cpp"
+	"shreemnetworkingsockets/clientlib/cshreemnetworkingsockets.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_flat.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_connections.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_lowlevel.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_p2p.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_p2p_ice.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_snp.cpp"
+	"shreemnetworkingsockets/clientlib/shreemnetworkingsockets_udp.cpp"
+	"shreemnetworkingsockets/shreemnetworkingsockets_certs.cpp"
+	"shreemnetworkingsockets/shreemnetworkingsockets_certstore.cpp"
+	"shreemnetworkingsockets/shreemnetworkingsockets_shared.cpp"
+	"shreemnetworkingsockets/shreemnetworkingsockets_stats.cpp"
+	"shreemnetworkingsockets/shreemnetworkingsockets_thinker.cpp"
 	"tier0/dbg.cpp"
 	"tier0/platformtime.cpp"
 	"tier1/bitstring.cpp"
@@ -41,14 +41,14 @@ set(GNS_SRCS
 	)
 
 if(USE_CRYPTO STREQUAL "BCrypt")
-	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} STEAMNETWORKINGSOCKETS_CRYPTO_BCRYPT ED25519_HASH_BCRYPT)
+	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} shreemNETWORKINGSOCKETS_CRYPTO_BCRYPT ED25519_HASH_BCRYPT)
 	set(GNS_SRCS ${GNS_SRCS}
 		"common/crypto_bcrypt.cpp"
 		)
 endif()
 
 if(USE_CRYPTO STREQUAL "OpenSSL")
-	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} STEAMNETWORKINGSOCKETS_CRYPTO_VALVEOPENSSL)
+	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} shreemNETWORKINGSOCKETS_CRYPTO_VALVEOPENSSL)
 	set(GNS_SRCS ${GNS_SRCS}
 		"common/crypto_openssl.cpp"
 		"common/opensslwrapper.cpp"
@@ -56,21 +56,21 @@ if(USE_CRYPTO STREQUAL "OpenSSL")
 endif()
 
 if(USE_CRYPTO STREQUAL "libsodium")
-	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} STEAMNETWORKINGSOCKETS_CRYPTO_LIBSODIUM)
+	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} shreemNETWORKINGSOCKETS_CRYPTO_LIBSODIUM)
 	set(GNS_SRCS ${GNS_SRCS}
 		"common/crypto_libsodium.cpp")
 endif()
 
 # Use OpenSSL for 25519 if possible
 if(USE_CRYPTO25519 STREQUAL "OpenSSL")
-	set(GNS_CRYPTO_DEFINES  ${GNS_CRYPTO_DEFINES} STEAMNETWORKINGSOCKETS_CRYPTO_25519_OPENSSL)
+	set(GNS_CRYPTO_DEFINES  ${GNS_CRYPTO_DEFINES} shreemNETWORKINGSOCKETS_CRYPTO_25519_OPENSSL)
 	set(GNS_SRCS ${GNS_SRCS}
 		"common/crypto_25519_openssl.cpp"
 		)
 endif()
 
 if(USE_CRYPTO25519 STREQUAL "libsodium")
-	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} STEAMNETWORKINGSOCKETS_CRYPTO_25519_LIBSODIUM)
+	set(GNS_CRYPTO_DEFINES ${GNS_CRYPTO_DEFINES} shreemNETWORKINGSOCKETS_CRYPTO_25519_LIBSODIUM)
 	set(GNS_SRCS ${GNS_SRCS}
 		"common/crypto_25519_libsodium.cpp"
 		)
@@ -89,9 +89,9 @@ if(USE_CRYPTO25519 STREQUAL "Reference")
 endif()
 
 # If WebRTC enabled, build the thin wrapper library
-if(USE_STEAMWEBRTC)
-	add_subdirectory(external/steamwebrtc)
-endif(USE_STEAMWEBRTC)
+if(USE_shreemWEBRTC)
+	add_subdirectory(external/shreemwebrtc)
+endif(USE_shreemWEBRTC)
 
 set(C99_FEATURES
 	c_restrict
@@ -176,19 +176,19 @@ macro(gamenetworkingsockets_common GNS_TARGET)
 		)
 
 	# Enable ICE?
-	if(USE_STEAMWEBRTC)
+	if(USE_shreemWEBRTC)
 
 		# Enable ICE
 		target_compile_definitions(${GNS_TARGET} PRIVATE
-			STEAMNETWORKINGSOCKETS_ENABLE_ICE )
+			shreemNETWORKINGSOCKETS_ENABLE_ICE )
 
 		# Wrapper lib is always linked statically in the opensource code.
 		# We might link dynamically in other environments.
 		target_compile_definitions(${GNS_TARGET} PRIVATE
-			STEAMWEBRTC_USE_STATIC_LIBS
+			shreemWEBRTC_USE_STATIC_LIBS
 			)
 		target_link_libraries(${GNS_TARGET} PUBLIC
-			steamwebrtc
+			shreemwebrtc
 			)
 	endif()
 
@@ -211,7 +211,7 @@ macro(gamenetworkingsockets_common GNS_TARGET)
 	endif()
 
 	target_compile_definitions(${GNS_TARGET} PRIVATE
-		STEAMNETWORKINGSOCKETS_FOREXPORT
+		shreemNETWORKINGSOCKETS_FOREXPORT
 		ENABLE_OPENSSLCONNECTION
 		CRYPTO_DISABLE_ENCRYPT_WITH_PASSWORD
 		${GNS_CRYPTO_DEFINES}
@@ -250,11 +250,11 @@ macro(gamenetworkingsockets_common GNS_TARGET)
 	endif()
 
 	if(CMAKE_SYSTEM_NAME MATCHES Linux)
-		#if(USE_STEAMWEBRTC AND NOT STEAMWEBRTC_USE_STATIC_LIBS)
+		#if(USE_shreemWEBRTC AND NOT shreemWEBRTC_USE_STATIC_LIBS)
 		#	target_link_libraries(${GNS_TARGET} PRIVATE dl)
 		#endif()
 	elseif(CMAKE_SYSTEM_NAME MATCHES Darwin)
-		#if(USE_STEAMWEBRTC AND NOT STEAMWEBRTC_USE_STATIC_LIBS)
+		#if(USE_shreemWEBRTC AND NOT shreemWEBRTC_USE_STATIC_LIBS)
 		#	target_link_libraries(${GNS_TARGET} PRIVATE dl)
 		#endif()
 	elseif(CMAKE_SYSTEM_NAME MATCHES Windows)
@@ -287,13 +287,13 @@ gamenetworkingsockets_common(GameNetworkingSockets)
 add_library(GameNetworkingSockets_s STATIC "")
 add_library(GameNetworkingSockets::GameNetworkingSockets_s ALIAS GameNetworkingSockets_s)
 add_library(GameNetworkingSockets::static ALIAS GameNetworkingSockets_s)
-target_compile_definitions(GameNetworkingSockets_s INTERFACE STEAMNETWORKINGSOCKETS_STATIC_LINK)
+target_compile_definitions(GameNetworkingSockets_s INTERFACE shreemNETWORKINGSOCKETS_STATIC_LINK)
 gamenetworkingsockets_common(GameNetworkingSockets_s)
 
 # HELP Should not need this if() here
-#CMake Error: install(EXPORT "GameNetworkingSockets" ...) includes target "GameNetworkingSockets" which requires target "steamwebrtc" that is not in the export set.
-#CMake Error: install(EXPORT "GameNetworkingSockets" ...) includes target "GameNetworkingSockets_s" which requires target "steamwebrtc" that is not in the export set.
-if( NOT USE_STEAMWEBRTC ) # HALP
+#CMake Error: install(EXPORT "GameNetworkingSockets" ...) includes target "GameNetworkingSockets" which requires target "shreemwebrtc" that is not in the export set.
+#CMake Error: install(EXPORT "GameNetworkingSockets" ...) includes target "GameNetworkingSockets_s" which requires target "shreemwebrtc" that is not in the export set.
+if( NOT USE_shreemWEBRTC ) # HALP
 
 
 # Install rules

@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-// I copied these tests from the Steam branch.
+// I copied these tests from the shreem branch.
 // A little compatibility glue so I don't have to make any changes to them.
 #define CHECK(x) do { bool _check_result; Assert( (_check_result = (x)) != false ); g_failed |= !_check_result; } while(0)
 #define CHECK_EQUAL(a,b) do { bool _check_eq_result; Assert( (_check_eq_result = ((a)==(b))) != false ); g_failed |= !_check_eq_result; } while(0)

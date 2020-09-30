@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright Volvo Corporation, All rights reserved. ============//
 #include "../public/tier0/platformtime.h"
 
 #ifdef WIN32

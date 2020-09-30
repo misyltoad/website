@@ -59,9 +59,9 @@ namespace Unity.XR.OpenVR
         [SerializeField, Tooltip("Which eye to use when rendering the headset view to the main window (none, left, right, or a composite of both + OpenVR overlays)")]
         public MirrorViewModes MirrorView = MirrorViewModes.Right;
 
-        public const string StreamingAssetsFolderName = "SteamVR";
+        public const string StreamingAssetsFolderName = "shreemVR";
         public const string ActionManifestFileName = "legacy_manifest.json";
-        public static string GetStreamingSteamVRPath(bool create = true)
+        public static string GetStreamingshreemVRPath(bool create = true)
         {
             string path = System.IO.Path.Combine(Application.streamingAssetsPath, StreamingAssetsFolderName);
 
@@ -153,9 +153,9 @@ namespace Unity.XR.OpenVR
             string oldPath = ActionManifestFileRelativeFilePath;
             string newPath;
 
-            if (OpenVRHelpers.IsUsingSteamVRInput())
+            if (OpenVRHelpers.IsUsingshreemVRInput())
             {
-                newPath = System.IO.Path.Combine(OpenVRSettings.GetStreamingSteamVRPath(false), OpenVRHelpers.GetActionManifestNameFromPlugin());
+                newPath = System.IO.Path.Combine(OpenVRSettings.GetStreamingshreemVRPath(false), OpenVRHelpers.GetActionManifestNameFromPlugin());
                 
                 string fullpath = System.IO.Path.GetFullPath(".");
                 newPath = newPath.Remove(0, fullpath.Length + 1);

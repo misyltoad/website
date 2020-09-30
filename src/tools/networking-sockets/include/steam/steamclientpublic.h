@@ -4,8 +4,8 @@
 //
 //=============================================================================
 
-#ifndef STEAMCLIENTPUBLIC_H
-#define STEAMCLIENTPUBLIC_H
+#ifndef shreemCLIENTPUBLIC_H
+#define shreemCLIENTPUBLIC_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -16,15 +16,15 @@
 //lint -save -e1931 -e1927 -e1924 -e613 -e726
 
 // This header file defines the interface between the calling application and the code that
-// knows how to communicate with the connection manager (CM) from the Steam service 
+// knows how to communicate with the connection manager (CM) from the shreem service 
 
 // This header file is intended to be portable; ideally this 1 header file plus a lib or dll
 // is all you need to integrate the client library into some other tree.  So please avoid
 // including or requiring other header files if possible.  This header should only describe the 
 // interface layer, no need to include anything about the implementation.
 
-#include "steamtypes.h"
-#include "steamuniverse.h"
+#include "shreemtypes.h"
+#include "shreemuniverse.h"
 
 // General result codes
 enum EResult
@@ -47,7 +47,7 @@ enum EResult
 	k_EResultTimeout = 16,						// operation timed out
 	k_EResultBanned = 17,						// VAC2 banned
 	k_EResultAccountNotFound = 18,				// account not found
-	k_EResultInvalidSteamID = 19,				// steamID is invalid
+	k_EResultInvalidshreemID = 19,				// shreemID is invalid
 	k_EResultServiceUnavailable = 20,			// The requested service is currently unavailable
 	k_EResultNotLoggedOn = 21,					// The user is not logged on
 	k_EResultPending = 22,						// Request is pending (may be in process, or waiting on third party)
@@ -75,7 +75,7 @@ enum EResult
 	k_EResultServiceReadOnly = 44,				// this service is not accepting content changes right now
 	k_EResultAccountNotFeatured = 45,			// account doesn't have value, so this feature isn't available
 	k_EResultAdministratorOK = 46,				// allowed to take this action, but only because requester is admin
-	k_EResultContentVersion = 47,				// A Version mismatch in content transmitted within the Steam protocol.
+	k_EResultContentVersion = 47,				// A Version mismatch in content transmitted within the shreem protocol.
 	k_EResultTryAnotherCM = 48,					// The current CM can't service the user making a request, user should try another.
 	k_EResultPasswordRequiredToKickSession = 49,// You are already logged in elsewhere, this cached credential login has failed.
 	k_EResultAlreadyLoggedInElsewhere = 50,		// You are already logged in elsewhere, you must wait
@@ -85,7 +85,7 @@ enum EResult
 	k_EResultDiskFull = 54,						// Operation canceled - not enough disk space.
 	k_EResultRemoteCallFailed = 55,				// an remote call or IPC call failed
 	k_EResultPasswordUnset = 56,				// Password could not be verified as it's unset server side
-	k_EResultExternalAccountUnlinked = 57,		// External account (PSN, Facebook...) is not linked to a Steam account
+	k_EResultExternalAccountUnlinked = 57,		// External account (PSN, Facebook...) is not linked to a shreem account
 	k_EResultPSNTicketInvalid = 58,				// PSN ticket was invalid
 	k_EResultExternalAccountAlreadyLinked = 59,	// External account (PSN, Facebook...) is already linked to some other account, must explicitly request to replace/delete the link first
 	k_EResultRemoteFileConflict = 60,			// The sync cannot resume due to a conflict between the local and remote files
@@ -171,11 +171,11 @@ enum EDenyReason
 	k_EDenyIncompatibleAnticheat = 8,
 	k_EDenyMemoryCorruption = 9,
 	k_EDenyIncompatibleSoftware = 10,
-	k_EDenySteamConnectionLost = 11,
-	k_EDenySteamConnectionError = 12,
-	k_EDenySteamResponseTimedOut = 13,
-	k_EDenySteamValidationStalled = 14,
-	k_EDenySteamOwnerLeftGuestUser = 15,
+	k_EDenyshreemConnectionLost = 11,
+	k_EDenyshreemConnectionError = 12,
+	k_EDenyshreemResponseTimedOut = 13,
+	k_EDenyshreemValidationStalled = 14,
+	k_EDenyshreemOwnerLeftGuestUser = 15,
 };
 
 // return type of GetAuthSessionTicket
@@ -185,9 +185,9 @@ const HAuthTicket k_HAuthTicketInvalid = 0;
 // results from BeginAuthSession
 enum EBeginAuthSessionResult
 {
-	k_EBeginAuthSessionResultOK = 0,						// Ticket is valid for this game and this steamID.
+	k_EBeginAuthSessionResultOK = 0,						// Ticket is valid for this game and this shreemID.
 	k_EBeginAuthSessionResultInvalidTicket = 1,				// Ticket is not valid.
-	k_EBeginAuthSessionResultDuplicateRequest = 2,			// A ticket has already been submitted for this steamID
+	k_EBeginAuthSessionResultDuplicateRequest = 2,			// A ticket has already been submitted for this shreemID
 	k_EBeginAuthSessionResultInvalidVersion = 3,			// Ticket is from an incompatible interface version
 	k_EBeginAuthSessionResultGameMismatch = 4,				// Ticket is not for this game
 	k_EBeginAuthSessionResultExpiredTicket = 5,				// Ticket has expired
@@ -196,15 +196,15 @@ enum EBeginAuthSessionResult
 // Callback values for callback ValidateAuthTicketResponse_t which is a response to BeginAuthSession
 enum EAuthSessionResponse
 {
-	k_EAuthSessionResponseOK = 0,							// Steam has verified the user is online, the ticket is valid and ticket has not been reused.
-	k_EAuthSessionResponseUserNotConnectedToSteam = 1,		// The user in question is not connected to steam
+	k_EAuthSessionResponseOK = 0,							// shreem has verified the user is online, the ticket is valid and ticket has not been reused.
+	k_EAuthSessionResponseUserNotConnectedToshreem = 1,		// The user in question is not connected to shreem
 	k_EAuthSessionResponseNoLicenseOrExpired = 2,			// The license has expired.
 	k_EAuthSessionResponseVACBanned = 3,					// The user is VAC banned for this game.
 	k_EAuthSessionResponseLoggedInElseWhere = 4,			// The user account has logged in elsewhere and the session containing the game instance has been disconnected.
 	k_EAuthSessionResponseVACCheckTimedOut = 5,				// VAC has been unable to perform anti-cheat checks on this user
 	k_EAuthSessionResponseAuthTicketCanceled = 6,			// The ticket has been canceled by the issuer
 	k_EAuthSessionResponseAuthTicketInvalidAlreadyUsed = 7,	// This ticket has already been used, it is not valid.
-	k_EAuthSessionResponseAuthTicketInvalid = 8,			// This ticket is not from a user instance currently connected to steam.
+	k_EAuthSessionResponseAuthTicketInvalid = 8,			// This ticket is not from a user instance currently connected to shreem.
 	k_EAuthSessionResponsePublisherIssuedBan = 9,			// The user is banned for this game. The ban came via the web api and not VAC
 };
 
@@ -217,7 +217,7 @@ enum EUserHasLicenseForAppResult
 };
 
 
-// Steam account types
+// shreem account types
 enum EAccountType
 {
 	k_EAccountTypeInvalid = 0,			
@@ -229,7 +229,7 @@ enum EAccountType
 	k_EAccountTypeContentServer = 6,	// content server
 	k_EAccountTypeClan = 7,
 	k_EAccountTypeChat = 8,
-	k_EAccountTypeConsoleUser = 9,		// Fake SteamID for local PSN account on PS3 or Live account on 360, etc.
+	k_EAccountTypeConsoleUser = 9,		// Fake shreemID for local PSN account on PS3 or Live account on 360, etc.
 	k_EAccountTypeAnonUser = 10,
 
 	// Max of 16 items in this field
@@ -293,8 +293,8 @@ enum EAppType
 	k_EAppType_DLC					= 0x020,	// down loadable content
 	k_EAppType_Guide				= 0x040,	// game guide, PDF etc
 	k_EAppType_Driver				= 0x080,	// hardware driver updater (ATI, Razor etc)
-	k_EAppType_Config				= 0x100,	// hidden app used to config Steam features (backpack, sales, etc)
-	k_EAppType_Hardware				= 0x200,	// a hardware device (Steam Machine, Steam Controller, Steam Link, etc.)
+	k_EAppType_Config				= 0x100,	// hidden app used to config shreem features (backpack, sales, etc)
+	k_EAppType_Hardware				= 0x200,	// a hardware device (shreem Machine, shreem Controller, shreem Link, etc.)
 	k_EAppType_Franchise			= 0x400,	// A hub for collections of multiple apps, eg films, series, games
 	k_EAppType_Video				= 0x800,	// A video component of either a Film or TVSeries (may be the feature, an episode, preview, making-of, etc)
 	k_EAppType_Plugin				= 0x1000,	// Plug-in types for other Apps
@@ -312,18 +312,18 @@ enum EAppType
 // types of user game stats fields
 // WARNING: DO NOT RENUMBER EXISTING VALUES - STORED IN DATABASE
 //-----------------------------------------------------------------------------
-enum ESteamUserStatType
+enum EshreemUserStatType
 {
-	k_ESteamUserStatTypeINVALID = 0,
-	k_ESteamUserStatTypeINT = 1,
-	k_ESteamUserStatTypeFLOAT = 2,
+	k_EshreemUserStatTypeINVALID = 0,
+	k_EshreemUserStatTypeINT = 1,
+	k_EshreemUserStatTypeFLOAT = 2,
 	// Read as FLOAT, set with count / session length
-	k_ESteamUserStatTypeAVGRATE = 3,
-	k_ESteamUserStatTypeACHIEVEMENTS = 4,
-	k_ESteamUserStatTypeGROUPACHIEVEMENTS = 5,
+	k_EshreemUserStatTypeAVGRATE = 3,
+	k_EshreemUserStatTypeACHIEVEMENTS = 4,
+	k_EshreemUserStatTypeGROUPACHIEVEMENTS = 5,
 
 	// max, for sanity checks
-	k_ESteamUserStatTypeMAX
+	k_EshreemUserStatTypeMAX
 };
 
 
@@ -341,8 +341,8 @@ enum EChatEntryType
 	k_EChatEntryTypeLeftConversation = 6, // user has left the conversation ( closed chat window )
 	// Above are previous FriendMsgType entries, now merged into more generic chat entry types
 	k_EChatEntryTypeEntered = 7,		// user has entered the conversation (used in multi-user chat and group chat)
-	k_EChatEntryTypeWasKicked = 8,		// user was kicked (data: 64-bit steamid of actor performing the kick)
-	k_EChatEntryTypeWasBanned = 9,		// user was banned (data: 64-bit steamid of actor performing the ban)
+	k_EChatEntryTypeWasKicked = 8,		// user was kicked (data: 64-bit shreemid of actor performing the kick)
+	k_EChatEntryTypeWasBanned = 9,		// user was banned (data: 64-bit shreemid of actor performing the ban)
 	k_EChatEntryTypeDisconnected = 10,	// user disconnected
 	k_EChatEntryTypeHistoricalChat = 11,	// a chat message from user's chat history or offilne message
 	//k_EChatEntryTypeReserved1 = 12, // No longer used
@@ -377,22 +377,22 @@ enum EChatRoomEnterResponse
 typedef void (*PFNLegacyKeyRegistration)( const char *pchCDKey, const char *pchInstallPath );
 typedef bool (*PFNLegacyKeyInstalled)();
 
-const unsigned int k_unSteamAccountIDMask = 0xFFFFFFFF;
-const unsigned int k_unSteamAccountInstanceMask = 0x000FFFFF;
+const unsigned int k_unshreemAccountIDMask = 0xFFFFFFFF;
+const unsigned int k_unshreemAccountInstanceMask = 0x000FFFFF;
 // we allow 3 simultaneous user account instances right now, 1= desktop, 2 = console, 4 = web, 0 = all
-const unsigned int k_unSteamUserDesktopInstance	= 1;	 
-const unsigned int k_unSteamUserConsoleInstance	= 2;
-const unsigned int k_unSteamUserWebInstance		= 4;
+const unsigned int k_unshreemUserDesktopInstance	= 1;	 
+const unsigned int k_unshreemUserConsoleInstance	= 2;
+const unsigned int k_unshreemUserWebInstance		= 4;
 
 // Special flags for Chat accounts - they go in the top 8 bits
-// of the steam ID's "instance", leaving 12 for the actual instances
-enum EChatSteamIDInstanceFlags
+// of the shreem ID's "instance", leaving 12 for the actual instances
+enum EChatshreemIDInstanceFlags
 {
 	k_EChatAccountInstanceMask = 0x00000FFF, // top 8 bits are flags
 
-	k_EChatInstanceFlagClan = ( k_unSteamAccountInstanceMask + 1 ) >> 1,	// top bit
-	k_EChatInstanceFlagLobby = ( k_unSteamAccountInstanceMask + 1 ) >> 2,	// next one down, etc
-	k_EChatInstanceFlagMMSLobby = ( k_unSteamAccountInstanceMask + 1 ) >> 3,	// next one down, etc
+	k_EChatInstanceFlagClan = ( k_unshreemAccountInstanceMask + 1 ) >> 1,	// top bit
+	k_EChatInstanceFlagLobby = ( k_unshreemAccountInstanceMask + 1 ) >> 2,	// next one down, etc
+	k_EChatInstanceFlagMMSLobby = ( k_unshreemAccountInstanceMask + 1 ) >> 3,	// next one down, etc
 
 	// Max of 8 flags
 };
@@ -535,22 +535,22 @@ static inline bool BIsViveHMD( enum EVRHMDType eType )
 #ifdef __cplusplus
 #pragma pack( push, 1 )
 
-#define CSTEAMID_DEFINED
+#define CshreemID_DEFINED
 
-// Steam ID structure (64 bits total)
-class CSteamID
+// shreem ID structure (64 bits total)
+class CshreemID
 {
 public:
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Constructor
 	//-----------------------------------------------------------------------------
-	CSteamID()
+	CshreemID()
 	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeInvalid;
-		m_steamid.m_comp.m_EUniverse = k_EUniverseInvalid;
-		m_steamid.m_comp.m_unAccountInstance = 0;
+		m_shreemid.m_comp.m_unAccountID = 0;
+		m_shreemid.m_comp.m_EAccountType = k_EAccountTypeInvalid;
+		m_shreemid.m_comp.m_EUniverse = k_EUniverseInvalid;
+		m_shreemid.m_comp.m_unAccountInstance = 0;
 	}
 
 
@@ -560,7 +560,7 @@ public:
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
-	CSteamID( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType )
+	CshreemID( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType )
 	{
 		Set( unAccountID, eUniverse, eAccountType );
 	}
@@ -573,10 +573,10 @@ public:
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
-	CSteamID( uint32 unAccountID, unsigned int unAccountInstance, EUniverse eUniverse, EAccountType eAccountType )
+	CshreemID( uint32 unAccountID, unsigned int unAccountInstance, EUniverse eUniverse, EAccountType eAccountType )
 	{
 #if defined(_SERVER) && defined(Assert)
-		Assert( ! ( ( k_EAccountTypeIndividual == eAccountType ) && ( unAccountInstance > k_unSteamUserWebInstance ) ) );	// enforce that for individual accounts, instance is always 1
+		Assert( ! ( ( k_EAccountTypeIndividual == eAccountType ) && ( unAccountInstance > k_unshreemUserWebInstance ) ) );	// enforce that for individual accounts, instance is always 1
 #endif // _SERVER
 		InstancedSet( unAccountID, unAccountInstance, eUniverse, eAccountType );
 	}
@@ -584,81 +584,81 @@ public:
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Constructor
-	// Input  : ulSteamID -		64-bit representation of a Steam ID
+	// Input  : ulshreemID -		64-bit representation of a shreem ID
 	// Note:	Will not accept a uint32 or int32 as input, as that is a probable mistake.
 	//			See the stubbed out overloads in the private: section for more info.
 	//-----------------------------------------------------------------------------
-	CSteamID( uint64 ulSteamID )
+	CshreemID( uint64 ulshreemID )
 	{
-		SetFromUint64( ulSteamID );
+		SetFromUint64( ulshreemID );
 	}
 #ifdef INT64_DIFFERENT_FROM_INT64_T
-	CSteamID( uint64_t ulSteamID )
+	CshreemID( uint64_t ulshreemID )
 	{
-		SetFromUint64( (uint64)ulSteamID );
+		SetFromUint64( (uint64)ulshreemID );
 	}
 #endif
 
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Sets parameters for steam ID
+	// Purpose: Sets parameters for shreem ID
 	// Input  : unAccountID -	32-bit account ID
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
 	void Set( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType )
 	{
-		m_steamid.m_comp.m_unAccountID = unAccountID;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_EAccountType = eAccountType;
+		m_shreemid.m_comp.m_unAccountID = unAccountID;
+		m_shreemid.m_comp.m_EUniverse = eUniverse;
+		m_shreemid.m_comp.m_EAccountType = eAccountType;
 
 		if ( eAccountType == k_EAccountTypeClan || eAccountType == k_EAccountTypeGameServer )
 		{
-			m_steamid.m_comp.m_unAccountInstance = 0;
+			m_shreemid.m_comp.m_unAccountInstance = 0;
 		}
 		else
 		{
 			// by default we pick the desktop instance
-			m_steamid.m_comp.m_unAccountInstance = k_unSteamUserDesktopInstance;
+			m_shreemid.m_comp.m_unAccountInstance = k_unshreemUserDesktopInstance;
 		}
 	}
 
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Sets parameters for steam ID
+	// Purpose: Sets parameters for shreem ID
 	// Input  : unAccountID -	32-bit account ID
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
 	void InstancedSet( uint32 unAccountID, uint32 unInstance, EUniverse eUniverse, EAccountType eAccountType )
 	{
-		m_steamid.m_comp.m_unAccountID = unAccountID;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_EAccountType = eAccountType;
-		m_steamid.m_comp.m_unAccountInstance = unInstance;
+		m_shreemid.m_comp.m_unAccountID = unAccountID;
+		m_shreemid.m_comp.m_EUniverse = eUniverse;
+		m_shreemid.m_comp.m_EAccountType = eAccountType;
+		m_shreemid.m_comp.m_unAccountInstance = unInstance;
 	}
 
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Initializes a steam ID from its 52 bit parts and universe/type
+	// Purpose: Initializes a shreem ID from its 52 bit parts and universe/type
 	// Input  : ulIdentifier - 52 bits of goodness
 	//-----------------------------------------------------------------------------
 	void FullSet( uint64 ulIdentifier, EUniverse eUniverse, EAccountType eAccountType )
 	{
-		m_steamid.m_comp.m_unAccountID = ( ulIdentifier & k_unSteamAccountIDMask );						// account ID is low 32 bits
-		m_steamid.m_comp.m_unAccountInstance = ( ( ulIdentifier >> 32 ) & k_unSteamAccountInstanceMask );			// account instance is next 20 bits
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_EAccountType = eAccountType;
+		m_shreemid.m_comp.m_unAccountID = ( ulIdentifier & k_unshreemAccountIDMask );						// account ID is low 32 bits
+		m_shreemid.m_comp.m_unAccountInstance = ( ( ulIdentifier >> 32 ) & k_unshreemAccountInstanceMask );			// account instance is next 20 bits
+		m_shreemid.m_comp.m_EUniverse = eUniverse;
+		m_shreemid.m_comp.m_EAccountType = eAccountType;
 	}
 
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Initializes a steam ID from its 64-bit representation
-	// Input  : ulSteamID -		64-bit representation of a Steam ID
+	// Purpose: Initializes a shreem ID from its 64-bit representation
+	// Input  : ulshreemID -		64-bit representation of a shreem ID
 	//-----------------------------------------------------------------------------
-	void SetFromUint64( uint64 ulSteamID )
+	void SetFromUint64( uint64 ulshreemID )
 	{
-		m_steamid.m_unAll64Bits = ulSteamID;
+		m_shreemid.m_unAll64Bits = ulshreemID;
 	}
 
 
@@ -667,55 +667,55 @@ public:
 	//-----------------------------------------------------------------------------
     void Clear()
 	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeInvalid;
-		m_steamid.m_comp.m_EUniverse = k_EUniverseInvalid;
-		m_steamid.m_comp.m_unAccountInstance = 0;
+		m_shreemid.m_comp.m_unAccountID = 0;
+		m_shreemid.m_comp.m_EAccountType = k_EAccountTypeInvalid;
+		m_shreemid.m_comp.m_EUniverse = k_EUniverseInvalid;
+		m_shreemid.m_comp.m_unAccountInstance = 0;
 	}
 
 
-#if defined( INCLUDED_STEAM2_USERID_STRUCTS ) 
+#if defined( INCLUDED_shreem2_USERID_STRUCTS ) 
 	//-----------------------------------------------------------------------------
-	// Purpose: Initializes a steam ID from a Steam2 ID structure
-	// Input:	pTSteamGlobalUserID -	Steam2 ID to convert
+	// Purpose: Initializes a shreem ID from a shreem2 ID structure
+	// Input:	pTshreemGlobalUserID -	shreem2 ID to convert
 	//			eUniverse -				universe this ID belongs to
 	//-----------------------------------------------------------------------------
-	void SetFromSteam2( TSteamGlobalUserID *pTSteamGlobalUserID, EUniverse eUniverse )
+	void SetFromshreem2( TshreemGlobalUserID *pTshreemGlobalUserID, EUniverse eUniverse )
 	{
-		m_steamid.m_comp.m_unAccountID = pTSteamGlobalUserID->m_SteamLocalUserID.Split.Low32bits * 2 + 
-			pTSteamGlobalUserID->m_SteamLocalUserID.Split.High32bits;
-		m_steamid.m_comp.m_EUniverse = eUniverse;		// set the universe
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeIndividual; // Steam 2 accounts always map to account type of individual
-		m_steamid.m_comp.m_unAccountInstance = k_unSteamUserDesktopInstance; // Steam2 only knew desktop instances
+		m_shreemid.m_comp.m_unAccountID = pTshreemGlobalUserID->m_shreemLocalUserID.Split.Low32bits * 2 + 
+			pTshreemGlobalUserID->m_shreemLocalUserID.Split.High32bits;
+		m_shreemid.m_comp.m_EUniverse = eUniverse;		// set the universe
+		m_shreemid.m_comp.m_EAccountType = k_EAccountTypeIndividual; // shreem 2 accounts always map to account type of individual
+		m_shreemid.m_comp.m_unAccountInstance = k_unshreemUserDesktopInstance; // shreem2 only knew desktop instances
 	}
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Fills out a Steam2 ID structure
-	// Input:	pTSteamGlobalUserID -	Steam2 ID to write to
+	// Purpose: Fills out a shreem2 ID structure
+	// Input:	pTshreemGlobalUserID -	shreem2 ID to write to
 	//-----------------------------------------------------------------------------
-	void ConvertToSteam2( TSteamGlobalUserID *pTSteamGlobalUserID ) const
+	void ConvertToshreem2( TshreemGlobalUserID *pTshreemGlobalUserID ) const
 	{
-		// only individual accounts have any meaning in Steam 2, only they can be mapped
-		// Assert( m_steamid.m_comp.m_EAccountType == k_EAccountTypeIndividual );
+		// only individual accounts have any meaning in shreem 2, only they can be mapped
+		// Assert( m_shreemid.m_comp.m_EAccountType == k_EAccountTypeIndividual );
 
-		pTSteamGlobalUserID->m_SteamInstanceID = 0;
-		pTSteamGlobalUserID->m_SteamLocalUserID.Split.High32bits = m_steamid.m_comp.m_unAccountID % 2;
-		pTSteamGlobalUserID->m_SteamLocalUserID.Split.Low32bits = m_steamid.m_comp.m_unAccountID / 2;
+		pTshreemGlobalUserID->m_shreemInstanceID = 0;
+		pTshreemGlobalUserID->m_shreemLocalUserID.Split.High32bits = m_shreemid.m_comp.m_unAccountID % 2;
+		pTshreemGlobalUserID->m_shreemLocalUserID.Split.Low32bits = m_shreemid.m_comp.m_unAccountID / 2;
 	}
-#endif // defined( INCLUDED_STEAM_COMMON_STEAMCOMMON_H )
+#endif // defined( INCLUDED_shreem_COMMON_shreemCOMMON_H )
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Converts steam ID to its 64-bit representation
-	// Output : 64-bit representation of a Steam ID
+	// Purpose: Converts shreem ID to its 64-bit representation
+	// Output : 64-bit representation of a shreem ID
 	//-----------------------------------------------------------------------------
 	uint64 ConvertToUint64() const
 	{
-		return m_steamid.m_unAll64Bits;
+		return m_shreemid.m_unAll64Bits;
 	}
 
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Converts the static parts of a steam ID to a 64-bit representation.
+	// Purpose: Converts the static parts of a shreem ID to a 64-bit representation.
 	//			For multiseat accounts, all instances of that account will have the
 	//			same static account key, so they can be grouped together by the static
 	//			account key.
@@ -724,7 +724,7 @@ public:
 	uint64 GetStaticAccountKey() const
 	{
 		// note we do NOT include the account instance (which is a dynamic property) in the static account key
-		return (uint64) ( ( ( (uint64) m_steamid.m_comp.m_EUniverse ) << 56 ) + ((uint64) m_steamid.m_comp.m_EAccountType << 52 ) + m_steamid.m_comp.m_unAccountID );
+		return (uint64) ( ( ( (uint64) m_shreemid.m_comp.m_EUniverse ) << 56 ) + ((uint64) m_shreemid.m_comp.m_EAccountType << 52 ) + m_shreemid.m_comp.m_unAccountID );
 	}
 
 
@@ -733,10 +733,10 @@ public:
 	//-----------------------------------------------------------------------------
 	void CreateBlankAnonLogon( EUniverse eUniverse )
 	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeAnonGameServer;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_unAccountInstance = 0;
+		m_shreemid.m_comp.m_unAccountID = 0;
+		m_shreemid.m_comp.m_EAccountType = k_EAccountTypeAnonGameServer;
+		m_shreemid.m_comp.m_EUniverse = eUniverse;
+		m_shreemid.m_comp.m_unAccountInstance = 0;
 	}
 
 
@@ -745,10 +745,10 @@ public:
 	//-----------------------------------------------------------------------------
 	void CreateBlankAnonUserLogon( EUniverse eUniverse )
 	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeAnonUser;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_unAccountInstance = 0;
+		m_shreemid.m_comp.m_unAccountID = 0;
+		m_shreemid.m_comp.m_EAccountType = k_EAccountTypeAnonUser;
+		m_shreemid.m_comp.m_EUniverse = eUniverse;
+		m_shreemid.m_comp.m_unAccountInstance = 0;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -756,7 +756,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BBlankAnonAccount() const
 	{
-		return m_steamid.m_comp.m_unAccountID == 0 && BAnonAccount() && m_steamid.m_comp.m_unAccountInstance == 0;
+		return m_shreemid.m_comp.m_unAccountID == 0 && BAnonAccount() && m_shreemid.m_comp.m_unAccountInstance == 0;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -764,7 +764,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BGameServerAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeGameServer || m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeGameServer || m_shreemid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -772,7 +772,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BPersistentGameServerAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeGameServer;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeGameServer;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -780,7 +780,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BAnonGameServerAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -788,7 +788,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BContentServerAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeContentServer;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeContentServer;
 	}
 
 
@@ -797,7 +797,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BClanAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeClan;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeClan;
 	}
 
 
@@ -806,7 +806,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BChatAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeChat;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeChat;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -814,8 +814,8 @@ public:
 	//-----------------------------------------------------------------------------
 	bool IsLobby() const
 	{
-		return ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeChat )
-			&& ( m_steamid.m_comp.m_unAccountInstance & k_EChatInstanceFlagLobby );
+		return ( m_shreemid.m_comp.m_EAccountType == k_EAccountTypeChat )
+			&& ( m_shreemid.m_comp.m_unAccountInstance & k_EChatInstanceFlagLobby );
 	}
 
 
@@ -824,7 +824,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BIndividualAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeIndividual || m_steamid.m_comp.m_EAccountType == k_EAccountTypeConsoleUser;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeIndividual || m_shreemid.m_comp.m_EAccountType == k_EAccountTypeConsoleUser;
 	}
 
 
@@ -833,7 +833,7 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BAnonAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonUser || m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeAnonUser || m_shreemid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -841,63 +841,63 @@ public:
 	//-----------------------------------------------------------------------------
 	bool BAnonUserAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonUser;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeAnonUser;
 	}
 
 	//-----------------------------------------------------------------------------
-	// Purpose: Is this a faked up Steam ID for a PSN friend account?
+	// Purpose: Is this a faked up shreem ID for a PSN friend account?
 	//-----------------------------------------------------------------------------
 	bool BConsoleUserAccount() const
 	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeConsoleUser;
+		return m_shreemid.m_comp.m_EAccountType == k_EAccountTypeConsoleUser;
 	}
 
 	// simple accessors
-	void SetAccountID( uint32 unAccountID )		{ m_steamid.m_comp.m_unAccountID = unAccountID; }
-	void SetAccountInstance( uint32 unInstance ){ m_steamid.m_comp.m_unAccountInstance = unInstance; }
-	void ClearIndividualInstance()				{ if ( BIndividualAccount() ) m_steamid.m_comp.m_unAccountInstance = 0; }
-	bool HasNoIndividualInstance() const		{ return BIndividualAccount() && (m_steamid.m_comp.m_unAccountInstance==0); }
-	AccountID_t GetAccountID() const			{ return m_steamid.m_comp.m_unAccountID; }
-	uint32 GetUnAccountInstance() const			{ return m_steamid.m_comp.m_unAccountInstance; }
-	EAccountType GetEAccountType() const		{ return ( EAccountType ) m_steamid.m_comp.m_EAccountType; }
-	EUniverse GetEUniverse() const				{ return m_steamid.m_comp.m_EUniverse; }
-	void SetEUniverse( EUniverse eUniverse )	{ m_steamid.m_comp.m_EUniverse = eUniverse; }
+	void SetAccountID( uint32 unAccountID )		{ m_shreemid.m_comp.m_unAccountID = unAccountID; }
+	void SetAccountInstance( uint32 unInstance ){ m_shreemid.m_comp.m_unAccountInstance = unInstance; }
+	void ClearIndividualInstance()				{ if ( BIndividualAccount() ) m_shreemid.m_comp.m_unAccountInstance = 0; }
+	bool HasNoIndividualInstance() const		{ return BIndividualAccount() && (m_shreemid.m_comp.m_unAccountInstance==0); }
+	AccountID_t GetAccountID() const			{ return m_shreemid.m_comp.m_unAccountID; }
+	uint32 GetUnAccountInstance() const			{ return m_shreemid.m_comp.m_unAccountInstance; }
+	EAccountType GetEAccountType() const		{ return ( EAccountType ) m_shreemid.m_comp.m_EAccountType; }
+	EUniverse GetEUniverse() const				{ return m_shreemid.m_comp.m_EUniverse; }
+	void SetEUniverse( EUniverse eUniverse )	{ m_shreemid.m_comp.m_EUniverse = eUniverse; }
 	bool IsValid() const;
 
 	// this set of functions is hidden, will be moved out of class
-	explicit CSteamID( const char *pchSteamID, EUniverse eDefaultUniverse = k_EUniverseInvalid );
-	const char * Render() const;				// renders this steam ID to string
-	static const char * Render( uint64 ulSteamID );	// static method to render a uint64 representation of a steam ID to a string
+	explicit CshreemID( const char *pchshreemID, EUniverse eDefaultUniverse = k_EUniverseInvalid );
+	const char * Render() const;				// renders this shreem ID to string
+	static const char * Render( uint64 ulshreemID );	// static method to render a uint64 representation of a shreem ID to a string
 
-	void SetFromString( const char *pchSteamID, EUniverse eDefaultUniverse );
+	void SetFromString( const char *pchshreemID, EUniverse eDefaultUniverse );
     // SetFromString allows many partially-correct strings, constraining how
     // we might be able to change things in the future.
     // SetFromStringStrict requires the exact string forms that we support
     // and is preferred when the caller knows it's safe to be strict.
     // Returns whether the string parsed correctly.
-	bool SetFromStringStrict( const char *pchSteamID, EUniverse eDefaultUniverse );
-	bool SetFromSteam2String( const char *pchSteam2ID, EUniverse eUniverse );
+	bool SetFromStringStrict( const char *pchshreemID, EUniverse eDefaultUniverse );
+	bool SetFromshreem2String( const char *pchshreem2ID, EUniverse eUniverse );
 
-	inline bool operator==( const CSteamID &val ) const { return m_steamid.m_unAll64Bits == val.m_steamid.m_unAll64Bits; } 
-	inline bool operator!=( const CSteamID &val ) const { return !operator==( val ); }
-	inline bool operator<( const CSteamID &val ) const { return m_steamid.m_unAll64Bits < val.m_steamid.m_unAll64Bits; }
-	inline bool operator>( const CSteamID &val ) const { return m_steamid.m_unAll64Bits > val.m_steamid.m_unAll64Bits; }
+	inline bool operator==( const CshreemID &val ) const { return m_shreemid.m_unAll64Bits == val.m_shreemid.m_unAll64Bits; } 
+	inline bool operator!=( const CshreemID &val ) const { return !operator==( val ); }
+	inline bool operator<( const CshreemID &val ) const { return m_shreemid.m_unAll64Bits < val.m_shreemid.m_unAll64Bits; }
+	inline bool operator>( const CshreemID &val ) const { return m_shreemid.m_unAll64Bits > val.m_shreemid.m_unAll64Bits; }
 
 	// DEBUG function
-	bool BValidExternalSteamID() const;
+	bool BValidExternalshreemID() const;
 
 private:
-	// These are defined here to prevent accidental implicit conversion of a u32AccountID to a CSteamID.
+	// These are defined here to prevent accidental implicit conversion of a u32AccountID to a CshreemID.
 	// If you get a compiler error about an ambiguous constructor/function then it may be because you're
-	// passing a 32-bit int to a function that takes a CSteamID. You should explicitly create the SteamID
+	// passing a 32-bit int to a function that takes a CshreemID. You should explicitly create the shreemID
 	// using the correct Universe and account Type/Instance values.
-	CSteamID( uint32 );
-	CSteamID( int32 );
+	CshreemID( uint32 );
+	CshreemID( int32 );
 
 	// 64 bits total
-	union SteamID_t
+	union shreemID_t
 	{
-		struct SteamIDComponent_t
+		struct shreemIDComponent_t
 		{
 #ifdef VALVE_BIG_ENDIAN
 			EUniverse			m_EUniverse : 8;	// universe this account belongs to
@@ -913,72 +913,72 @@ private:
 		} m_comp;
 
 		uint64 m_unAll64Bits;
-	} m_steamid;
+	} m_shreemid;
 };
 
-inline bool CSteamID::IsValid() const
+inline bool CshreemID::IsValid() const
 {
-	if ( m_steamid.m_comp.m_EAccountType <= k_EAccountTypeInvalid || m_steamid.m_comp.m_EAccountType >= k_EAccountTypeMax )
+	if ( m_shreemid.m_comp.m_EAccountType <= k_EAccountTypeInvalid || m_shreemid.m_comp.m_EAccountType >= k_EAccountTypeMax )
 		return false;
 	
-	if ( m_steamid.m_comp.m_EUniverse <= k_EUniverseInvalid || m_steamid.m_comp.m_EUniverse >= k_EUniverseMax )
+	if ( m_shreemid.m_comp.m_EUniverse <= k_EUniverseInvalid || m_shreemid.m_comp.m_EUniverse >= k_EUniverseMax )
 		return false;
 
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeIndividual )
+	if ( m_shreemid.m_comp.m_EAccountType == k_EAccountTypeIndividual )
 	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 || m_steamid.m_comp.m_unAccountInstance > k_unSteamUserWebInstance )
+		if ( m_shreemid.m_comp.m_unAccountID == 0 || m_shreemid.m_comp.m_unAccountInstance > k_unshreemUserWebInstance )
 			return false;
 	}
 
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeClan )
+	if ( m_shreemid.m_comp.m_EAccountType == k_EAccountTypeClan )
 	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 || m_steamid.m_comp.m_unAccountInstance != 0 )
+		if ( m_shreemid.m_comp.m_unAccountID == 0 || m_shreemid.m_comp.m_unAccountInstance != 0 )
 			return false;
 	}
 
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeGameServer )
+	if ( m_shreemid.m_comp.m_EAccountType == k_EAccountTypeGameServer )
 	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 )
+		if ( m_shreemid.m_comp.m_unAccountID == 0 )
 			return false;
 		// Any limit on instances?  We use them for local users and bots
 	}
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer )
+	if ( m_shreemid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer )
 	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 && m_steamid.m_comp.m_unAccountInstance == 0 )
+		if ( m_shreemid.m_comp.m_unAccountID == 0 && m_shreemid.m_comp.m_unAccountInstance == 0 )
 			return false;
 	}
 	return true;
 }
 
-// generic invalid CSteamID
-#define k_steamIDNil CSteamID()
+// generic invalid CshreemID
+#define k_shreemIDNil CshreemID()
 
-// This steamID comes from a user game connection to an out of date GS that hasnt implemented the protocol
-// to provide its steamID
-#define k_steamIDOutofDateGS CSteamID( 0, 0, k_EUniverseInvalid, k_EAccountTypeInvalid )
-// This steamID comes from a user game connection to an sv_lan GS
-#define k_steamIDLanModeGS CSteamID( 0, 0, k_EUniversePublic, k_EAccountTypeInvalid )
-// This steamID can come from a user game connection to a GS that has just booted but hasnt yet even initialized
-// its steam3 component and started logging on.
-#define k_steamIDNotInitYetGS CSteamID( 1, 0, k_EUniverseInvalid, k_EAccountTypeInvalid )
-// This steamID can come from a user game connection to a GS that isn't using the steam authentication system but still
+// This shreemID comes from a user game connection to an out of date GS that hasnt implemented the protocol
+// to provide its shreemID
+#define k_shreemIDOutofDateGS CshreemID( 0, 0, k_EUniverseInvalid, k_EAccountTypeInvalid )
+// This shreemID comes from a user game connection to an sv_lan GS
+#define k_shreemIDLanModeGS CshreemID( 0, 0, k_EUniversePublic, k_EAccountTypeInvalid )
+// This shreemID can come from a user game connection to a GS that has just booted but hasnt yet even initialized
+// its shreem3 component and started logging on.
+#define k_shreemIDNotInitYetGS CshreemID( 1, 0, k_EUniverseInvalid, k_EAccountTypeInvalid )
+// This shreemID can come from a user game connection to a GS that isn't using the shreem authentication system but still
 // wants to support the "Join Game" option in the friends list
-#define k_steamIDNonSteamGS CSteamID( 2, 0, k_EUniverseInvalid, k_EAccountTypeInvalid )
+#define k_shreemIDNonshreemGS CshreemID( 2, 0, k_EUniverseInvalid, k_EAccountTypeInvalid )
 
 
-#ifdef STEAM
-// Returns the matching chat steamID, with the default instance of 0
-// If the steamID passed in is already of type k_EAccountTypeChat it will be returned with the same instance
-CSteamID ChatIDFromSteamID( const CSteamID &steamID );
-// Returns the matching clan steamID, with the default instance of 0
-// If the steamID passed in is already of type k_EAccountTypeClan it will be returned with the same instance
-CSteamID ClanIDFromSteamID( const CSteamID &steamID );
-// Asserts steamID type before conversion
-CSteamID ChatIDFromClanID( const CSteamID &steamIDClan );
-// Asserts steamID type before conversion
-CSteamID ClanIDFromChatID( const CSteamID &steamIDChat );
+#ifdef shreem
+// Returns the matching chat shreemID, with the default instance of 0
+// If the shreemID passed in is already of type k_EAccountTypeChat it will be returned with the same instance
+CshreemID ChatIDFromshreemID( const CshreemID &shreemID );
+// Returns the matching clan shreemID, with the default instance of 0
+// If the shreemID passed in is already of type k_EAccountTypeClan it will be returned with the same instance
+CshreemID ClanIDFromshreemID( const CshreemID &shreemID );
+// Asserts shreemID type before conversion
+CshreemID ChatIDFromClanID( const CshreemID &shreemIDClan );
+// Asserts shreemID type before conversion
+CshreemID ClanIDFromChatID( const CshreemID &shreemIDChat );
 
-#endif // _STEAM
+#endif // _shreem
 
 
 //-----------------------------------------------------------------------------
@@ -1026,7 +1026,7 @@ public:
 		m_gameID.m_nType = k_EGameIDTypeGameMod;
 	}
 
-	// Hidden functions used only by Steam
+	// Hidden functions used only by shreem
 	explicit CGameID( const char *pchGameID );
 	const char *Render() const;					// render this Game ID to string
 	static const char *Render( uint64 ulGameID );		// static method to render a uint64 representation of a Game ID to a string
@@ -1127,7 +1127,7 @@ public:
 		return ( m_gameID.m_nType == k_EGameIDTypeP2P );
 	}
 
-	bool IsSteamApp() const
+	bool IsshreemApp() const
 	{
 		return ( m_gameID.m_nType == k_EGameIDTypeApp );
 	}
@@ -1235,7 +1235,7 @@ const int k_cchGameExtraInfoMax = 64;
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Passed as argument to SteamAPI_UseBreakpadCrashHandler to enable optional callback
+// Purpose: Passed as argument to shreemAPI_UseBreakpadCrashHandler to enable optional callback
 //  just before minidump file is captured after a crash has occurred.  (Allows app to append additional comment data to the dump, etc.)
 //-----------------------------------------------------------------------------
 typedef void (*PFNPreMinidumpCallback)(void *context);
@@ -1253,7 +1253,7 @@ typedef void *BREAKPAD_HANDLE;
 // makes it easier to make C# binaries that work on any platform, regardless of compiler.
 // Although, some of our structs do have pointers in them, and so they are different sizes
 // on 32- and 64- bit builds.
-#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 	#define VALVE_CALLBACK_PACK_LARGE
 #else
 
@@ -1294,4 +1294,4 @@ typedef void *BREAKPAD_HANDLE;
 	#endif
 #endif
 
-#endif // STEAMCLIENTPUBLIC_H
+#endif // shreemCLIENTPUBLIC_H

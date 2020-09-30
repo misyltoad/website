@@ -4,7 +4,7 @@
 #define CRYPTO_CONSTANTS_H
 #pragma once
 
-#include <steam/steamtypes.h>
+#include <shreem/shreemtypes.h>
 
 const int k_nSymmetricBlockSize = 16;					// AES block size (128 bits)
 const int k_nSymmetricIVSize = 12;						// length of the IV (must be 12 for BCryptEncrypt/BCryptDecrypt, but OpenSSL is more flexible)

@@ -1,6 +1,6 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
-// Example client/server chat application using SteamNetworkingSockets
+// Example client/server chat application using shreemNetworkingSockets
 
 #include <assert.h>
 #include <stdio.h>
@@ -16,10 +16,10 @@
 #include <map>
 #include <cctype>
 
-#include <steam/steamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
-#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
-#include <steam/steam_api.h>
+#include <shreem/shreemnetworkingsockets.h>
+#include <shreem/ishreemnetworkingutils.h>
+#ifndef shreemNETWORKINGSOCKETS_OPENSOURCE
+#include <shreem/shreem_api.h>
 #endif
 
 #ifdef WIN32
@@ -37,7 +37,7 @@
 
 bool g_bQuit = false;
 
-SteamNetworkingMicroseconds g_logTimeZero;
+shreemNetworkingMicroseconds g_logTimeZero;
 
 // We do this because I won't want to figure out how to cleanly shut
 // down the thread that is reading from stdin.
@@ -51,12 +51,12 @@ static void NukeProcess( int rc )
 	#endif
 }
 
-static void DebugOutput( ESteamNetworkingSocketsDebugOutputType eType, const char *pszMsg )
+static void DebugOutput( EshreemNetworkingSocketsDebugOutputType eType, const char *pszMsg )
 {
-	SteamNetworkingMicroseconds time = SteamNetworkingUtils()->GetLocalTimestamp() - g_logTimeZero;
+	shreemNetworkingMicroseconds time = shreemNetworkingUtils()->GetLocalTimestamp() - g_logTimeZero;
 	printf( "%10.6f %s\n", time*1e-6, pszMsg );
 	fflush(stdout);
-	if ( eType == k_ESteamNetworkingSocketsDebugOutputType_Bug )
+	if ( eType == k_EshreemNetworkingSocketsDebugOutputType_Bug )
 	{
 		fflush(stdout);
 		fflush(stderr);
@@ -74,7 +74,7 @@ static void FatalError( const char *fmt, ... )
 	char *nl = strchr( text, '\0' ) - 1;
 	if ( nl >= text && *nl == '\n' )
 		*nl = '\0';
-	DebugOutput( k_ESteamNetworkingSocketsDebugOutputType_Bug, text );
+	DebugOutput( k_EshreemNetworkingSocketsDebugOutputType_Bug, text );
 }
 
 static void Printf( const char *fmt, ... )
@@ -87,38 +87,38 @@ static void Printf( const char *fmt, ... )
 	char *nl = strchr( text, '\0' ) - 1;
 	if ( nl >= text && *nl == '\n' )
 		*nl = '\0';
-	DebugOutput( k_ESteamNetworkingSocketsDebugOutputType_Msg, text );
+	DebugOutput( k_EshreemNetworkingSocketsDebugOutputType_Msg, text );
 }
 
-static void InitSteamDatagramConnectionSockets()
+static void InitshreemDatagramConnectionSockets()
 {
-	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
-		SteamDatagramErrMsg errMsg;
+	#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
+		shreemDatagramErrMsg errMsg;
 		if ( !GameNetworkingSockets_Init( nullptr, errMsg ) )
 			FatalError( "GameNetworkingSockets_Init failed.  %s", errMsg );
 	#else
-		SteamDatagramClient_SetAppID( 570 ); // Just set something, doesn't matter what
-		//SteamDatagramClient_SetUniverse( k_EUniverseDev );
+		shreemDatagramClient_SetAppID( 570 ); // Just set something, doesn't matter what
+		//shreemDatagramClient_SetUniverse( k_EUniverseDev );
 
-		SteamDatagramErrMsg errMsg;
-		if ( !SteamDatagramClient_Init( true, errMsg ) )
-			FatalError( "SteamDatagramClient_Init failed.  %s", errMsg );
+		shreemDatagramErrMsg errMsg;
+		if ( !shreemDatagramClient_Init( true, errMsg ) )
+			FatalError( "shreemDatagramClient_Init failed.  %s", errMsg );
 
-		// Disable authentication when running with Steam, for this
+		// Disable authentication when running with shreem, for this
 		// example, since we're not a real app.
 		//
 		// Authentication is disabled automatically in the open-source
 		// version since we don't have a trusted third party to issue
 		// certs.
-		SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_IP_AllowWithoutAuth, 1 );
+		shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_IP_AllowWithoutAuth, 1 );
 	#endif
 
-	g_logTimeZero = SteamNetworkingUtils()->GetLocalTimestamp();
+	g_logTimeZero = shreemNetworkingUtils()->GetLocalTimestamp();
 
-	SteamNetworkingUtils()->SetDebugOutputFunction( k_ESteamNetworkingSocketsDebugOutputType_Msg, DebugOutput );
+	shreemNetworkingUtils()->SetDebugOutputFunction( k_EshreemNetworkingSocketsDebugOutputType_Msg, DebugOutput );
 }
 
-static void ShutdownSteamDatagramConnectionSockets()
+static void ShutdownshreemDatagramConnectionSockets()
 {
 	// Give connections time to finish up.  This is an application layer protocol
 	// here, it's not TCP.  Note that if you have an application and you need to be
@@ -127,10 +127,10 @@ static void ShutdownSteamDatagramConnectionSockets()
 	// you can pool the connection to see if any reliable data is pending.
 	std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
 
-	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+	#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 		GameNetworkingSockets_Kill();
 	#else
-		SteamDatagramClient_Kill();
+		shreemDatagramClient_Kill();
 	#endif
 }
 
@@ -234,20 +234,20 @@ public:
 	void Run( uint16 nPort )
 	{
 		// Select instance to use.  For now we'll always use the default.
-		// But we could use SteamGameServerNetworkingSockets() on Steam.
-		m_pInterface = SteamNetworkingSockets();
+		// But we could use shreemGameServerNetworkingSockets() on shreem.
+		m_pInterface = shreemNetworkingSockets();
 
 		// Start listening
-		SteamNetworkingIPAddr serverLocalAddr;
+		shreemNetworkingIPAddr serverLocalAddr;
 		serverLocalAddr.Clear();
 		serverLocalAddr.m_port = nPort;
-		SteamNetworkingConfigValue_t opt;
-		opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SteamNetConnectionStatusChangedCallback );
+		shreemNetworkingConfigValue_t opt;
+		opt.SetPtr( k_EshreemNetworkingConfig_Callback_ConnectionStatusChanged, (void*)shreemNetConnectionStatusChangedCallback );
 		m_hListenSock = m_pInterface->CreateListenSocketIP( serverLocalAddr, 1, &opt );
-		if ( m_hListenSock == k_HSteamListenSocket_Invalid )
+		if ( m_hListenSock == k_HshreemListenSocket_Invalid )
 			FatalError( "Failed to listen on port %d", nPort );
 		m_hPollGroup = m_pInterface->CreatePollGroup();
-		if ( m_hPollGroup == k_HSteamNetPollGroup_Invalid )
+		if ( m_hPollGroup == k_HshreemNetPollGroup_Invalid )
 			FatalError( "Failed to listen on port %d", nPort );
 		Printf( "Server listening on port %d\n", nPort );
 
@@ -269,37 +269,37 @@ public:
 			// protocol strings.
 			SendStringToClient( it.first, "Server is shutting down.  Goodbye." );
 
-			// Close the connection.  We use "linger mode" to ask SteamNetworkingSockets
+			// Close the connection.  We use "linger mode" to ask shreemNetworkingSockets
 			// to flush this out and close gracefully.
 			m_pInterface->CloseConnection( it.first, 0, "Server Shutdown", true );
 		}
 		m_mapClients.clear();
 
 		m_pInterface->CloseListenSocket( m_hListenSock );
-		m_hListenSock = k_HSteamListenSocket_Invalid;
+		m_hListenSock = k_HshreemListenSocket_Invalid;
 
 		m_pInterface->DestroyPollGroup( m_hPollGroup );
-		m_hPollGroup = k_HSteamNetPollGroup_Invalid;
+		m_hPollGroup = k_HshreemNetPollGroup_Invalid;
 	}
 private:
 
-	HSteamListenSocket m_hListenSock;
-	HSteamNetPollGroup m_hPollGroup;
-	ISteamNetworkingSockets *m_pInterface;
+	HshreemListenSocket m_hListenSock;
+	HshreemNetPollGroup m_hPollGroup;
+	IshreemNetworkingSockets *m_pInterface;
 
 	struct Client_t
 	{
 		std::string m_sNick;
 	};
 
-	std::map< HSteamNetConnection, Client_t > m_mapClients;
+	std::map< HshreemNetConnection, Client_t > m_mapClients;
 
-	void SendStringToClient( HSteamNetConnection conn, const char *str )
+	void SendStringToClient( HshreemNetConnection conn, const char *str )
 	{
-		m_pInterface->SendMessageToConnection( conn, str, (uint32)strlen(str), k_nSteamNetworkingSend_Reliable, nullptr );
+		m_pInterface->SendMessageToConnection( conn, str, (uint32)strlen(str), k_nshreemNetworkingSend_Reliable, nullptr );
 	}
 
-	void SendStringToAllClients( const char *str, HSteamNetConnection except = k_HSteamNetConnection_Invalid )
+	void SendStringToAllClients( const char *str, HshreemNetConnection except = k_HshreemNetConnection_Invalid )
 	{
 		for ( auto &c: m_mapClients )
 		{
@@ -314,7 +314,7 @@ private:
 
 		while ( !g_bQuit )
 		{
-			ISteamNetworkingMessage *pIncomingMsg = nullptr;
+			IshreemNetworkingMessage *pIncomingMsg = nullptr;
 			int numMsgs = m_pInterface->ReceiveMessagesOnPollGroup( m_hPollGroup, &pIncomingMsg, 1 );
 			if ( numMsgs == 0 )
 				break;
@@ -377,7 +377,7 @@ private:
 		}
 	}
 
-	void SetClientNick( HSteamNetConnection hConn, const char *nick )
+	void SetClientNick( HshreemNetConnection hConn, const char *nick )
 	{
 
 		// Remember their nick
@@ -387,23 +387,23 @@ private:
 		m_pInterface->SetConnectionName( hConn, nick );
 	}
 
-	void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t *pInfo )
+	void OnshreemNetConnectionStatusChanged( shreemNetConnectionStatusChangedCallback_t *pInfo )
 	{
 		char temp[1024];
 
 		// What's the state of the connection?
 		switch ( pInfo->m_info.m_eState )
 		{
-			case k_ESteamNetworkingConnectionState_None:
+			case k_EshreemNetworkingConnectionState_None:
 				// NOTE: We will get callbacks here when we destroy connections.  You can ignore these.
 				break;
 
-			case k_ESteamNetworkingConnectionState_ClosedByPeer:
-			case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+			case k_EshreemNetworkingConnectionState_ClosedByPeer:
+			case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 			{
 				// Ignore if they were not previously connected.  (If they disconnected
 				// before we accepted the connection.)
-				if ( pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connected )
+				if ( pInfo->m_eOldState == k_EshreemNetworkingConnectionState_Connected )
 				{
 
 					// Locate the client.  Note that it should have been found, because this
@@ -414,7 +414,7 @@ private:
 
 					// Select appropriate log messages
 					const char *pszDebugLogAction;
-					if ( pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally )
+					if ( pInfo->m_info.m_eState == k_EshreemNetworkingConnectionState_ProblemDetectedLocally )
 					{
 						pszDebugLogAction = "problem detected locally";
 						sprintf( temp, "Alas, %s hath fallen into shadow.  (%s)", itClient->second.m_sNick.c_str(), pInfo->m_info.m_szEndDebug );
@@ -444,7 +444,7 @@ private:
 				}
 				else
 				{
-					assert( pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting );
+					assert( pInfo->m_eOldState == k_EshreemNetworkingConnectionState_Connecting );
 				}
 
 				// Clean up the connection.  This is important!
@@ -457,7 +457,7 @@ private:
 				break;
 			}
 
-			case k_ESteamNetworkingConnectionState_Connecting:
+			case k_EshreemNetworkingConnectionState_Connecting:
 			{
 				// This must be a new connection
 				assert( m_mapClients.find( pInfo->m_hConn ) == m_mapClients.end() );
@@ -519,7 +519,7 @@ private:
 				break;
 			}
 
-			case k_ESteamNetworkingConnectionState_Connected:
+			case k_EshreemNetworkingConnectionState_Connected:
 				// We will get a callback immediately after accepting the connection.
 				// Since we are the server, we can ignore this, it's not news to us.
 				break;
@@ -531,9 +531,9 @@ private:
 	}
 
 	static ChatServer *s_pCallbackInstance;
-	static void SteamNetConnectionStatusChangedCallback( SteamNetConnectionStatusChangedCallback_t *pInfo )
+	static void shreemNetConnectionStatusChangedCallback( shreemNetConnectionStatusChangedCallback_t *pInfo )
 	{
-		s_pCallbackInstance->OnSteamNetConnectionStatusChanged( pInfo );
+		s_pCallbackInstance->OnshreemNetConnectionStatusChanged( pInfo );
 	}
 
 	void PollConnectionStateChanges()
@@ -554,19 +554,19 @@ ChatServer *ChatServer::s_pCallbackInstance = nullptr;
 class ChatClient
 {
 public:
-	void Run( const SteamNetworkingIPAddr &serverAddr )
+	void Run( const shreemNetworkingIPAddr &serverAddr )
 	{
 		// Select instance to use.  For now we'll always use the default.
-		m_pInterface = SteamNetworkingSockets();
+		m_pInterface = shreemNetworkingSockets();
 
 		// Start connecting
-		char szAddr[ SteamNetworkingIPAddr::k_cchMaxString ];
+		char szAddr[ shreemNetworkingIPAddr::k_cchMaxString ];
 		serverAddr.ToString( szAddr, sizeof(szAddr), true );
 		Printf( "Connecting to chat server at %s", szAddr );
-		SteamNetworkingConfigValue_t opt;
-		opt.SetPtr( k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SteamNetConnectionStatusChangedCallback );
+		shreemNetworkingConfigValue_t opt;
+		opt.SetPtr( k_EshreemNetworkingConfig_Callback_ConnectionStatusChanged, (void*)shreemNetConnectionStatusChangedCallback );
 		m_hConnection = m_pInterface->ConnectByIPAddress( serverAddr, 1, &opt );
-		if ( m_hConnection == k_HSteamNetConnection_Invalid )
+		if ( m_hConnection == k_HshreemNetConnection_Invalid )
 			FatalError( "Failed to create connection" );
 
 		while ( !g_bQuit )
@@ -579,14 +579,14 @@ public:
 	}
 private:
 
-	HSteamNetConnection m_hConnection;
-	ISteamNetworkingSockets *m_pInterface;
+	HshreemNetConnection m_hConnection;
+	IshreemNetworkingSockets *m_pInterface;
 
 	void PollIncomingMessages()
 	{
 		while ( !g_bQuit )
 		{
-			ISteamNetworkingMessage *pIncomingMsg = nullptr;
+			IshreemNetworkingMessage *pIncomingMsg = nullptr;
 			int numMsgs = m_pInterface->ReceiveMessagesOnConnection( m_hConnection, &pIncomingMsg, 1 );
 			if ( numMsgs == 0 )
 				break;
@@ -617,40 +617,40 @@ private:
 				// Close the connection gracefully.
 				// We use linger mode to ask for any remaining reliable data
 				// to be flushed out.  But remember this is an application
-				// protocol on UDP.  See ShutdownSteamDatagramConnectionSockets
+				// protocol on UDP.  See ShutdownshreemDatagramConnectionSockets
 				m_pInterface->CloseConnection( m_hConnection, 0, "Goodbye", true );
 				break;
 			}
 
 			// Anything else, just send it to the server and let them parse it
-			m_pInterface->SendMessageToConnection( m_hConnection, cmd.c_str(), (uint32)cmd.length(), k_nSteamNetworkingSend_Reliable, nullptr );
+			m_pInterface->SendMessageToConnection( m_hConnection, cmd.c_str(), (uint32)cmd.length(), k_nshreemNetworkingSend_Reliable, nullptr );
 		}
 	}
 
-	void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t *pInfo )
+	void OnshreemNetConnectionStatusChanged( shreemNetConnectionStatusChangedCallback_t *pInfo )
 	{
-		assert( pInfo->m_hConn == m_hConnection || m_hConnection == k_HSteamNetConnection_Invalid );
+		assert( pInfo->m_hConn == m_hConnection || m_hConnection == k_HshreemNetConnection_Invalid );
 
 		// What's the state of the connection?
 		switch ( pInfo->m_info.m_eState )
 		{
-			case k_ESteamNetworkingConnectionState_None:
+			case k_EshreemNetworkingConnectionState_None:
 				// NOTE: We will get callbacks here when we destroy connections.  You can ignore these.
 				break;
 
-			case k_ESteamNetworkingConnectionState_ClosedByPeer:
-			case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+			case k_EshreemNetworkingConnectionState_ClosedByPeer:
+			case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 			{
 				g_bQuit = true;
 
 				// Print an appropriate message
-				if ( pInfo->m_eOldState == k_ESteamNetworkingConnectionState_Connecting )
+				if ( pInfo->m_eOldState == k_EshreemNetworkingConnectionState_Connecting )
 				{
 					// Note: we could distinguish between a timeout, a rejected connection,
 					// or some other transport problem.
 					Printf( "We sought the remote host, yet our efforts were met with defeat.  (%s)", pInfo->m_info.m_szEndDebug );
 				}
-				else if ( pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ProblemDetectedLocally )
+				else if ( pInfo->m_info.m_eState == k_EshreemNetworkingConnectionState_ProblemDetectedLocally )
 				{
 					Printf( "Alas, troubles beset us; we have lost contact with the host.  (%s)", pInfo->m_info.m_szEndDebug );
 				}
@@ -667,16 +667,16 @@ private:
 				// and we cannot linger because it's already closed on the other end,
 				// so we just pass 0's.
 				m_pInterface->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
-				m_hConnection = k_HSteamNetConnection_Invalid;
+				m_hConnection = k_HshreemNetConnection_Invalid;
 				break;
 			}
 
-			case k_ESteamNetworkingConnectionState_Connecting:
+			case k_EshreemNetworkingConnectionState_Connecting:
 				// We will get this callback when we start connecting.
 				// We can ignore this.
 				break;
 
-			case k_ESteamNetworkingConnectionState_Connected:
+			case k_EshreemNetworkingConnectionState_Connected:
 				Printf( "Connected to server OK" );
 				break;
 
@@ -687,9 +687,9 @@ private:
 	}
 
 	static ChatClient *s_pCallbackInstance;
-	static void SteamNetConnectionStatusChangedCallback( SteamNetConnectionStatusChangedCallback_t *pInfo )
+	static void shreemNetConnectionStatusChangedCallback( shreemNetConnectionStatusChangedCallback_t *pInfo )
 	{
-		s_pCallbackInstance->OnSteamNetConnectionStatusChanged( pInfo );
+		s_pCallbackInstance->OnshreemNetConnectionStatusChanged( pInfo );
 	}
 
 	void PollConnectionStateChanges()
@@ -721,7 +721,7 @@ int main( int argc, const char *argv[] )
 	bool bServer = false;
 	bool bClient = false;
 	int nPort = DEFAULT_SERVER_PORT;
-	SteamNetworkingIPAddr addrServer; addrServer.Clear();
+	shreemNetworkingIPAddr addrServer; addrServer.Clear();
 
 	for ( int i = 1 ; i < argc ; ++i )
 	{
@@ -766,7 +766,7 @@ int main( int argc, const char *argv[] )
 		PrintUsageAndExit();
 
 	// Create client and server sockets
-	InitSteamDatagramConnectionSockets();
+	InitshreemDatagramConnectionSockets();
 	LocalUserInput_Init();
 
 	if ( bClient )
@@ -780,7 +780,7 @@ int main( int argc, const char *argv[] )
 		server.Run( (uint16)nPort );
 	}
 
-	ShutdownSteamDatagramConnectionSockets();
+	ShutdownshreemDatagramConnectionSockets();
 
 	// Ug, why is there no simple solution for portable, non-blocking console user input?
 	// Just nuke the process

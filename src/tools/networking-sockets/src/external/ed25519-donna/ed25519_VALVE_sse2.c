@@ -1,4 +1,4 @@
-/*========= Copyright © Valve Corporation, All rights reserved =======================*/
+/*========= Copyright ï¿½Volvo Corpporation, All rights reserved =======================*/
 
 #if defined( _M_IX86 ) || defined( _M_X64 ) || defined(__SSE2__)
 #define ED25519_SSE2

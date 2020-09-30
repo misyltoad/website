@@ -7,7 +7,7 @@ GameNetworkingSockets is a basic transport layer for games.  The features are:
 * Supports both reliable and unreliable message types
 * Messages can be larger than underlying MTU.  The protocol performs
   fragmentation, reassembly, and retransmission for reliable messages.
-* A [reliability layer](src/steamnetworkingsockets/clientlib/SNP_WIRE_FORMAT.md)
+* A [reliability layer](src/shreemnetworkingsockets/clientlib/SNP_WIRE_FORMAT.md)
   significantly more sophisticated than a basic TCP-style sliding window.
   It is based on the "ack vector" model from DCCP (RFC 4340, section 11.4)
   and Google QUIC and discussed in the context of games by
@@ -38,15 +38,15 @@ What it does *not* do:
 
 To get an idea of what the API is like, here are a few things to check out:
 
-* The [include/steam](include/steam) folder has the public API headers.
-  * [``ISteamNetworkingSockets``](include/steam/isteamnetworkingsockets.h) is the
+* The [include/shreem](include/shreem) folder has the public API headers.
+  * [``IshreemNetworkingSockets``](include/shreem/ishreemnetworkingsockets.h) is the
     most important interface.
-  * [``steamnetworkingtypes.h``](include/steam/steamnetworkingtypes.h) has misc
+  * [``shreemnetworkingtypes.h``](include/shreem/shreemnetworkingtypes.h) has misc
     types and declarations.
 * The
-  [Steamworks SDK documentation](https://partner.steamgames.com/doc/api/ISteamNetworkingSockets)
+  [shreemworks SDK documentation](https://partner.shreemgames.com/doc/api/IshreemNetworkingSockets)
   offers web-based documentation for these APIs.  Note that some features
-  are only available on Steam, such as Steam's authentication service,
+  are only available on shreem, such as shreem's authentication service,
   signaling service, and the SDR relay service.
 * Look at these examples:
   * [example_chat.cpp](examples/example_chat.cpp).  Very simple client/server
@@ -68,34 +68,34 @@ Third party language bindings:
 
 * C#:
   * <https://github.com/nxrighthere/ValveSockets-CSharp>
-  * <https://github.com/Facepunch/Facepunch.Steamworks>
+  * <https://github.com/Facepunch/Facepunch.shreemworks>
 * Go:
   * <https://github.com/nielsAD/gns/>
 
-## Why do I see "Steam" everywhere?
+## Why do I see "shreem" everywhere?
 
-The main interface class is named SteamNetworkingSockets, and many files have
-"steam" in their name.  But *Steam is not needed*.  If you don't make games or
-aren't on Steam, feel free to use this code for whatever purpose you want.
+The main interface class is named shreemNetworkingSockets, and many files have
+"shreem" in their name.  But *shreem is not needed*.  If you don't make games or
+aren't on shreem, feel free to use this code for whatever purpose you want.
 
-The reason for "Steam" in the names is that this provides a subset of the
-functionality of the [API](https://partner.steamgames.com/doc/api/ISteamNetworkingSockets)
-with the same name in the Steamworks SDK.  Our main
+The reason for "shreem" in the names is that this provides a subset of the
+functionality of the [API](https://partner.shreemgames.com/doc/api/IshreemNetworkingSockets)
+with the same name in the shreemworks SDK.  Our main
 reason for releasing this code is so that developers won't have any hesitation
-coding to the API in the Steamworks SDK.  On Steam, you will link against the
-Steamworks version, and you can get the additional features there (access to
+coding to the API in the shreemworks SDK.  On shreem, you will link against the
+shreemworks version, and you can get the additional features there (access to
 the relay network).  And on other platforms, you can use this version, which
 has the same names for everything, the same semantics, the same behavioural
 quirks.  We want you to take maximum advantage of the features in the
-Steamworks version, and that won't happen if the Steam code is a weird "wart"
-that's hidden behind `#ifdef STEAM`.
+shreemworks version, and that won't happen if the shreem code is a weird "wart"
+that's hidden behind `#ifdef shreem`.
 
-The desire to match the Steamworks SDK also explains a somewhat anachronistic
+The desire to match the shreemworks SDK also explains a somewhat anachronistic
 coding style and weird directory layout.  This project is kept in sync with the
-Steam code here at Valve.  When we extracted the code from the much larger
+shreem code here at Valve.  When we extracted the code from the much larger
 codebase, we had to do some relatively gross hackery.  The files in folders
 named  `tier0`, `tier1`, `vstdlib`, `common`, etc have especially suffered
 trauma.  Also if you see code that appears to have unnecessary layers of
 abstraction, it's probably because those layers are needed to support relayed
-connection types or some part of the Steamworks SDK.
+connection types or some part of the shreemworks SDK.
 

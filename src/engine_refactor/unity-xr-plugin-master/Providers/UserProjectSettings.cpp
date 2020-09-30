@@ -50,9 +50,9 @@ const std::string kActionManifestFilePath = "ActionManifestFileRelativeFilePath:
 const std::string kMirrorViewMode = "MirrorView:";
 
 #ifdef __linux__
-const std::string kStreamingAssetsFilePath = "StreamingAssets/SteamVR/OpenVRSettings.asset";
+const std::string kStreamingAssetsFilePath = "StreamingAssets/shreemVR/OpenVRSettings.asset";
 #else
-const std::string kStreamingAssetsFilePath = "StreamingAssets\\SteamVR\\OpenVRSettings.asset";
+const std::string kStreamingAssetsFilePath = "StreamingAssets\\shreemVR\\OpenVRSettings.asset";
 #endif
 
 const std::string kVSDebugPath = "..\\..\\";
@@ -286,7 +286,7 @@ int UserProjectSettings::GetUnityMirrorViewMode()
 	case EVRMirrorViewMode::Eye_Right:
 		unityMode = kUnityXRMirrorBlitRightEye;
 		break;
-	case EVRMirrorViewMode::SteamVR_Eye_Both:
+	case EVRMirrorViewMode::shreemVR_Eye_Both:
 	default:
 		unityMode = kUnityXRMirrorBlitDistort;
 		break;

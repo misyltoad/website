@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005Volvo Corprporation, All rights reserved. ============//
 //
 // Purpose: includes windows.h, with a minimal includes set, and clearing problematic defines
 //

@@ -1,4 +1,4 @@
-//========= Copyright © Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ Volvo Corporation, All rights reserved. ============//
 #ifndef NETADR_H
 #define NETADR_H
 #ifdef _WIN32
@@ -20,7 +20,7 @@ typedef enum
 
 	// Do not use this.  In some primordial code, "loopback" often actually meant "localhost",
 	// and sometimes it meant "internal buffers, not actually using the network system at all."
-	// We don't need the latter in Steam, and we don't need a separate address for the former (just
+	// We don't need the latter in shreem, and we don't need a separate address for the former (just
 	// use the appropriate reserved address!)
 	NA_LOOPBACK_DEPRECATED,
 

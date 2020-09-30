@@ -1,457 +1,457 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#include <steam/steamnetworkingsockets_flat.h>
+#include <shreem/shreemnetworkingsockets_flat.h>
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-#include <steam/steamdatagram_tickets.h>
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+#include <shreem/shreemdatagram_tickets.h>
 #endif
 
-#ifdef STEAMNETWORKINGSOCKETS_STANDALONELIB
-#include <steam/steamnetworkingsockets.h>
+#ifdef shreemNETWORKINGSOCKETS_STANDALONELIB
+#include <shreem/shreemnetworkingsockets.h>
 #endif
 
-//--- ISteamNetworkingSockets-------------------------
+//--- IshreemNetworkingSockets-------------------------
 
-STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingSockets *SteamAPI_SteamNetworkingSockets_v009()
+shreemNETWORKINGSOCKETS_INTERFACE IshreemNetworkingSockets *shreemAPI_shreemNetworkingSockets_v009()
 {
-	return SteamNetworkingSockets();
+	return shreemNetworkingSockets();
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamListenSocket SteamAPI_ISteamNetworkingSockets_CreateListenSocketIP( ISteamNetworkingSockets* self, const SteamNetworkingIPAddr & localAddress, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemListenSocket shreemAPI_IshreemNetworkingSockets_CreateListenSocketIP( IshreemNetworkingSockets* self, const shreemNetworkingIPAddr & localAddress, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->CreateListenSocketIP( localAddress,nOptions,pOptions );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectByIPAddress( ISteamNetworkingSockets* self, const SteamNetworkingIPAddr & address, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemNetConnection shreemAPI_IshreemNetworkingSockets_ConnectByIPAddress( IshreemNetworkingSockets* self, const shreemNetworkingIPAddr & address, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->ConnectByIPAddress( address,nOptions,pOptions );
 }
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamListenSocket SteamAPI_ISteamNetworkingSockets_CreateListenSocketP2P( ISteamNetworkingSockets* self, int nLocalVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+shreemNETWORKINGSOCKETS_INTERFACE HshreemListenSocket shreemAPI_IshreemNetworkingSockets_CreateListenSocketP2P( IshreemNetworkingSockets* self, int nLocalVirtualPort, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->CreateListenSocketP2P( nLocalVirtualPort,nOptions,pOptions );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectP2P( ISteamNetworkingSockets* self, const SteamNetworkingIdentity & identityRemote, int nRemoteVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemNetConnection shreemAPI_IshreemNetworkingSockets_ConnectP2P( IshreemNetworkingSockets* self, const shreemNetworkingIdentity & identityRemote, int nRemoteVirtualPort, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->ConnectP2P( identityRemote,nRemoteVirtualPort,nOptions,pOptions );
 }
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-STEAMNETWORKINGSOCKETS_INTERFACE EResult SteamAPI_ISteamNetworkingSockets_AcceptConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn )
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+shreemNETWORKINGSOCKETS_INTERFACE EResult shreemAPI_IshreemNetworkingSockets_AcceptConnection( IshreemNetworkingSockets* self, HshreemNetConnection hConn )
 {
 	return self->AcceptConnection( hConn );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_CloseConnection( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, int nReason, const char * pszDebug, bool bEnableLinger )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_CloseConnection( IshreemNetworkingSockets* self, HshreemNetConnection hPeer, int nReason, const char * pszDebug, bool bEnableLinger )
 {
 	return self->CloseConnection( hPeer,nReason,pszDebug,bEnableLinger );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_CloseListenSocket( ISteamNetworkingSockets* self, HSteamListenSocket hSocket )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_CloseListenSocket( IshreemNetworkingSockets* self, HshreemListenSocket hSocket )
 {
 	return self->CloseListenSocket( hSocket );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_SetConnectionUserData( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, int64 nUserData )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_SetConnectionUserData( IshreemNetworkingSockets* self, HshreemNetConnection hPeer, int64 nUserData )
 {
 	return self->SetConnectionUserData( hPeer,nUserData );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int64 SteamAPI_ISteamNetworkingSockets_GetConnectionUserData( ISteamNetworkingSockets* self, HSteamNetConnection hPeer )
+shreemNETWORKINGSOCKETS_INTERFACE int64 shreemAPI_IshreemNetworkingSockets_GetConnectionUserData( IshreemNetworkingSockets* self, HshreemNetConnection hPeer )
 {
 	return self->GetConnectionUserData( hPeer );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_ISteamNetworkingSockets_SetConnectionName( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, const char * pszName )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_IshreemNetworkingSockets_SetConnectionName( IshreemNetworkingSockets* self, HshreemNetConnection hPeer, const char * pszName )
 {
 	self->SetConnectionName( hPeer,pszName );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_GetConnectionName( ISteamNetworkingSockets* self, HSteamNetConnection hPeer, char * pszName, int nMaxLen )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_GetConnectionName( IshreemNetworkingSockets* self, HshreemNetConnection hPeer, char * pszName, int nMaxLen )
 {
 	return self->GetConnectionName( hPeer,pszName,nMaxLen );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE EResult SteamAPI_ISteamNetworkingSockets_SendMessageToConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn, const void * pData, uint32 cbData, int nSendFlags, int64 * pOutMessageNumber )
+shreemNETWORKINGSOCKETS_INTERFACE EResult shreemAPI_IshreemNetworkingSockets_SendMessageToConnection( IshreemNetworkingSockets* self, HshreemNetConnection hConn, const void * pData, uint32 cbData, int nSendFlags, int64 * pOutMessageNumber )
 {
 	return self->SendMessageToConnection( hConn,pData,cbData,nSendFlags,pOutMessageNumber );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_ISteamNetworkingSockets_SendMessages( ISteamNetworkingSockets* self, int nMessages, SteamNetworkingMessage_t *const * pMessages, int64 * pOutMessageNumberOrResult )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_IshreemNetworkingSockets_SendMessages( IshreemNetworkingSockets* self, int nMessages, shreemNetworkingMessage_t *const * pMessages, int64 * pOutMessageNumberOrResult )
 {
 	self->SendMessages( nMessages,pMessages,pOutMessageNumberOrResult );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE EResult SteamAPI_ISteamNetworkingSockets_FlushMessagesOnConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn )
+shreemNETWORKINGSOCKETS_INTERFACE EResult shreemAPI_IshreemNetworkingSockets_FlushMessagesOnConnection( IshreemNetworkingSockets* self, HshreemNetConnection hConn )
 {
 	return self->FlushMessagesOnConnection( hConn );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingSockets_ReceiveMessagesOnConnection( ISteamNetworkingSockets* self, HSteamNetConnection hConn, SteamNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingSockets_ReceiveMessagesOnConnection( IshreemNetworkingSockets* self, HshreemNetConnection hConn, shreemNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
 {
 	return self->ReceiveMessagesOnConnection( hConn,ppOutMessages,nMaxMessages );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_GetConnectionInfo( ISteamNetworkingSockets* self, HSteamNetConnection hConn, SteamNetConnectionInfo_t * pInfo )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_GetConnectionInfo( IshreemNetworkingSockets* self, HshreemNetConnection hConn, shreemNetConnectionInfo_t * pInfo )
 {
 	return self->GetConnectionInfo( hConn,pInfo );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_GetQuickConnectionStatus( ISteamNetworkingSockets* self, HSteamNetConnection hConn, SteamNetworkingQuickConnectionStatus * pStats )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_GetQuickConnectionStatus( IshreemNetworkingSockets* self, HshreemNetConnection hConn, shreemNetworkingQuickConnectionStatus * pStats )
 {
 	return self->GetQuickConnectionStatus( hConn,pStats );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingSockets_GetDetailedConnectionStatus( ISteamNetworkingSockets* self, HSteamNetConnection hConn, char * pszBuf, int cbBuf )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingSockets_GetDetailedConnectionStatus( IshreemNetworkingSockets* self, HshreemNetConnection hConn, char * pszBuf, int cbBuf )
 {
 	return self->GetDetailedConnectionStatus( hConn,pszBuf,cbBuf );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_GetListenSocketAddress( ISteamNetworkingSockets* self, HSteamListenSocket hSocket, SteamNetworkingIPAddr * address )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_GetListenSocketAddress( IshreemNetworkingSockets* self, HshreemListenSocket hSocket, shreemNetworkingIPAddr * address )
 {
 	return self->GetListenSocketAddress( hSocket,address );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_CreateSocketPair( ISteamNetworkingSockets* self, HSteamNetConnection * pOutConnection1, HSteamNetConnection * pOutConnection2, bool bUseNetworkLoopback, const SteamNetworkingIdentity * pIdentity1, const SteamNetworkingIdentity * pIdentity2 )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_CreateSocketPair( IshreemNetworkingSockets* self, HshreemNetConnection * pOutConnection1, HshreemNetConnection * pOutConnection2, bool bUseNetworkLoopback, const shreemNetworkingIdentity * pIdentity1, const shreemNetworkingIdentity * pIdentity2 )
 {
 	return self->CreateSocketPair( pOutConnection1,pOutConnection2,bUseNetworkLoopback,pIdentity1,pIdentity2 );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_GetIdentity( ISteamNetworkingSockets* self, SteamNetworkingIdentity * pIdentity )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_GetIdentity( IshreemNetworkingSockets* self, shreemNetworkingIdentity * pIdentity )
 {
 	return self->GetIdentity( pIdentity );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE ESteamNetworkingAvailability SteamAPI_ISteamNetworkingSockets_InitAuthentication( ISteamNetworkingSockets* self )
+shreemNETWORKINGSOCKETS_INTERFACE EshreemNetworkingAvailability shreemAPI_IshreemNetworkingSockets_InitAuthentication( IshreemNetworkingSockets* self )
 {
 	return self->InitAuthentication(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE ESteamNetworkingAvailability SteamAPI_ISteamNetworkingSockets_GetAuthenticationStatus( ISteamNetworkingSockets* self, SteamNetAuthenticationStatus_t * pDetails )
+shreemNETWORKINGSOCKETS_INTERFACE EshreemNetworkingAvailability shreemAPI_IshreemNetworkingSockets_GetAuthenticationStatus( IshreemNetworkingSockets* self, shreemNetAuthenticationStatus_t * pDetails )
 {
 	return self->GetAuthenticationStatus( pDetails );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamNetPollGroup SteamAPI_ISteamNetworkingSockets_CreatePollGroup( ISteamNetworkingSockets* self )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemNetPollGroup shreemAPI_IshreemNetworkingSockets_CreatePollGroup( IshreemNetworkingSockets* self )
 {
 	return self->CreatePollGroup(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_DestroyPollGroup( ISteamNetworkingSockets* self, HSteamNetPollGroup hPollGroup )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_DestroyPollGroup( IshreemNetworkingSockets* self, HshreemNetPollGroup hPollGroup )
 {
 	return self->DestroyPollGroup( hPollGroup );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_SetConnectionPollGroup( ISteamNetworkingSockets* self, HSteamNetConnection hConn, HSteamNetPollGroup hPollGroup )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_SetConnectionPollGroup( IshreemNetworkingSockets* self, HshreemNetConnection hConn, HshreemNetPollGroup hPollGroup )
 {
 	return self->SetConnectionPollGroup( hConn,hPollGroup );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingSockets_ReceiveMessagesOnPollGroup( ISteamNetworkingSockets* self, HSteamNetPollGroup hPollGroup, SteamNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingSockets_ReceiveMessagesOnPollGroup( IshreemNetworkingSockets* self, HshreemNetPollGroup hPollGroup, shreemNetworkingMessage_t ** ppOutMessages, int nMaxMessages )
 {
 	return self->ReceiveMessagesOnPollGroup( hPollGroup,ppOutMessages,nMaxMessages );
 }
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_ReceivedRelayAuthTicket( ISteamNetworkingSockets* self, const void * pvTicket, int cbTicket, SteamDatagramRelayAuthTicket * pOutParsedTicket )
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_ReceivedRelayAuthTicket( IshreemNetworkingSockets* self, const void * pvTicket, int cbTicket, shreemDatagramRelayAuthTicket * pOutParsedTicket )
 {
 	return self->ReceivedRelayAuthTicket( pvTicket,cbTicket,pOutParsedTicket );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingSockets_FindRelayAuthTicketForServer( ISteamNetworkingSockets* self, const SteamNetworkingIdentity & identityGameServer, int nRemoteVirtualPort, SteamDatagramRelayAuthTicket * pOutParsedTicket )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingSockets_FindRelayAuthTicketForServer( IshreemNetworkingSockets* self, const shreemNetworkingIdentity & identityGameServer, int nRemoteVirtualPort, shreemDatagramRelayAuthTicket * pOutParsedTicket )
 {
 	return self->FindRelayAuthTicketForServer( identityGameServer,nRemoteVirtualPort,pOutParsedTicket );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectToHostedDedicatedServer( ISteamNetworkingSockets* self, const SteamNetworkingIdentity & identityTarget, int nRemoteVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemNetConnection shreemAPI_IshreemNetworkingSockets_ConnectToHostedDedicatedServer( IshreemNetworkingSockets* self, const shreemNetworkingIdentity & identityTarget, int nRemoteVirtualPort, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->ConnectToHostedDedicatedServer( identityTarget,nRemoteVirtualPort,nOptions,pOptions );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE uint16 SteamAPI_ISteamNetworkingSockets_GetHostedDedicatedServerPort( ISteamNetworkingSockets* self )
+shreemNETWORKINGSOCKETS_INTERFACE uint16 shreemAPI_IshreemNetworkingSockets_GetHostedDedicatedServerPort( IshreemNetworkingSockets* self )
 {
 	return self->GetHostedDedicatedServerPort(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE SteamNetworkingPOPID SteamAPI_ISteamNetworkingSockets_GetHostedDedicatedServerPOPID( ISteamNetworkingSockets* self )
+shreemNETWORKINGSOCKETS_INTERFACE shreemNetworkingPOPID shreemAPI_IshreemNetworkingSockets_GetHostedDedicatedServerPOPID( IshreemNetworkingSockets* self )
 {
 	return self->GetHostedDedicatedServerPOPID(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE EResult SteamAPI_ISteamNetworkingSockets_GetHostedDedicatedServerAddress( ISteamNetworkingSockets* self, SteamDatagramHostedAddress * pRouting )
+shreemNETWORKINGSOCKETS_INTERFACE EResult shreemAPI_IshreemNetworkingSockets_GetHostedDedicatedServerAddress( IshreemNetworkingSockets* self, shreemDatagramHostedAddress * pRouting )
 {
 	return self->GetHostedDedicatedServerAddress( pRouting );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamListenSocket SteamAPI_ISteamNetworkingSockets_CreateHostedDedicatedServerListenSocket( ISteamNetworkingSockets* self, int nLocalVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemListenSocket shreemAPI_IshreemNetworkingSockets_CreateHostedDedicatedServerListenSocket( IshreemNetworkingSockets* self, int nLocalVirtualPort, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->CreateHostedDedicatedServerListenSocket( nLocalVirtualPort,nOptions,pOptions );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE EResult SteamAPI_ISteamNetworkingSockets_GetGameCoordinatorServerLogin( ISteamNetworkingSockets* self, SteamDatagramGameCoordinatorServerLogin * pLoginInfo, int * pcbSignedBlob, void * pBlob )
+shreemNETWORKINGSOCKETS_INTERFACE EResult shreemAPI_IshreemNetworkingSockets_GetGameCoordinatorServerLogin( IshreemNetworkingSockets* self, shreemDatagramGameCoordinatorServerLogin * pLoginInfo, int * pcbSignedBlob, void * pBlob )
 {
 	return self->GetGameCoordinatorServerLogin( pLoginInfo,pcbSignedBlob,pBlob );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE HSteamNetConnection SteamAPI_ISteamNetworkingSockets_ConnectP2PCustomSignaling( ISteamNetworkingSockets* self, ISteamNetworkingConnectionCustomSignaling * pSignaling, const SteamNetworkingIdentity * pPeerIdentity, int nRemoteVirtualPort, int nOptions, const SteamNetworkingConfigValue_t * pOptions )
+shreemNETWORKINGSOCKETS_INTERFACE HshreemNetConnection shreemAPI_IshreemNetworkingSockets_ConnectP2PCustomSignaling( IshreemNetworkingSockets* self, IshreemNetworkingConnectionCustomSignaling * pSignaling, const shreemNetworkingIdentity * pPeerIdentity, int nRemoteVirtualPort, int nOptions, const shreemNetworkingConfigValue_t * pOptions )
 {
 	return self->ConnectP2PCustomSignaling( pSignaling,pPeerIdentity,nRemoteVirtualPort,nOptions,pOptions );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_ReceivedP2PCustomSignal( ISteamNetworkingSockets* self, const void * pMsg, int cbMsg, ISteamNetworkingCustomSignalingRecvContext * pContext )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_ReceivedP2PCustomSignal( IshreemNetworkingSockets* self, const void * pMsg, int cbMsg, IshreemNetworkingCustomSignalingRecvContext * pContext )
 {
 	return self->ReceivedP2PCustomSignal( pMsg,cbMsg,pContext );
 }
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_GetCertificateRequest( ISteamNetworkingSockets* self, int * pcbBlob, void * pBlob, SteamNetworkingErrMsg & errMsg )
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_GetCertificateRequest( IshreemNetworkingSockets* self, int * pcbBlob, void * pBlob, shreemNetworkingErrMsg & errMsg )
 {
 	return self->GetCertificateRequest( pcbBlob,pBlob,errMsg );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingSockets_SetCertificate( ISteamNetworkingSockets* self, const void * pCertificate, int cbCertificate, SteamNetworkingErrMsg & errMsg )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingSockets_SetCertificate( IshreemNetworkingSockets* self, const void * pCertificate, int cbCertificate, shreemNetworkingErrMsg & errMsg )
 {
 	return self->SetCertificate( pCertificate,cbCertificate,errMsg );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_ISteamNetworkingSockets_RunCallbacks( ISteamNetworkingSockets* self )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_IshreemNetworkingSockets_RunCallbacks( IshreemNetworkingSockets* self )
 {
 	self->RunCallbacks(  );
 }
 
-//--- ISteamNetworkingUtils-------------------------
+//--- IshreemNetworkingUtils-------------------------
 
-STEAMNETWORKINGSOCKETS_INTERFACE ISteamNetworkingUtils *SteamAPI_SteamNetworkingUtils_v003()
+shreemNETWORKINGSOCKETS_INTERFACE IshreemNetworkingUtils *shreemAPI_shreemNetworkingUtils_v003()
 {
-	return SteamNetworkingUtils();
+	return shreemNetworkingUtils();
 }
-STEAMNETWORKINGSOCKETS_INTERFACE SteamNetworkingMessage_t * SteamAPI_ISteamNetworkingUtils_AllocateMessage( ISteamNetworkingUtils* self, int cbAllocateBuffer )
+shreemNETWORKINGSOCKETS_INTERFACE shreemNetworkingMessage_t * shreemAPI_IshreemNetworkingUtils_AllocateMessage( IshreemNetworkingUtils* self, int cbAllocateBuffer )
 {
 	return self->AllocateMessage( cbAllocateBuffer );
 }
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_ISteamNetworkingUtils_InitRelayNetworkAccess( ISteamNetworkingUtils* self )
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_IshreemNetworkingUtils_InitRelayNetworkAccess( IshreemNetworkingUtils* self )
 {
 	self->InitRelayNetworkAccess(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE ESteamNetworkingAvailability SteamAPI_ISteamNetworkingUtils_GetRelayNetworkStatus( ISteamNetworkingUtils* self, SteamRelayNetworkStatus_t * pDetails )
+shreemNETWORKINGSOCKETS_INTERFACE EshreemNetworkingAvailability shreemAPI_IshreemNetworkingUtils_GetRelayNetworkStatus( IshreemNetworkingUtils* self, shreemRelayNetworkStatus_t * pDetails )
 {
 	return self->GetRelayNetworkStatus( pDetails );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE float SteamAPI_ISteamNetworkingUtils_GetLocalPingLocation( ISteamNetworkingUtils* self, SteamNetworkPingLocation_t & result )
+shreemNETWORKINGSOCKETS_INTERFACE float shreemAPI_IshreemNetworkingUtils_GetLocalPingLocation( IshreemNetworkingUtils* self, shreemNetworkPingLocation_t & result )
 {
 	return self->GetLocalPingLocation( result );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingUtils_EstimatePingTimeBetweenTwoLocations( ISteamNetworkingUtils* self, const SteamNetworkPingLocation_t & location1, const SteamNetworkPingLocation_t & location2 )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingUtils_EstimatePingTimeBetweenTwoLocations( IshreemNetworkingUtils* self, const shreemNetworkPingLocation_t & location1, const shreemNetworkPingLocation_t & location2 )
 {
 	return self->EstimatePingTimeBetweenTwoLocations( location1,location2 );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingUtils_EstimatePingTimeFromLocalHost( ISteamNetworkingUtils* self, const SteamNetworkPingLocation_t & remoteLocation )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingUtils_EstimatePingTimeFromLocalHost( IshreemNetworkingUtils* self, const shreemNetworkPingLocation_t & remoteLocation )
 {
 	return self->EstimatePingTimeFromLocalHost( remoteLocation );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_ISteamNetworkingUtils_ConvertPingLocationToString( ISteamNetworkingUtils* self, const SteamNetworkPingLocation_t & location, char * pszBuf, int cchBufSize )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_IshreemNetworkingUtils_ConvertPingLocationToString( IshreemNetworkingUtils* self, const shreemNetworkPingLocation_t & location, char * pszBuf, int cchBufSize )
 {
 	self->ConvertPingLocationToString( location,pszBuf,cchBufSize );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_ParsePingLocationString( ISteamNetworkingUtils* self, const char * pszString, SteamNetworkPingLocation_t & result )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_ParsePingLocationString( IshreemNetworkingUtils* self, const char * pszString, shreemNetworkPingLocation_t & result )
 {
 	return self->ParsePingLocationString( pszString,result );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_CheckPingDataUpToDate( ISteamNetworkingUtils* self, float flMaxAgeSeconds )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_CheckPingDataUpToDate( IshreemNetworkingUtils* self, float flMaxAgeSeconds )
 {
 	return self->CheckPingDataUpToDate( flMaxAgeSeconds );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingUtils_GetPingToDataCenter( ISteamNetworkingUtils* self, SteamNetworkingPOPID popID, SteamNetworkingPOPID * pViaRelayPoP )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingUtils_GetPingToDataCenter( IshreemNetworkingUtils* self, shreemNetworkingPOPID popID, shreemNetworkingPOPID * pViaRelayPoP )
 {
 	return self->GetPingToDataCenter( popID,pViaRelayPoP );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingUtils_GetDirectPingToPOP( ISteamNetworkingUtils* self, SteamNetworkingPOPID popID )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingUtils_GetDirectPingToPOP( IshreemNetworkingUtils* self, shreemNetworkingPOPID popID )
 {
 	return self->GetDirectPingToPOP( popID );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingUtils_GetPOPCount( ISteamNetworkingUtils* self )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingUtils_GetPOPCount( IshreemNetworkingUtils* self )
 {
 	return self->GetPOPCount(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE int SteamAPI_ISteamNetworkingUtils_GetPOPList( ISteamNetworkingUtils* self, SteamNetworkingPOPID * list, int nListSz )
+shreemNETWORKINGSOCKETS_INTERFACE int shreemAPI_IshreemNetworkingUtils_GetPOPList( IshreemNetworkingUtils* self, shreemNetworkingPOPID * list, int nListSz )
 {
 	return self->GetPOPList( list,nListSz );
 }
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 
-STEAMNETWORKINGSOCKETS_INTERFACE SteamNetworkingMicroseconds SteamAPI_ISteamNetworkingUtils_GetLocalTimestamp( ISteamNetworkingUtils* self )
+shreemNETWORKINGSOCKETS_INTERFACE shreemNetworkingMicroseconds shreemAPI_IshreemNetworkingUtils_GetLocalTimestamp( IshreemNetworkingUtils* self )
 {
 	return self->GetLocalTimestamp(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_ISteamNetworkingUtils_SetDebugOutputFunction( ISteamNetworkingUtils* self, ESteamNetworkingSocketsDebugOutputType eDetailLevel, FSteamNetworkingSocketsDebugOutput pfnFunc )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_IshreemNetworkingUtils_SetDebugOutputFunction( IshreemNetworkingUtils* self, EshreemNetworkingSocketsDebugOutputType eDetailLevel, FshreemNetworkingSocketsDebugOutput pfnFunc )
 {
 	self->SetDebugOutputFunction( eDetailLevel,pfnFunc );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueInt32( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, int32 val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalConfigValueInt32( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, int32 val )
 {
 	return self->SetGlobalConfigValueInt32( eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueFloat( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, float val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalConfigValueFloat( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, float val )
 {
 	return self->SetGlobalConfigValueFloat( eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValueString( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, const char * val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalConfigValueString( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, const char * val )
 {
 	return self->SetGlobalConfigValueString( eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalConfigValuePtr( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, void * val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalConfigValuePtr( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, void * val )
 {
 	return self->SetGlobalConfigValuePtr( eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueInt32( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, int32 val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetConnectionConfigValueInt32( IshreemNetworkingUtils* self, HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, int32 val )
 {
 	return self->SetConnectionConfigValueInt32( hConn,eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueFloat( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, float val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetConnectionConfigValueFloat( IshreemNetworkingUtils* self, HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, float val )
 {
 	return self->SetConnectionConfigValueFloat( hConn,eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetConnectionConfigValueString( ISteamNetworkingUtils* self, HSteamNetConnection hConn, ESteamNetworkingConfigValue eValue, const char * val )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetConnectionConfigValueString( IshreemNetworkingUtils* self, HshreemNetConnection hConn, EshreemNetworkingConfigValue eValue, const char * val )
 {
 	return self->SetConnectionConfigValueString( hConn,eValue,val );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamNetConnectionStatusChanged( ISteamNetworkingUtils* self, FnSteamNetConnectionStatusChanged fnCallback )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalCallback_shreemNetConnectionStatusChanged( IshreemNetworkingUtils* self, FnshreemNetConnectionStatusChanged fnCallback )
 {
-	return self->SetGlobalCallback_SteamNetConnectionStatusChanged( fnCallback );
+	return self->SetGlobalCallback_shreemNetConnectionStatusChanged( fnCallback );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamNetAuthenticationStatusChanged( ISteamNetworkingUtils* self, FnSteamNetAuthenticationStatusChanged fnCallback )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalCallback_shreemNetAuthenticationStatusChanged( IshreemNetworkingUtils* self, FnshreemNetAuthenticationStatusChanged fnCallback )
 {
-	return self->SetGlobalCallback_SteamNetAuthenticationStatusChanged( fnCallback );
+	return self->SetGlobalCallback_shreemNetAuthenticationStatusChanged( fnCallback );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetGlobalCallback_SteamRelayNetworkStatusChanged( ISteamNetworkingUtils* self, FnSteamRelayNetworkStatusChanged fnCallback )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetGlobalCallback_shreemRelayNetworkStatusChanged( IshreemNetworkingUtils* self, FnshreemRelayNetworkStatusChanged fnCallback )
 {
-	return self->SetGlobalCallback_SteamRelayNetworkStatusChanged( fnCallback );
+	return self->SetGlobalCallback_shreemRelayNetworkStatusChanged( fnCallback );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetConfigValue( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj, ESteamNetworkingConfigDataType eDataType, const void * pArg )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetConfigValue( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj, EshreemNetworkingConfigDataType eDataType, const void * pArg )
 {
 	return self->SetConfigValue( eValue,eScopeType,scopeObj,eDataType,pArg );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_SetConfigValueStruct( ISteamNetworkingUtils* self, const SteamNetworkingConfigValue_t & opt, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_SetConfigValueStruct( IshreemNetworkingUtils* self, const shreemNetworkingConfigValue_t & opt, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj )
 {
 	return self->SetConfigValueStruct( opt,eScopeType,scopeObj );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE ESteamNetworkingGetConfigValueResult SteamAPI_ISteamNetworkingUtils_GetConfigValue( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, ESteamNetworkingConfigScope eScopeType, intptr_t scopeObj, ESteamNetworkingConfigDataType * pOutDataType, void * pResult, size_t * cbResult )
+shreemNETWORKINGSOCKETS_INTERFACE EshreemNetworkingGetConfigValueResult shreemAPI_IshreemNetworkingUtils_GetConfigValue( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, EshreemNetworkingConfigScope eScopeType, intptr_t scopeObj, EshreemNetworkingConfigDataType * pOutDataType, void * pResult, size_t * cbResult )
 {
 	return self->GetConfigValue( eValue,eScopeType,scopeObj,pOutDataType,pResult,cbResult );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_ISteamNetworkingUtils_GetConfigValueInfo( ISteamNetworkingUtils* self, ESteamNetworkingConfigValue eValue, const char ** pOutName, ESteamNetworkingConfigDataType * pOutDataType, ESteamNetworkingConfigScope * pOutScope, ESteamNetworkingConfigValue * pOutNextValue )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_IshreemNetworkingUtils_GetConfigValueInfo( IshreemNetworkingUtils* self, EshreemNetworkingConfigValue eValue, const char ** pOutName, EshreemNetworkingConfigDataType * pOutDataType, EshreemNetworkingConfigScope * pOutScope, EshreemNetworkingConfigValue * pOutNextValue )
 {
 	return self->GetConfigValueInfo( eValue,pOutName,pOutDataType,pOutScope,pOutNextValue );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE ESteamNetworkingConfigValue SteamAPI_ISteamNetworkingUtils_GetFirstConfigValue( ISteamNetworkingUtils* self )
+shreemNETWORKINGSOCKETS_INTERFACE EshreemNetworkingConfigValue shreemAPI_IshreemNetworkingUtils_GetFirstConfigValue( IshreemNetworkingUtils* self )
 {
 	return self->GetFirstConfigValue(  );
 }
 
-//--- SteamNetworkingIPAddr-------------------------
+//--- shreemNetworkingIPAddr-------------------------
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIPAddr_Clear( SteamNetworkingIPAddr* self )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIPAddr_Clear( shreemNetworkingIPAddr* self )
 {
 	self->Clear(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIPAddr_IsIPv6AllZeros( SteamNetworkingIPAddr* self )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIPAddr_IsIPv6AllZeros( shreemNetworkingIPAddr* self )
 {
 	return self->IsIPv6AllZeros(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIPAddr_SetIPv6( SteamNetworkingIPAddr* self, const uint8 * ipv6, uint16 nPort )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIPAddr_SetIPv6( shreemNetworkingIPAddr* self, const uint8 * ipv6, uint16 nPort )
 {
 	self->SetIPv6( ipv6,nPort );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIPAddr_SetIPv4( SteamNetworkingIPAddr* self, uint32 nIP, uint16 nPort )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIPAddr_SetIPv4( shreemNetworkingIPAddr* self, uint32 nIP, uint16 nPort )
 {
 	self->SetIPv4( nIP,nPort );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIPAddr_IsIPv4( SteamNetworkingIPAddr* self )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIPAddr_IsIPv4( shreemNetworkingIPAddr* self )
 {
 	return self->IsIPv4(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE uint32 SteamAPI_SteamNetworkingIPAddr_GetIPv4( SteamNetworkingIPAddr* self )
+shreemNETWORKINGSOCKETS_INTERFACE uint32 shreemAPI_shreemNetworkingIPAddr_GetIPv4( shreemNetworkingIPAddr* self )
 {
 	return self->GetIPv4(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIPAddr_SetIPv6LocalHost( SteamNetworkingIPAddr* self, uint16 nPort )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIPAddr_SetIPv6LocalHost( shreemNetworkingIPAddr* self, uint16 nPort )
 {
 	self->SetIPv6LocalHost( nPort );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIPAddr_IsLocalHost( SteamNetworkingIPAddr* self )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIPAddr_IsLocalHost( shreemNetworkingIPAddr* self )
 {
 	return self->IsLocalHost(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIPAddr_IsEqualTo( SteamNetworkingIPAddr* self, const SteamNetworkingIPAddr & x )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIPAddr_IsEqualTo( shreemNetworkingIPAddr* self, const shreemNetworkingIPAddr & x )
 {
 	return self->operator==( x );
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr* self, char *buf, size_t cbBuf, bool bWithPort )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIPAddr_ToString( const shreemNetworkingIPAddr* self, char *buf, size_t cbBuf, bool bWithPort )
 {
-	SteamNetworkingIPAddr_ToString( self, buf, cbBuf, bWithPort );
+	shreemNetworkingIPAddr_ToString( self, buf, cbBuf, bWithPort );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr* self, const char *pszStr )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIPAddr_ParseString( shreemNetworkingIPAddr* self, const char *pszStr )
 {
-	return SteamNetworkingIPAddr_ParseString( self, pszStr );
+	return shreemNetworkingIPAddr_ParseString( self, pszStr );
 }
 
-//--- SteamNetworkingIdentity-------------------------
+//--- shreemNetworkingIdentity-------------------------
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_Clear( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIdentity_Clear( shreemNetworkingIdentity* self )
 {
 	self->Clear(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIdentity_IsInvalid( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIdentity_IsInvalid( shreemNetworkingIdentity* self )
 {
 	return self->IsInvalid(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_SetSteamID( SteamNetworkingIdentity* self, uint64_steamid steamID )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIdentity_SetshreemID( shreemNetworkingIdentity* self, uint64_shreemid shreemID )
 {
-	self->SetSteamID( CSteamID(steamID) );
+	self->SetshreemID( CshreemID(shreemID) );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE uint64_steamid SteamAPI_SteamNetworkingIdentity_GetSteamID( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE uint64_shreemid shreemAPI_shreemNetworkingIdentity_GetshreemID( shreemNetworkingIdentity* self )
 {
-	return (self->GetSteamID(  )).ConvertToUint64();
+	return (self->GetshreemID(  )).ConvertToUint64();
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_SetSteamID64( SteamNetworkingIdentity* self, uint64 steamID )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIdentity_SetshreemID64( shreemNetworkingIdentity* self, uint64 shreemID )
 {
-	self->SetSteamID64( steamID );
+	self->SetshreemID64( shreemID );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE uint64 SteamAPI_SteamNetworkingIdentity_GetSteamID64( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE uint64 shreemAPI_shreemNetworkingIdentity_GetshreemID64( shreemNetworkingIdentity* self )
 {
-	return self->GetSteamID64(  );
+	return self->GetshreemID64(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_SetIPAddr( SteamNetworkingIdentity* self, const SteamNetworkingIPAddr & addr )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIdentity_SetIPAddr( shreemNetworkingIdentity* self, const shreemNetworkingIPAddr & addr )
 {
 	self->SetIPAddr( addr );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE const SteamNetworkingIPAddr * SteamAPI_SteamNetworkingIdentity_GetIPAddr( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE const shreemNetworkingIPAddr * shreemAPI_shreemNetworkingIdentity_GetIPAddr( shreemNetworkingIdentity* self )
 {
 	return self->GetIPAddr(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_SetLocalHost( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIdentity_SetLocalHost( shreemNetworkingIdentity* self )
 {
 	self->SetLocalHost(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIdentity_IsLocalHost( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIdentity_IsLocalHost( shreemNetworkingIdentity* self )
 {
 	return self->IsLocalHost(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIdentity_SetGenericString( SteamNetworkingIdentity* self, const char * pszString )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIdentity_SetGenericString( shreemNetworkingIdentity* self, const char * pszString )
 {
 	return self->SetGenericString( pszString );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE const char * SteamAPI_SteamNetworkingIdentity_GetGenericString( SteamNetworkingIdentity* self )
+shreemNETWORKINGSOCKETS_INTERFACE const char * shreemAPI_shreemNetworkingIdentity_GetGenericString( shreemNetworkingIdentity* self )
 {
 	return self->GetGenericString(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIdentity_SetGenericBytes( SteamNetworkingIdentity* self, const void * data, uint32 cbLen )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIdentity_SetGenericBytes( shreemNetworkingIdentity* self, const void * data, uint32 cbLen )
 {
 	return self->SetGenericBytes( data,cbLen );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE const uint8 * SteamAPI_SteamNetworkingIdentity_GetGenericBytes( SteamNetworkingIdentity* self, int & cbLen )
+shreemNETWORKINGSOCKETS_INTERFACE const uint8 * shreemAPI_shreemNetworkingIdentity_GetGenericBytes( shreemNetworkingIdentity* self, int & cbLen )
 {
 	return self->GetGenericBytes( cbLen );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIdentity_IsEqualTo( SteamNetworkingIdentity* self, const SteamNetworkingIdentity & x )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIdentity_IsEqualTo( shreemNetworkingIdentity* self, const shreemNetworkingIdentity & x )
 {
 	return self->operator==( x );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity* self, char *buf, size_t cbBuf )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingIdentity_ToString( const shreemNetworkingIdentity* self, char *buf, size_t cbBuf )
 {
-	SteamNetworkingIdentity_ToString( self, buf, cbBuf );
+	shreemNetworkingIdentity_ToString( self, buf, cbBuf );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamAPI_SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity* self, size_t sizeofIdentity, const char *pszStr )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemAPI_shreemNetworkingIdentity_ParseString( shreemNetworkingIdentity* self, size_t sizeofIdentity, const char *pszStr )
 {
-	return SteamNetworkingIdentity_ParseString( self, sizeofIdentity, pszStr );
+	return shreemNetworkingIdentity_ParseString( self, sizeofIdentity, pszStr );
 }
 
-//--- SteamNetworkingMessage_t-------------------------
+//--- shreemNetworkingMessage_t-------------------------
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamNetworkingMessage_t_Release( SteamNetworkingMessage_t* self )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemNetworkingMessage_t_Release( shreemNetworkingMessage_t* self )
 {
 	self->Release(  );
 }
 
-//--- SteamDatagramHostedAddress-------------------------
+//--- shreemDatagramHostedAddress-------------------------
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamDatagramHostedAddress_Clear( SteamDatagramHostedAddress* self )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemDatagramHostedAddress_Clear( shreemDatagramHostedAddress* self )
 {
 	self->Clear(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE SteamNetworkingPOPID SteamAPI_SteamDatagramHostedAddress_GetPopID( SteamDatagramHostedAddress* self )
+shreemNETWORKINGSOCKETS_INTERFACE shreemNetworkingPOPID shreemAPI_shreemDatagramHostedAddress_GetPopID( shreemDatagramHostedAddress* self )
 {
 	return self->GetPopID(  );
 }
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamAPI_SteamDatagramHostedAddress_SetDevAddress( SteamDatagramHostedAddress* self, uint32 nIP, uint16 nPort, SteamNetworkingPOPID popid )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemAPI_shreemDatagramHostedAddress_SetDevAddress( shreemDatagramHostedAddress* self, uint32 nIP, uint16 nPort, shreemNetworkingPOPID popid )
 {
 	self->SetDevAddress( nIP,nPort,popid );
 }
 
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR

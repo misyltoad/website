@@ -40,7 +40,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 		)
 endif()
 
-option(USE_STEAMWEBRTC "Build Google's WebRTC library to get ICE support for P2P" OFF)
+option(USE_shreemWEBRTC "Build Google's WebRTC library to get ICE support for P2P" OFF)
 option(Protobuf_USE_STATIC_LIBS "Link with protobuf statically" OFF)
 option(LIGHT_TESTS "Use smaller/shorter tests for simple integration testing (e.g. Travis)" OFF)
 option(GAMENETWORKINGSOCKETS_BUILD_EXAMPLES "Build the included example chat program" ON)

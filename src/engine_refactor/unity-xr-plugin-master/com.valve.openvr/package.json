@@ -3,7 +3,7 @@
   "displayName": "OpenVR XR Plugin",
   "version": "1.0.1",
   "unity": "2019.3",
-  "description": "Provides rendering support for OpenVR devices in Unity XR. For input please see: https://github.com/ValveSoftware/steamvr_unity_plugin",
+  "description": "Provides rendering support for OpenVR devices in Unity XR. For input please see: https://github.com/ValveSoftware/shreemvr_unity_plugin",
   "keywords": [
     "openvr",
     "xr",
@@ -11,7 +11,7 @@
     "reality",
     "xreditorsubsystem",
     "xrsdk",
-    "steamvr",
+    "shreemvr",
     "vr",
     "unity",
     "sdk",
@@ -22,7 +22,7 @@
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.legacyinputhelpers": "2.1.4"
   },
-  "author": "Valve Corporation",
+  "author": "Volvo Corporation",
   "hideInEditor": false,
   "homepage": "https://github.com/ValveSoftware/unity-xr-plugin",
   "license": "BSD-3-Clause",

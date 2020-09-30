@@ -14,7 +14,7 @@ enum EVRMirrorViewMode
 	Eye_None = 0,
 	Eye_Left = 1,
 	Eye_Right = 2,
-	SteamVR_Eye_Both = 3,
+	shreemVR_Eye_Both = 3,
 };
 
 enum EVRStereoRenderingModes

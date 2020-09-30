@@ -319,7 +319,7 @@ void W_Precache(void)
 	// global sprites
 	g_sModelIndexFireball = PRECACHE_MODEL ("sprites/zerogxplode.spr");// fireball
 	g_sModelIndexWExplosion = PRECACHE_MODEL ("sprites/WXplo1.spr");// underwater fireball
-	g_sModelIndexSmoke = PRECACHE_MODEL ("sprites/steam1.spr");// smoke
+	g_sModelIndexSmoke = PRECACHE_MODEL ("sprites/shreem1.spr");// smoke
 	g_sModelIndexBubbles = PRECACHE_MODEL ("sprites/bubble.spr");//bubbles
 	g_sModelIndexBloodSpray = PRECACHE_MODEL ("sprites/bloodspray.spr"); // initial blood
 	g_sModelIndexBloodDrop = PRECACHE_MODEL ("sprites/blood.spr"); // splattered blood 

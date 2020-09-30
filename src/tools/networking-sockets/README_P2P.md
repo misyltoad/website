@@ -1,6 +1,6 @@
 # About that P2P support....
 
-SteamNetworkingSockets supports peer-to-peer connections.  A "peer-to-peer"
+shreemNetworkingSockets supports peer-to-peer connections.  A "peer-to-peer"
 connection in this context means that the hosts do not (initially) know
 each other's IP address.  Furthermore, they may be behind NAT, and so they
 may not know their *own* public IP address.  They may not even *have* a public
@@ -22,7 +22,7 @@ the current google WebRTC code.)
 
 ## Symmetric connect mode
 
-SteamNetworkingSockets offers a unique feature known as *symmetric
+shreemNetworkingSockets offers a unique feature known as *symmetric
 connect mode*, which really puts the "peer" in "peer-to-peer connection".
 This feature is useful in the following common use case:
 
@@ -35,15 +35,15 @@ right, especially when authentication, encryption, ICE roles, etc
 are involved.  With symmetric connect mode, sorting out these race
 conditions and producing a single connection is handled by the API.
 
-See the ``k_ESteamNetworkingConfig_SymmetricConnect``
-connection flag in [steamnetworkingtypes.h](include/steam/steamnetworkingtypes.h)
+See the ``k_EshreemNetworkingConfig_SymmetricConnect``
+connection flag in [shreemnetworkingtypes.h](include/shreem/shreemnetworkingtypes.h)
 for more info.
 
 ## Requirements
 
 Peer-to-peer connections require more than just working code.  In addition
 to the code in this library, there are several other prerequisites.
-(Note that the Steamworks API provides all of these services for Steam games.)
+(Note that the shreemworks API provides all of these services for shreem games.)
 
 ### Signaling service
 
@@ -51,7 +51,7 @@ A side channel, capable of relaying small rendezvous
 messages from one host to another.  This means hosts must have a constant
 connection to your service, once that enables you to *push* messages to them.
 
-SteamNetworkingSockets supports a pluggable signaling service.  The requirements
+shreemNetworkingSockets supports a pluggable signaling service.  The requirements
 placed on your signaling service are relatively minimal:
 
 * Individual rendezvous messages are small.  (Perhaps bigger than IP MTU,
@@ -82,10 +82,10 @@ servers.  (NOTE: Any TURN server also doubles as a STUN server.)  Because the TU
 server is relaying every packet, is is a relatively costly service, so you probably
 will need to run your own, or just fail connections that cannot pierce NAT.
 
-On Steam we use a custom relay service known as [Steam Datgaram Relay](https://partner.steamgames.com/doc/features/multiplayer/steamdatagramrelay)
+On shreem we use a custom relay service known as [shreem Datgaram Relay](https://partner.shreemgames.com/doc/features/multiplayer/shreemdatagramrelay)
 -- SDR for short -- carrying packets through our network of relays and
 on our backbone.   (You may see this mentioned in the opensource code here,
-but the SDR support code is not opensource.)  Also, on Steam we always
+but the SDR support code is not opensource.)  Also, on shreem we always
 relay traffic and do not share IP addresses between untrusted peers, so
 that malicious players cannot DoS attack.
 
@@ -94,16 +94,16 @@ that malicious players cannot DoS attack.
 The above requirements are just what is needed to make a connection between two
 hosts, once you know who to connect to.  But before that, you need a way to assign an
 identity to a host, authenticate them, matchmaking them, etc.  Those services are
-also included with Steam, but outside the scope of a transport library like this.
+also included with shreem, but outside the scope of a transport library like this.
 
 ## Using P2P
 
-Assuming you have all of those requirements, you can use SteamNetworkingSockets
+Assuming you have all of those requirements, you can use shreemNetworkingSockets
 to make P2P connections!
 
-To compile with ICE support, set USE_STEAMWEBRTC when building the project files:
+To compile with ICE support, set USE_shreemWEBRTC when building the project files:
 ```
-cmake -DUSE_STEAMWEBRTC=ON (etc...)
+cmake -DUSE_shreemWEBRTC=ON (etc...)
 ```
 
 You'll also need to activate two git submodules to pull down the google WebRTC code.
@@ -111,7 +111,7 @@ You'll also need to activate two git submodules to pull down the google WebRTC c
 
 Take a look at these files for more information:
 
-* [steamnetworkingcustomsignaling.h](include/steam/steamnetworkingcustomsignaling.h)
+* [shreemnetworkingcustomsignaling.h](include/shreem/shreemnetworkingcustomsignaling.h)
   contains the interfaces you'll need to implement for your signaling service.
 * An example of a really trivial signaling protocol:
   * [trivial_signaling_server.go](examples/trivial_signaling_server.go) server

@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright Volvo Corporation, All rights reserved. ============//
 
 #include <tier0/dbg.h>
 #include <vstdlib/strtools.h>

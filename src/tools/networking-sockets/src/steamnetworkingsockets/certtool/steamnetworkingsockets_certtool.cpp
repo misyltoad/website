@@ -1,6 +1,6 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
-// Steam datagram routing server
+// shreem datagram routing server
 //
 //=============================================================================
 
@@ -9,7 +9,7 @@
 #include <inttypes.h>
 #include <time.h>
 
-#include "../steamnetworkingsockets_internal.h"
+#include "../shreemnetworkingsockets_internal.h"
 #include "crypto.h"
 #include "crypto_25519.h"
 #include "keypair.h"
@@ -21,7 +21,7 @@
 // Must be the last include
 #include <tier0/memdbgon.h>
 
-using namespace SteamNetworkingSocketsLib;
+using namespace shreemNetworkingSocketsLib;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -69,7 +69,7 @@ const int k_nDefaultExpiryDays = 365*2;
 
 CECSigningPrivateKey s_keyCAPriv;
 CECSigningPublicKey s_keyCertPub;
-std::vector<SteamNetworkingPOPID> s_vecPOPIDs;
+std::vector<shreemNetworkingPOPID> s_vecPOPIDs;
 std::vector<AppId_t> s_vecAppIDs;
 int s_nExpiryDays = k_nDefaultExpiryDays;
 bool s_bOutputJSON;
@@ -81,20 +81,20 @@ static void PrintArgSummaryAndExit( int returnCode = 1 )
 
 To generate a signing keypair (currently always Ed25519):
 
-	steamnetworkingsockets_certtool [options] gen_keypair
+	shreemnetworkingsockets_certtool [options] gen_keypair
 
 To create a cert for a keypair:
 
-	steamnetworkingsockets_certtool [options] create_cert
+	shreemnetworkingsockets_certtool [options] create_cert
 
 To do both steps at once:
 
-	steamnetworkingsockets_certtool [options] gen_keypair create_cert
+	shreemnetworkingsockets_certtool [options] gen_keypair create_cert
 
 To generate a Diffie-Hellman key exchange keypair (X25519, for sending
 private messages, not for signing):
 
-	steamnetworkingsockets_certtool [options] gen_keyexchange_keypair
+	shreemnetworkingsockets_certtool [options] gen_keyexchange_keypair
 
 Options:
 
@@ -184,10 +184,10 @@ void GenKeyPair()
 		sComment += szTemp;
 		sComment += '-';
 	}
-	for ( SteamNetworkingPOPID id: s_vecPOPIDs )
+	for ( shreemNetworkingPOPID id: s_vecPOPIDs )
 	{
 		char szTemp[ 8 ];
-		GetSteamNetworkingLocationPOPStringFromID( id, szTemp );
+		GetshreemNetworkingLocationPOPStringFromID( id, szTemp );
 		sComment += szTemp;
 		sComment += '-';
 	}
@@ -223,14 +223,14 @@ void GenKeyPair()
 	}
 }
 
-static const char k_szSDRCertPEMHeader[] = "-----BEGIN STEAMDATAGRAM CERT-----";
-static const char k_szSDRCertPEMFooter[] = "-----END STEAMDATAGRAM CERT-----";
+static const char k_szSDRCertPEMHeader[] = "-----BEGIN shreemDATAGRAM CERT-----";
+static const char k_szSDRCertPEMFooter[] = "-----END shreemDATAGRAM CERT-----";
 
-void PrintCertInfo( const CMsgSteamDatagramCertificateSigned &msgSigned, picojson::object &outJSON )
+void PrintCertInfo( const CMsgshreemDatagramCertificateSigned &msgSigned, picojson::object &outJSON )
 {
 	char szTemp[ 256 ];
 
-	CMsgSteamDatagramCertificate msgCert;
+	CMsgshreemDatagramCertificate msgCert;
 	msgCert.ParseFromString( msgSigned.cert() );
 
 	CECSigningPublicKey pubKey;
@@ -251,9 +251,9 @@ void PrintCertInfo( const CMsgSteamDatagramCertificateSigned &msgSigned, picojso
 	std::string sPOPIDs;
 	{
 		picojson::array pop_ids;
-		for ( SteamNetworkingPOPID id: msgCert.gameserver_datacenter_ids() )
+		for ( shreemNetworkingPOPID id: msgCert.gameserver_datacenter_ids() )
 		{
-			GetSteamNetworkingLocationPOPStringFromID( id, szTemp );
+			GetshreemNetworkingLocationPOPStringFromID( id, szTemp );
 
 			if ( !sPOPIDs.empty() )
 				sPOPIDs += ' ';
@@ -306,7 +306,7 @@ void PrintCertInfo( const CMsgSteamDatagramCertificateSigned &msgSigned, picojso
 	}
 }
 
-std::string CertToBase64( const CMsgSteamDatagramCertificateSigned &msgCert, const char *pszNewline )
+std::string CertToBase64( const CMsgshreemDatagramCertificateSigned &msgCert, const char *pszNewline )
 {
 	std::string sSigned = msgCert.SerializeAsString();
 
@@ -317,7 +317,7 @@ std::string CertToBase64( const CMsgSteamDatagramCertificateSigned &msgCert, con
 	return std::string(text);
 }
 
-std::string CertToPEM( const CMsgSteamDatagramCertificateSigned &msgCert )
+std::string CertToPEM( const CMsgshreemDatagramCertificateSigned &msgCert )
 {
 	std::string body = CertToBase64( msgCert, "\n" );
 	return std::string( k_szSDRCertPEMHeader ) + '\n' + body + '\n' + k_szSDRCertPEMFooter + '\n';
@@ -335,8 +335,8 @@ void CreateCert()
 	uint64 nCAKeyID = CalculatePublicKeyID( caPubKey );
 	Assert( nCAKeyID != 0 );
 
-	CMsgSteamDatagramCertificate msgCert;
-	msgCert.set_key_type( CMsgSteamDatagramCertificate_EKeyType_ED25519 );
+	CMsgshreemDatagramCertificate msgCert;
+	msgCert.set_key_type( CMsgshreemDatagramCertificate_EKeyType_ED25519 );
 	DbgVerify( s_keyCertPub.GetRawDataAsStdString( msgCert.mutable_key_data() ) );
 	msgCert.set_time_created( time( nullptr ) );
 	msgCert.set_time_expiry( msgCert.time_created() + s_nExpiryDays*24*3600 );
@@ -346,7 +346,7 @@ void CreateCert()
 		msgCert.add_gameserver_datacenter_ids( id );
 	//cert.set_app_id( FIXME )
 
-	CMsgSteamDatagramCertificateSigned msgSigned;
+	CMsgshreemDatagramCertificateSigned msgSigned;
 	msgSigned.set_cert( msgCert.SerializeAsString() );
 
 	CryptoSignature_t sig;
@@ -500,7 +500,7 @@ int main( int argc, char **argv )
 				int l = V_strlen( pszCode );
 				if ( l < 3 || l > 4 )
 					Plat_FatalError( "'%s' isn't a valid POP code\n", pszCode );
-				s_vecPOPIDs.push_back( CalculateSteamNetworkingPOPIDFromString( pszCode ) );
+				s_vecPOPIDs.push_back( CalculateshreemNetworkingPOPIDFromString( pszCode ) );
 			}
 			continue;
 		}

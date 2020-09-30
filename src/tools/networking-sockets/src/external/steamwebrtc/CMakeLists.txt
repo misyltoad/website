@@ -813,18 +813,18 @@ include_directories(
 	${webrtc_SOURCE_DIR}/include/webrtc
 	)
 
-add_library(steamwebrtc STATIC
+add_library(shreemwebrtc STATIC
 	"ice_session.h"
-	"steamwebrtc_internal.h"
+	"shreemwebrtc_internal.h"
 	"ice_session.cpp"
 	)
 
-target_link_libraries(steamwebrtc
+target_link_libraries(shreemwebrtc
 	webrtc-lite
 	)
 
-set_target_properties(steamwebrtc PROPERTIES
+set_target_properties(shreemwebrtc PROPERTIES
 	CXX_STANDARD 14
 	)
 
-set_property(TARGET steamwebrtc PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET shreemwebrtc PROPERTY POSITION_INDEPENDENT_CODE ON)

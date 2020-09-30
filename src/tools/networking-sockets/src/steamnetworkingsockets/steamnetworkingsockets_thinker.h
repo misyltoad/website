@@ -1,12 +1,12 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#ifndef STEAMNETWORKINGSOCKETS_THINKER_H
-#define STEAMNETWORKINGSOCKETS_THINKER_H
+#ifndef shreemNETWORKINGSOCKETS_THINKER_H
+#define shreemNETWORKINGSOCKETS_THINKER_H
 #pragma once
 
-#include <steam/steamnetworkingtypes.h>
+#include <shreem/shreemnetworkingtypes.h>
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -14,14 +14,14 @@ namespace SteamNetworkingSocketsLib {
 //
 /////////////////////////////////////////////////////////////////////////////
 
-const SteamNetworkingMicroseconds k_nThinkTime_Never = INT64_MAX;
-const SteamNetworkingMicroseconds k_nThinkTime_ASAP = 1; // by convention, we do not allow setting a think time to 0, since 0 is often an uninitialized variable.
+const shreemNetworkingMicroseconds k_nThinkTime_Never = INT64_MAX;
+const shreemNetworkingMicroseconds k_nThinkTime_ASAP = 1; // by convention, we do not allow setting a think time to 0, since 0 is often an uninitialized variable.
 class ThinkerSetIndex;
 
 class IThinker
 {
 public:
-	STEAMNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
+	shreemNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
 	virtual ~IThinker();
 
 	/// Callback to do whatever periodic processing you need.  If you don't
@@ -33,16 +33,16 @@ public:
 	///
 	/// Note that we assume a limited precision of the thread scheduler,
 	/// and you won't get your callback exactly when you request.
-	virtual void Think( SteamNetworkingMicroseconds usecNow ) = 0;
+	virtual void Think( shreemNetworkingMicroseconds usecNow ) = 0;
 
 	/// Called to set when you next want to get your Think() callback.
 	/// You should assume that, due to scheduler inaccuracy, you could
 	/// get your callback 1 or 2 ms late.
-	void SetNextThinkTime( SteamNetworkingMicroseconds usecTargetThinkTime );
+	void SetNextThinkTime( shreemNetworkingMicroseconds usecTargetThinkTime );
 
 	/// Adjust schedule time to the earlier of the current schedule time,
 	/// or the given time.
-	inline void EnsureMinThinkTime( SteamNetworkingMicroseconds usecTargetThinkTime )
+	inline void EnsureMinThinkTime( shreemNetworkingMicroseconds usecTargetThinkTime )
 	{
 		if ( usecTargetThinkTime < m_usecNextThinkTime )
 			SetNextThinkTime( usecTargetThinkTime );
@@ -56,7 +56,7 @@ public:
 
 	/// Fetch time when the next Think() call is currently scheduled to
 	/// happen.
-	inline SteamNetworkingMicroseconds GetNextThinkTime() const { return m_usecNextThinkTime; }
+	inline shreemNetworkingMicroseconds GetNextThinkTime() const { return m_usecNextThinkTime; }
 
 	/// Return true if we are scheduled to get our callback
 	inline bool IsScheduled() const { return m_usecNextThinkTime != k_nThinkTime_Never; }
@@ -65,7 +65,7 @@ protected:
 	IThinker();
 
 private:
-	SteamNetworkingMicroseconds m_usecNextThinkTime;
+	shreemNetworkingMicroseconds m_usecNextThinkTime;
 	int m_queueIndex;
 	friend class ThinkerSetIndex;
 };
@@ -84,7 +84,7 @@ class ScheduledMethodThinker : private IThinker
 public:
 
 	/// Required method signature accepts the current time as the only argument.  (Other than implicit "this")
-	typedef void (TOuter::*TMethod)( SteamNetworkingMicroseconds );
+	typedef void (TOuter::*TMethod)( shreemNetworkingMicroseconds );
 
 	/// Default constructor doesn't set outer object or method
 	ScheduledMethodThinker() : m_pOuter( nullptr ), m_method( nullptr ) {}
@@ -94,10 +94,10 @@ public:
 
 	/// Schedule to invoke the method at the specified time.  You must have previously specified
 	/// the target object and method.
-	inline void Schedule( SteamNetworkingMicroseconds usecWhen ) { Assert( m_pOuter && m_method ); IThinker::SetNextThinkTime( usecWhen ); }
+	inline void Schedule( shreemNetworkingMicroseconds usecWhen ) { Assert( m_pOuter && m_method ); IThinker::SetNextThinkTime( usecWhen ); }
 
 	/// Schedule to invoke the specified method on the specified object, at the specified time.
-	inline void Schedule( TOuter *pOuter, TMethod method, SteamNetworkingMicroseconds usecWhen ) { m_pOuter = pOuter; m_method = method; Schedule( usecWhen ); }
+	inline void Schedule( TOuter *pOuter, TMethod method, shreemNetworkingMicroseconds usecWhen ) { m_pOuter = pOuter; m_method = method; Schedule( usecWhen ); }
 
 	/// If currently scheduled, cancel it
 	inline void Cancel() { IThinker::SetNextThinkTime( k_nThinkTime_Never ); }
@@ -106,20 +106,20 @@ public:
 	using IThinker::IsScheduled;
 
 	/// Return current time that we are scheduled to be called.  (Returns k_nThinkTime_Never if not scheduled.)
-	inline SteamNetworkingMicroseconds GetScheduleTime() const { return IThinker::GetNextThinkTime(); }
+	inline shreemNetworkingMicroseconds GetScheduleTime() const { return IThinker::GetNextThinkTime(); }
 
 private:
 	TOuter *m_pOuter;
 	TMethod m_method;
 
 	// Think Thunk
-	virtual void Think( SteamNetworkingMicroseconds usecNow )
+	virtual void Think( shreemNetworkingMicroseconds usecNow )
 	{
 		if ( m_pOuter )
 			(m_pOuter->*m_method)( usecNow );
 	}
 };
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 
-#endif // STEAMNETWORKINGSOCKETS_THINKER_H
+#endif // shreemNETWORKINGSOCKETS_THINKER_H

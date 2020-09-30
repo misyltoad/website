@@ -1,14 +1,14 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 #include <atomic>
 #include <tier1/utlbuffer.h>
-#include "steamnetworkingsockets_internal.h"
+#include "shreemnetworkingsockets_internal.h"
 #include "../tier1/ipv6text.h"
 
 // Must be the last include
 #include <tier0/memdbgon.h>
 
-namespace SteamNetworkingSocketsLib
+namespace shreemNetworkingSocketsLib
 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,18 +142,18 @@ std::string Indent( const char *s )
 	return result;
 }
 
-const char *GetAvailabilityString( ESteamNetworkingAvailability a )
+const char *GetAvailabilityString( EshreemNetworkingAvailability a )
 {
 	switch ( a )
 	{
-		case k_ESteamNetworkingAvailability_CannotTry: return "Dependency unavailable";
-		case k_ESteamNetworkingAvailability_Failed: return "Failed";
-		case k_ESteamNetworkingAvailability_Waiting: return "Waiting";
-		case k_ESteamNetworkingAvailability_Retrying: return "Retrying";
-		case k_ESteamNetworkingAvailability_Previously: return "Lost";
-		case k_ESteamNetworkingAvailability_NeverTried: return "Not Attempted";
-		case k_ESteamNetworkingAvailability_Attempting: return "Attempting";
-		case k_ESteamNetworkingAvailability_Current: return "OK";
+		case k_EshreemNetworkingAvailability_CannotTry: return "Dependency unavailable";
+		case k_EshreemNetworkingAvailability_Failed: return "Failed";
+		case k_EshreemNetworkingAvailability_Waiting: return "Waiting";
+		case k_EshreemNetworkingAvailability_Retrying: return "Retrying";
+		case k_EshreemNetworkingAvailability_Previously: return "Lost";
+		case k_EshreemNetworkingAvailability_NeverTried: return "Not Attempted";
+		case k_EshreemNetworkingAvailability_Attempting: return "Attempting";
+		case k_EshreemNetworkingAvailability_Current: return "OK";
 	}
 
 	Assert( false );
@@ -200,28 +200,28 @@ uint32 Murmorhash32( const void *data, size_t len )
   return h;
 }
 
-uint32 SteamNetworkingIdentityHash::operator()(struct SteamNetworkingIdentity const &x ) const
+uint32 shreemNetworkingIdentityHash::operator()(struct shreemNetworkingIdentity const &x ) const
 {
 	// Make sure we don't have any packing or alignment issues
-	COMPILE_TIME_ASSERT( offsetof( SteamNetworkingIdentity, m_eType ) == 0 );
+	COMPILE_TIME_ASSERT( offsetof( shreemNetworkingIdentity, m_eType ) == 0 );
 	COMPILE_TIME_ASSERT( sizeof( x.m_eType ) == 4 );
-	COMPILE_TIME_ASSERT( offsetof( SteamNetworkingIdentity, m_cbSize ) == 4 );
+	COMPILE_TIME_ASSERT( offsetof( shreemNetworkingIdentity, m_cbSize ) == 4 );
 	COMPILE_TIME_ASSERT( sizeof( x.m_cbSize ) == 4 );
-	COMPILE_TIME_ASSERT( offsetof( SteamNetworkingIdentity, m_steamID64 ) == 8 );
+	COMPILE_TIME_ASSERT( offsetof( shreemNetworkingIdentity, m_shreemID64 ) == 8 );
 
 	return Murmorhash32( &x, sizeof( x.m_eType ) + sizeof( x.m_cbSize ) + x.m_cbSize );
 }
 
-} // namespace SteamNetworkingSocketsLib
-using namespace SteamNetworkingSocketsLib;
+} // namespace shreemNetworkingSocketsLib
+using namespace shreemNetworkingSocketsLib;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// SteamNetworkingIdentity helpers
+// shreemNetworkingIdentity helpers
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamNetworkingIPAddr_ToString( const SteamNetworkingIPAddr *pAddr, char *buf, size_t cbBuf, bool bWithPort )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemNetworkingIPAddr_ToString( const shreemNetworkingIPAddr *pAddr, char *buf, size_t cbBuf, bool bWithPort )
 {
 	if ( pAddr->IsIPv4() )
 	{
@@ -246,7 +246,7 @@ STEAMNETWORKINGSOCKETS_INTERFACE void SteamNetworkingIPAddr_ToString( const Stea
 	}
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIPAddr_ParseString( SteamNetworkingIPAddr *pAddr, const char *pszStr )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemNetworkingIPAddr_ParseString( shreemNetworkingIPAddr *pAddr, const char *pszStr )
 {
 	// IPv4?
 	{
@@ -296,29 +296,29 @@ STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIPAddr_ParseString( SteamNe
 	return true;
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamNetworkingIdentity_ToString( const SteamNetworkingIdentity *pIdentity, char *buf, size_t cbBuf )
+shreemNETWORKINGSOCKETS_INTERFACE void shreemNetworkingIdentity_ToString( const shreemNetworkingIdentity *pIdentity, char *buf, size_t cbBuf )
 {
 	switch ( pIdentity->m_eType )
 	{
-		case k_ESteamNetworkingIdentityType_Invalid:
+		case k_EshreemNetworkingIdentityType_Invalid:
 			V_strncpy( buf, "invalid", cbBuf );
 			break;
 
-		case k_ESteamNetworkingIdentityType_SteamID:
-			V_snprintf( buf, cbBuf, "steamid:%llu", (unsigned long long)pIdentity->m_steamID64 );
+		case k_EshreemNetworkingIdentityType_shreemID:
+			V_snprintf( buf, cbBuf, "shreemid:%llu", (unsigned long long)pIdentity->m_shreemID64 );
 			break;
 
-		case k_ESteamNetworkingIdentityType_IPAddress:
+		case k_EshreemNetworkingIdentityType_IPAddress:
 			V_strncpy( buf, "ip:", cbBuf );
 			if ( cbBuf > 4 )
 				pIdentity->m_ip.ToString( buf+3, cbBuf-3, pIdentity->m_ip.m_port != 0 );
 			break;
 
-		case k_ESteamNetworkingIdentityType_GenericString:
+		case k_EshreemNetworkingIdentityType_GenericString:
 			V_snprintf( buf, cbBuf, "str:%s", pIdentity->m_szGenericString );
 			break;
 
-		case k_ESteamNetworkingIdentityType_GenericBytes:
+		case k_EshreemNetworkingIdentityType_GenericBytes:
 			V_strncpy( buf, "gen:", cbBuf );
 			if ( cbBuf > 5 )
 			{
@@ -335,7 +335,7 @@ STEAMNETWORKINGSOCKETS_INTERFACE void SteamNetworkingIdentity_ToString( const St
 			}
 			break;
 
-		case k_ESteamNetworkingIdentityType_UnknownType:
+		case k_EshreemNetworkingIdentityType_UnknownType:
 			V_strncpy( buf, pIdentity->m_szUnknownRawString, cbBuf );
 			break;
 
@@ -344,9 +344,9 @@ STEAMNETWORKINGSOCKETS_INTERFACE void SteamNetworkingIdentity_ToString( const St
 	}
 }
 
-STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIdentity_ParseString( SteamNetworkingIdentity *pIdentity, size_t sizeofIdentity, const char *pszStr )
+shreemNETWORKINGSOCKETS_INTERFACE bool shreemNetworkingIdentity_ParseString( shreemNetworkingIdentity *pIdentity, size_t sizeofIdentity, const char *pszStr )
 {
-	const size_t sizeofHeader = offsetof( SteamNetworkingIdentity, m_cbSize ) + sizeof( pIdentity->m_cbSize );
+	const size_t sizeofHeader = offsetof( shreemNetworkingIdentity, m_cbSize ) + sizeof( pIdentity->m_cbSize );
 	COMPILE_TIME_ASSERT( sizeofHeader == 8 );
 
 	// Safety check against totally bogus size
@@ -364,23 +364,23 @@ STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIdentity_ParseString( Steam
 
 	size_t sizeofData = sizeofIdentity - sizeofHeader;
 
-	if ( V_strncmp( pszStr, "steamid:", 8 ) == 0 )
+	if ( V_strncmp( pszStr, "shreemid:", 8 ) == 0 )
 	{
 		pszStr += 8;
 		unsigned long long temp;
 		if ( sscanf( pszStr, "%llu", &temp ) != 1 )
 			return false;
-		CSteamID steamID( (uint64)temp );
-		if ( !steamID.IsValid() )
+		CshreemID shreemID( (uint64)temp );
+		if ( !shreemID.IsValid() )
 			return false;
-		pIdentity->SetSteamID64( (uint64)temp );
+		pIdentity->SetshreemID64( (uint64)temp );
 		return true;
 	}
 
 	if ( V_strncmp( pszStr, "ip:", 3 ) == 0 )
 	{
 		pszStr += 3;
-		SteamNetworkingIPAddr tempAddr;
+		shreemNetworkingIPAddr tempAddr;
 		if ( sizeofData < sizeof(tempAddr) )
 			return false;
 		if ( !tempAddr.ParseString( pszStr ) )
@@ -405,7 +405,7 @@ STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIdentity_ParseString( Steam
 		if ( l < 2 || (l & 1 ) != 0 )
 			return false;
 		size_t nBytes = l>>1;
-		uint8 tmp[ SteamNetworkingIdentity::k_cbMaxGenericBytes ];
+		uint8 tmp[ shreemNetworkingIdentity::k_cbMaxGenericBytes ];
 		if ( nBytes >= sizeofData || nBytes > sizeof(tmp) )
 			return false;
 		for ( size_t i = 0 ; i < nBytes ; ++i )
@@ -423,7 +423,7 @@ STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIdentity_ParseString( Steam
 	// Unknown prefix.
 	// The relays should always be running the latest code.  No client should
 	// be using a protocol newer than a relay.
-	#ifdef IS_STEAMDATAGRAMROUTER
+	#ifdef IS_shreemDATAGRAMROUTER
 		return false;
 	#else
 
@@ -454,7 +454,7 @@ STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIdentity_ParseString( Steam
 
 		// OK, as far as we can tell, it might be valid --- unless it's too long
 		int cbSize = V_strlen(pszStr)+1;
-		if ( cbSize > SteamNetworkingIdentity::k_cchMaxString )
+		if ( cbSize > shreemNetworkingIdentity::k_cchMaxString )
 			return false;
 		if ( (size_t)cbSize > sizeofData )
 			return false;
@@ -462,7 +462,7 @@ STEAMNETWORKINGSOCKETS_INTERFACE bool SteamNetworkingIdentity_ParseString( Steam
 		// Just save the exact raw string we were asked to "parse".  We don't
 		// really understand it, but for many purposes just using the string
 		// as an identifier will work fine!
-		pIdentity->m_eType = k_ESteamNetworkingIdentityType_UnknownType;
+		pIdentity->m_eType = k_EshreemNetworkingIdentityType_UnknownType;
 		pIdentity->m_cbSize = cbSize;
 		memcpy( pIdentity->m_szUnknownRawString, pszStr, cbSize );
 

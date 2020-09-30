@@ -1,25 +1,25 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 #ifdef __GNUC__
 	// src/public/tier0/basetypes.h:104:30: error: assuming signed overflow does not occur when assuming that (X + c) < X is always false [-Werror=strict-overflow]
-	// current steamrt:scout gcc "g++ (SteamRT 4.8.4-1ubuntu15~12.04+steamrt1.2+srt1) 4.8.4" requires this at the top due to optimizations
+	// current shreemrt:scout gcc "g++ (shreemRT 4.8.4-1ubuntu15~12.04+shreemrt1.2+srt1) 4.8.4" requires this at the top due to optimizations
 	#pragma GCC diagnostic ignored "-Wstrict-overflow"
 #endif
 
 #include <tier1/utlpriorityqueue.h>
 
-#include "steamnetworkingsockets_thinker.h"
+#include "shreemnetworkingsockets_thinker.h"
 
-#ifdef IS_STEAMDATAGRAMROUTER
+#ifdef IS_shreemDATAGRAMROUTER
 	#include "router/sdr.h"
 #else
-	#include "clientlib/steamnetworkingsockets_lowlevel.h"
+	#include "clientlib/shreemnetworkingsockets_lowlevel.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -54,11 +54,11 @@ IThinker::~IThinker()
 }
 
 #ifdef __GNUC__
-	// older steamrt:scout gcc requires this also, probably getting confused by unbalanced push/pop
+	// older shreemrt:scout gcc requires this also, probably getting confused by unbalanced push/pop
 	#pragma GCC diagnostic ignored "-Wstrict-overflow"
 #endif
 
-void IThinker::SetNextThinkTime( SteamNetworkingMicroseconds usecTargetThinkTime )
+void IThinker::SetNextThinkTime( shreemNetworkingMicroseconds usecTargetThinkTime )
 {
 	// Protect against us blowing up because of an invalid think time.
 	// Zero is reserved (since it often means there is an uninitialized value),
@@ -68,7 +68,7 @@ void IThinker::SetNextThinkTime( SteamNetworkingMicroseconds usecTargetThinkTime
 	if ( unlikely( usecTargetThinkTime <= 0 ) )
 	{
 		AssertMsg1( false, "Attempt to set target think time to %lld", (long long)usecTargetThinkTime );
-		usecTargetThinkTime = SteamNetworkingSockets_GetLocalTimestamp() + 2000;
+		usecTargetThinkTime = shreemNetworkingSockets_GetLocalTimestamp() + 2000;
 	}
 
 	// Clearing it?
@@ -86,8 +86,8 @@ void IThinker::SetNextThinkTime( SteamNetworkingMicroseconds usecTargetThinkTime
 	}
 
 	// Save current time when the next thinker wants service
-	#ifndef IS_STEAMDATAGRAMROUTER
-		SteamNetworkingMicroseconds usecNextWake = ( s_queueThinkers.Count() > 0 ) ? s_queueThinkers.ElementAtHead()->GetNextThinkTime() : k_nThinkTime_Never;
+	#ifndef IS_shreemDATAGRAMROUTER
+		shreemNetworkingMicroseconds usecNextWake = ( s_queueThinkers.Count() > 0 ) ? s_queueThinkers.ElementAtHead()->GetNextThinkTime() : k_nThinkTime_Never;
 	#endif
 
 	// Not currently scheduled?
@@ -115,14 +115,14 @@ void IThinker::SetNextThinkTime( SteamNetworkingMicroseconds usecTargetThinkTime
 	Assert( m_queueIndex >= 0 );
 	Assert( s_queueThinkers.Element( m_queueIndex ) == this );
 
-	#ifndef IS_STEAMDATAGRAMROUTER
+	#ifndef IS_shreemDATAGRAMROUTER
 		// Do we need service before we were previously schedule to wake up?
 		// If so, wake the thread now so that it can redo its schedule work
 		// NOTE: On Windows we could use a waitable timer.  This would avoid
 		// waking up the service thread just to re-schedule when it should
 		// wake up for real.
 		if ( m_usecNextThinkTime < usecNextWake )
-			WakeSteamDatagramThread();
+			WakeshreemDatagramThread();
 	#endif
 }
 
@@ -150,7 +150,7 @@ void Thinker_ProcessThinkers()
 		// timestamp (e.g. to mark when a packet was received) and then
 		// in our next iteration, we will use an older timestamp to process
 		// a thinker.
-		SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+		shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
 		// Scheduled too far in the future?
 		if ( pNextThinker->GetNextThinkTime() >= usecNow )
@@ -193,5 +193,5 @@ void Thinker_ValidateStatics( CValidator &validator )
 }
 #endif
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 

@@ -90,14 +90,14 @@ namespace Unity.XR.OpenVR.Editor
             if (Directory.Exists(streamingAssets) == false)
                 Directory.CreateDirectory(streamingAssets);
 
-            string streamingSteamVR = Path.Combine(streamingAssets, "SteamVR");
-            if (Directory.Exists(streamingSteamVR) == false)
-                Directory.CreateDirectory(streamingSteamVR);
+            string streamingshreemVR = Path.Combine(streamingAssets, "shreemVR");
+            if (Directory.Exists(streamingshreemVR) == false)
+                Directory.CreateDirectory(streamingshreemVR);
 
             Debug.Log("settingsAssetPath: " + settingsAssetPath);
 
             FileInfo currentSettingsPath = new FileInfo(settingsAssetPath);
-            FileInfo newSettingsPath = new FileInfo(Path.Combine(streamingSteamVR, "OpenVRSettings.asset"));
+            FileInfo newSettingsPath = new FileInfo(Path.Combine(streamingshreemVR, "OpenVRSettings.asset"));
 
             if (newSettingsPath.Exists)
             {

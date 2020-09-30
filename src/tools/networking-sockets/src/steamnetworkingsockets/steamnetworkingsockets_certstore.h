@@ -1,27 +1,27 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
 // Implements a store of CA certificates, e.g. certificates that are not
 // assigned to a particular identity.  Also contains functions for checking
 // the chain of trust.
 
-#ifndef STEAMNETWORKINGSOCKETS_CERTSTORE_H
-#define STEAMNETWORKINGSOCKETS_CERTSTORE_H
+#ifndef shreemNETWORKINGSOCKETS_CERTSTORE_H
+#define shreemNETWORKINGSOCKETS_CERTSTORE_H
 #pragma once
 
 #include <ostream>
-#include "steamnetworkingsockets_internal.h"
+#include "shreemnetworkingsockets_internal.h"
 
 // Use a hardcoded root CA key?  It's just a key, not the cert here, because there are no additional relevant
 // details that the cert might specify.  We assume any such cert would be self-signed and not have any
 // restrictions, and we also act as if it doesn't expire.
-#if !defined( STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY ) && !defined( STEAMNETWORKINGSOCKETS_ALLOW_DYNAMIC_SELFSIGNED_CERTS )
+#if !defined( shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY ) && !defined( shreemNETWORKINGSOCKETS_ALLOW_DYNAMIC_SELFSIGNED_CERTS )
 
 	// Master Valve Key
-	#define STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJrsoE4XUc5iaNVpACyh4fobLbwm02tOo6AIOtNygpuE ID18220590129359924542"
+	#define shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJrsoE4XUc5iaNVpACyh4fobLbwm02tOo6AIOtNygpuE ID18220590129359924542"
 #endif
 
 // Internal stuff goes in a private namespace
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 /// Certificates are granted limited authority.  A CertAuthParameter is a
 /// list items of items of a certain type (AppID, PopID, etc) that are
@@ -70,7 +70,7 @@ private:
 /// key does not have rights to grant them).
 struct CertAuthScope
 {
-	CertAuthParameter<SteamNetworkingPOPID> m_pops;
+	CertAuthParameter<shreemNetworkingPOPID> m_pops;
 	CertAuthParameter<AppId_t> m_apps;
 	time_t m_timeExpiry = 0;
 
@@ -109,7 +109,7 @@ extern void CertStore_Reset();
 
 /// Add a cert to the store from a base-64 blob (the body of the PEM-like blob).  Returns false
 /// only if there was a parse error.  DOES NOT check for expiry or validate any signatures, etc.
-extern bool CertStore_AddCertFromBase64( const char *pszBase64, SteamNetworkingErrMsg &errMsg );
+extern bool CertStore_AddCertFromBase64( const char *pszBase64, shreemNetworkingErrMsg &errMsg );
 
 /// Adds a key revocation entry.
 extern void CertStore_AddKeyRevocation( uint64 key_id );
@@ -121,19 +121,19 @@ extern void CertStore_AddKeyRevocation( uint64 key_id );
 /// If the signed data should be trusted, the scope of the authorization granted
 /// to that public key is returned.  Otherwise, NULL is returned and errMsg is
 /// populated.
-extern const CertAuthScope *CertStore_CheckCASignature( const std::string &signed_data, uint64 nCAKeyID, const std::string &signature, time_t timeNow, SteamNetworkingErrMsg &errMsg );
+extern const CertAuthScope *CertStore_CheckCASignature( const std::string &signed_data, uint64 nCAKeyID, const std::string &signature, time_t timeNow, shreemNetworkingErrMsg &errMsg );
 
 /// Check a CA signature and chain of trust for a signed cert.
 /// Also deserializes the cert and make sure it is not expired.
 /// DOES NOT CHECK that the appid, pops, etc in the cert
 /// are granted by the CA chain.  You need to do that!
-extern const CertAuthScope *CertStore_CheckCert( const CMsgSteamDatagramCertificateSigned &msgCertSigned, CMsgSteamDatagramCertificate &outMsgCert, time_t timeNow, SteamNetworkingErrMsg &errMsg );
+extern const CertAuthScope *CertStore_CheckCert( const CMsgshreemDatagramCertificateSigned &msgCertSigned, CMsgshreemDatagramCertificate &outMsgCert, time_t timeNow, shreemNetworkingErrMsg &errMsg );
 
 /// Check if a cert gives permission to access a certain app.
-extern bool CheckCertAppID( const CMsgSteamDatagramCertificate &msgCert, const CertAuthScope *pCertAuthScope, AppId_t nAppID, SteamNetworkingErrMsg &errMsg );
+extern bool CheckCertAppID( const CMsgshreemDatagramCertificate &msgCert, const CertAuthScope *pCertAuthScope, AppId_t nAppID, shreemNetworkingErrMsg &errMsg );
 
 /// Check if a cert gives permission to access a certain PoPID.
-extern bool CheckCertPOPID( const CMsgSteamDatagramCertificate &msgCert, const CertAuthScope *pCertAuthScope, SteamNetworkingPOPID popID, SteamNetworkingErrMsg &errMsg );
+extern bool CheckCertPOPID( const CMsgshreemDatagramCertificate &msgCert, const CertAuthScope *pCertAuthScope, shreemNetworkingPOPID popID, shreemNetworkingErrMsg &errMsg );
 
 /// Print all of the certs in the cert storef
 extern void CertStore_Print( std::ostream &out );
@@ -141,11 +141,11 @@ extern void CertStore_Print( std::ostream &out );
 /// Check the cert store, asserting if any keys are not trusted
 extern void CertStore_Check();
 
-/// Steam memory validation
+/// shreem memory validation
 #ifdef DBGFLAG_VALIDATE
 extern void CertStore_ValidateStatics( CValidator &validator );
 #endif
 
 }
 
-#endif // STEAMNETWORKINGSOCKETS_CERTSTORE_H
+#endif // shreemNETWORKINGSOCKETS_CERTSTORE_H

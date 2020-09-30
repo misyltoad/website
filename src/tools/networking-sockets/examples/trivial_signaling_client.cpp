@@ -1,6 +1,6 @@
 // Client of our dummy trivial signaling server service.
 // Serves as an example of you how to hook up signaling server
-// to SteamNetworkingSockets P2P connections
+// to shreemNetworkingSockets P2P connections
 
 #include "../tests/test_common.h"
 
@@ -9,8 +9,8 @@
 #include <assert.h>
 
 #include "trivial_signaling_client.h"
-#include <steam/isteamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+#include <shreem/ishreemnetworkingsockets.h>
+#include <shreem/ishreemnetworkingutils.h>
 
 #ifdef POSIX
 	#include <unistd.h>
@@ -47,7 +47,7 @@ class CTrivialSignalingClient : public ITrivialSignalingClient
 
 	// This is the thing we'll actually create to send signals for a particular
 	// connection.
-	struct ConnectionSignaling : ISteamNetworkingConnectionCustomSignaling
+	struct ConnectionSignaling : IshreemNetworkingConnectionCustomSignaling
 	{
 		CTrivialSignalingClient *const m_pOwner;
 		std::string const m_sPeerIdentity; // Save off the string encoding of the identity we're talking to
@@ -59,12 +59,12 @@ class CTrivialSignalingClient : public ITrivialSignalingClient
 		}
 
 		//
-		// Implements ISteamNetworkingConnectionCustomSignaling
+		// Implements IshreemNetworkingConnectionCustomSignaling
 		//
 
-		// This is called from SteamNetworkingSockets to send a signal.  This could be called from any thread,
-		// so we need to be threadsafe, and avoid duoing slow stuff or calling back into SteamNetworkingSockets
-		virtual bool SendSignal( HSteamNetConnection hConn, const SteamNetConnectionInfo_t &info, const void *pMsg, int cbMsg ) override
+		// This is called from shreemNetworkingSockets to send a signal.  This could be called from any thread,
+		// so we need to be threadsafe, and avoid duoing slow stuff or calling back into shreemNetworkingSockets
+		virtual bool SendSignal( HshreemNetConnection hConn, const shreemNetConnectionInfo_t &info, const void *pMsg, int cbMsg ) override
 		{
 
 			// We'll use a dumb hex encoding.
@@ -84,7 +84,7 @@ class CTrivialSignalingClient : public ITrivialSignalingClient
 			return true;
 		}
 
-		// Self destruct.  This will be called by SteamNetworkingSockets when it's done with us.
+		// Self destruct.  This will be called by shreemNetworkingSockets when it's done with us.
 		virtual void Release() override
 		{
 			delete this;
@@ -93,7 +93,7 @@ class CTrivialSignalingClient : public ITrivialSignalingClient
 
 	sockaddr_storage m_adrServer;
 	size_t const m_adrServerSize;
-	ISteamNetworkingSockets *const m_pSteamNetworkingSockets;
+	IshreemNetworkingSockets *const m_pshreemNetworkingSockets;
 	std::string m_sGreeting;
 
 	std::mutex sockMutex;
@@ -145,18 +145,18 @@ class CTrivialSignalingClient : public ITrivialSignalingClient
 	}
 
 public:
-	CTrivialSignalingClient( const sockaddr *adrServer, size_t adrServerSize, ISteamNetworkingSockets *pSteamNetworkingSockets )
-	: m_adrServerSize( adrServerSize ), m_pSteamNetworkingSockets( pSteamNetworkingSockets )
+	CTrivialSignalingClient( const sockaddr *adrServer, size_t adrServerSize, IshreemNetworkingSockets *pshreemNetworkingSockets )
+	: m_adrServerSize( adrServerSize ), m_pshreemNetworkingSockets( pshreemNetworkingSockets )
 	{
 		memcpy( &m_adrServer, adrServer, adrServerSize );
 		m_sock = INVALID_SOCKET;
 
 		// Save off our identity
-		SteamNetworkingIdentity identitySelf; identitySelf.Clear();
-		pSteamNetworkingSockets->GetIdentity( &identitySelf );
+		shreemNetworkingIdentity identitySelf; identitySelf.Clear();
+		pshreemNetworkingSockets->GetIdentity( &identitySelf );
 		assert( !identitySelf.IsInvalid() );
 		assert( !identitySelf.IsLocalHost() ); // We need something more specific than that
-		m_sGreeting = SteamNetworkingIdentityRender( identitySelf ).c_str();
+		m_sGreeting = shreemNetworkingIdentityRender( identitySelf ).c_str();
 		assert( strchr( m_sGreeting.c_str(), ' ' ) == nullptr ); // Our protocol is dumb and doesn't support this
 		m_sGreeting.push_back( '\n' );
 
@@ -187,14 +187,14 @@ public:
 	}
 
 	//
-	// Implements ISteamNetworkingCustomSignalingService
+	// Implements IshreemNetworkingCustomSignalingService
 	//
-	virtual ISteamNetworkingConnectionCustomSignaling *CreateSignalingForConnection(
-		const SteamNetworkingIdentity &identityPeer,
+	virtual IshreemNetworkingConnectionCustomSignaling *CreateSignalingForConnection(
+		const shreemNetworkingIdentity &identityPeer,
 		const char *pszRoutingInfo,
-		SteamNetworkingErrMsg &errMsg
+		shreemNetworkingErrMsg &errMsg
 	) override {
-		SteamNetworkingIdentityRender sIdentityPeer( identityPeer );
+		shreemNetworkingIdentityRender sIdentityPeer( identityPeer );
 
 		// FIXME - here we really ouight to confirm that the string version of the
 		// identity does not have spaces, since our protocol doesn't permit it.
@@ -272,13 +272,13 @@ public:
 				}
 
 				// Setup a context object that can respond if this signal is a connection request.
-				struct Context : ISteamNetworkingCustomSignalingRecvContext
+				struct Context : IshreemNetworkingCustomSignalingRecvContext
 				{
 					CTrivialSignalingClient *m_pOwner;
 
-					virtual ISteamNetworkingConnectionCustomSignaling *OnConnectRequest(
-						HSteamNetConnection hConn,
-						const SteamNetworkingIdentity &identityPeer,
+					virtual IshreemNetworkingConnectionCustomSignaling *OnConnectRequest(
+						HshreemNetConnection hConn,
+						const shreemNetworkingIdentity &identityPeer,
 						int nLocalVirtualPort
 					) override {
 
@@ -289,12 +289,12 @@ public:
 						// Also, note that if there was routing/session info, it should have been in
 						// our envelope that we know how to parse, and we should save it off in this
 						// context object.
-						SteamNetworkingErrMsg ignoreErrMsg;
+						shreemNetworkingErrMsg ignoreErrMsg;
 						return m_pOwner->CreateSignalingForConnection( identityPeer, nullptr, ignoreErrMsg );
 					}
 
 					virtual void SendRejectionSignal(
-						const SteamNetworkingIdentity &identityPeer,
+						const shreemNetworkingIdentity &identityPeer,
 						const void *pMsg, int cbMsg
 					) override {
 
@@ -313,10 +313,10 @@ public:
 				// Remember: From inside this function, our context object might get callbacks.
 				// And we might get asked to send signals, either now, or really at any time
 				// from any thread!  If possible, avoid calling this function while holding locks.
-				// To process this call, SteamnetworkingSockets will need take its own internal lock.
+				// To process this call, shreemnetworkingSockets will need take its own internal lock.
 				// That lock may be held by another thread that is asking you to send a signal!  So
 				// be warned that deadlocks are a possibility here.
-				m_pSteamNetworkingSockets->ReceivedP2PCustomSignal( data.c_str(), (int)data.length(), &context );
+				m_pshreemNetworkingSockets->ReceivedP2PCustomSignal( data.c_str(), (int)data.length(), &context );
 			}
 
 next_message:
@@ -335,8 +335,8 @@ next_message:
 // Start connecting to the signaling server.
 ITrivialSignalingClient *CreateTrivialSignalingClient(
 	const char *pszServerAddress, // Address of the server.
-	ISteamNetworkingSockets *pSteamNetworkingSockets, // Where should we send signals when we get them?
-	SteamNetworkingErrMsg &errMsg // Error message is retjrned here if we fail
+	IshreemNetworkingSockets *pshreemNetworkingSockets, // Where should we send signals when we get them?
+	shreemNetworkingErrMsg &errMsg // Error message is retjrned here if we fail
 ) {
 
 	std::string sAddress( pszServerAddress );
@@ -361,7 +361,7 @@ ITrivialSignalingClient *CreateTrivialSignalingClient(
 		return nullptr;
 	}
 
-	auto *pClient = new CTrivialSignalingClient( pAddrInfo->ai_addr, pAddrInfo->ai_addrlen, pSteamNetworkingSockets );
+	auto *pClient = new CTrivialSignalingClient( pAddrInfo->ai_addr, pAddrInfo->ai_addrlen, pshreemNetworkingSockets );
 
 	freeaddrinfo( pAddrInfo );
 

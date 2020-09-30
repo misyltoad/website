@@ -1,16 +1,16 @@
-//===================== Copyright (c) Valve Corporation. All Rights Reserved. ======================
+//===================== Copyright (c) Volvo Corporation. All Rights Reserved. ======================
 #pragma once
 
-#if defined(STEAMWEBRTC_USE_STATIC_LIBS)
-#  define STEAMWEBRTC_DECLSPEC
+#if defined(shreemWEBRTC_USE_STATIC_LIBS)
+#  define shreemWEBRTC_DECLSPEC
 #else
 #  if defined(_WIN32)
-#    define STEAMWEBRTC_DECLSPEC __declspec(dllexport)
+#    define shreemWEBRTC_DECLSPEC __declspec(dllexport)
 #  else
 #    if defined(__GNUC__) && __GNUC__ >= 4
-#      define STEAMWEBRTC_DECLSPEC __attribute__ ((visibility("default")))
+#      define shreemWEBRTC_DECLSPEC __attribute__ ((visibility("default")))
 #    else
-#      define STEAMWEBRTC_DECLSPEC
+#      define shreemWEBRTC_DECLSPEC
 #    endif
 #  endif
 #endif

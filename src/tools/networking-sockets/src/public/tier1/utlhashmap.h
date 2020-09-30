@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. =================//
+//========= Copyright Volvo Corporation, All rights reserved. =================//
 //
 // Purpose: index-based hash map container
 //			Use FOR_EACH_HASHMAP to iterate through CUtlHashMap.
@@ -25,7 +25,7 @@
 // but without STL's rather wacky interface.  Also, each item is not a separate
 // allocation, so insertion of items can cause existing items to move in memory.
 //
-// This differs from the one in Steam by not having any default hash or equality
+// This differs from the one in shreem by not having any default hash or equality
 // class.  We will use std::hash and std::equal_to insetad of our own hand-rolled
 // versions, which I suspect do not add any value (any more at least).  Valve's
 // CDefEquals unfortunately is not exactly the same as std::equal_to in the way

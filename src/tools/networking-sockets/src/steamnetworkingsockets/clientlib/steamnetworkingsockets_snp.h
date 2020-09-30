@@ -1,19 +1,19 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 #pragma once
 
-#include "../steamnetworkingsockets_internal.h"
+#include "../shreemnetworkingsockets_internal.h"
 #include <vector>
 #include <map>
 #include <set>
 
 struct P2PSessionState_t;
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 // Acks may be delayed.  This controls the precision used on the wire to encode the delay time.
 constexpr int k_nAckDelayPrecisionShift = 5;
-constexpr SteamNetworkingMicroseconds k_usecAckDelayPrecision = (1 << k_nAckDelayPrecisionShift );
+constexpr shreemNetworkingMicroseconds k_usecAckDelayPrecision = (1 << k_nAckDelayPrecisionShift );
 
 // When a receiver detects a dropped packet, wait a bit before NACKing it, to give it time
 // to arrive out of order.  This is really important for many different types of connections
@@ -28,10 +28,10 @@ constexpr SteamNetworkingMicroseconds k_usecAckDelayPrecision = (1 << k_nAckDela
 // that a dropped packet will have arrived at time t.  Then you
 // adjust the NACK delay such that P(nack_delay) gives the best
 // balance between false positive and false negative rates.
-constexpr SteamNetworkingMicroseconds k_usecNackFlush = 3*1000;
+constexpr shreemNetworkingMicroseconds k_usecNackFlush = 3*1000;
 
 // Max size of a message that we are wiling to *receive*.
-constexpr int k_cbMaxMessageSizeRecv = k_cbMaxSteamNetworkingSocketsMessageSizeSend*2;
+constexpr int k_cbMaxMessageSizeRecv = k_cbMaxshreemNetworkingSocketsMessageSizeSend*2;
 
 // The max we will look ahead and allocate data, ahead of the reliable
 // messages we have been able to decode.  We limit this to make sure that
@@ -59,46 +59,46 @@ constexpr int k_nMaxBufferedUnreliableSegments = 20;
 constexpr int k_cbMaxUnreliableMsgSizeSend = 15*1100;
 
 // Max possible size of an unreliable segment we could receive.
-constexpr int k_cbMaxUnreliableSegmentSizeRecv = k_cbSteamNetworkingSocketsMaxPlaintextPayloadRecv;
+constexpr int k_cbMaxUnreliableSegmentSizeRecv = k_cbshreemNetworkingSocketsMaxPlaintextPayloadRecv;
 
 // Largest possible total unreliable message we can receive, based on the constraints above
 constexpr int k_cbMaxUnreliableMsgSizeRecv = k_nMaxBufferedUnreliableSegments*k_cbMaxUnreliableSegmentSizeRecv;
 COMPILE_TIME_ASSERT( k_cbMaxUnreliableMsgSizeRecv > k_cbMaxUnreliableMsgSizeSend + 4096 ); // Postel's law; confirm how much slack we have here
 
-class CSteamNetworkConnectionBase;
+class CshreemNetworkConnectionBase;
 class CConnectionTransport;
-struct SteamNetworkingMessageQueue;
+struct shreemNetworkingMessageQueue;
 
-/// Actual implementation of SteamNetworkingMessage_t, which is the API
+/// Actual implementation of shreemNetworkingMessage_t, which is the API
 /// visible type.  Has extra fields needed to put the message into intrusive
 /// linked lists.
-class CSteamNetworkingMessage : public SteamNetworkingMessage_t
+class CshreemNetworkingMessage : public shreemNetworkingMessage_t
 {
 public:
-	STEAMNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
-	static CSteamNetworkingMessage *New( CSteamNetworkConnectionBase *pParent, uint32 cbSize, int64 nMsgNum, int nFlags, SteamNetworkingMicroseconds usecNow );
-	static CSteamNetworkingMessage *New( uint32 cbSize );
-	static void DefaultFreeData( SteamNetworkingMessage_t *pMsg );
+	shreemNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
+	static CshreemNetworkingMessage *New( CshreemNetworkConnectionBase *pParent, uint32 cbSize, int64 nMsgNum, int nFlags, shreemNetworkingMicroseconds usecNow );
+	static CshreemNetworkingMessage *New( uint32 cbSize );
+	static void DefaultFreeData( shreemNetworkingMessage_t *pMsg );
 
 	/// OK to delay sending this message until this time.  Set to zero to explicitly force
 	/// Nagle timer to expire and send now (but this should behave the same as if the
 	/// timer < usecNow).  If the timer is cleared, then all messages with lower message numbers
 	/// are also cleared.
-	inline SteamNetworkingMicroseconds SNPSend_UsecNagle() const { return m_usecTimeReceived; }
-	inline void SNPSend_SetUsecNagle( SteamNetworkingMicroseconds x ) { m_usecTimeReceived = x; }
+	inline shreemNetworkingMicroseconds SNPSend_UsecNagle() const { return m_usecTimeReceived; }
+	inline void SNPSend_SetUsecNagle( shreemNetworkingMicroseconds x ) { m_usecTimeReceived = x; }
 
 	/// Offset in reliable stream of the header byte.  0 if we're not reliable.
 	inline int64 SNPSend_ReliableStreamPos() const { return m_nConnUserData; }
 	inline void SNPSend_SetReliableStreamPos( int64 x ) { m_nConnUserData = x; }
 	inline int SNPSend_ReliableStreamSize() const
 	{
-		DbgAssert( m_nFlags & k_nSteamNetworkingSend_Reliable && m_nConnUserData > 0 && m_cbSNPSendReliableHeader > 0 && m_cbSize >= m_cbSNPSendReliableHeader );
+		DbgAssert( m_nFlags & k_nshreemNetworkingSend_Reliable && m_nConnUserData > 0 && m_cbSNPSendReliableHeader > 0 && m_cbSize >= m_cbSNPSendReliableHeader );
 		return m_cbSize;
 	}
 
 	inline bool SNPSend_IsReliable() const
 	{
-		if ( m_nFlags & k_nSteamNetworkingSend_Reliable )
+		if ( m_nFlags & k_nshreemNetworkingSend_Reliable )
 		{
 			DbgAssert( m_nConnUserData > 0 && m_cbSNPSendReliableHeader > 0 && m_cbSize >= m_cbSNPSendReliableHeader );
 			return true;
@@ -120,9 +120,9 @@ public:
 
 	struct Links
 	{
-		SteamNetworkingMessageQueue *m_pQueue;
-		CSteamNetworkingMessage *m_pPrev;
-		CSteamNetworkingMessage *m_pNext;
+		shreemNetworkingMessageQueue *m_pQueue;
+		CshreemNetworkingMessage *m_pPrev;
+		CshreemNetworkingMessage *m_pNext;
 
 		inline void Clear() { m_pQueue = nullptr; m_pPrev = nullptr; m_pNext = nullptr; }
 	};
@@ -134,22 +134,22 @@ public:
 	/// P2P channel, depending on message type)
 	Links m_linksSecondaryQueue;
 
-	void LinkBefore( CSteamNetworkingMessage *pSuccessor, Links CSteamNetworkingMessage::*pMbrLinks, SteamNetworkingMessageQueue *pQueue );
-	void LinkToQueueTail( Links CSteamNetworkingMessage::*pMbrLinks, SteamNetworkingMessageQueue *pQueue );
-	void UnlinkFromQueue( Links CSteamNetworkingMessage::*pMbrLinks );
+	void LinkBefore( CshreemNetworkingMessage *pSuccessor, Links CshreemNetworkingMessage::*pMbrLinks, shreemNetworkingMessageQueue *pQueue );
+	void LinkToQueueTail( Links CshreemNetworkingMessage::*pMbrLinks, shreemNetworkingMessageQueue *pQueue );
+	void UnlinkFromQueue( Links CshreemNetworkingMessage::*pMbrLinks );
 
 private:
 	// Use New and Release()!!
-	inline CSteamNetworkingMessage() {}
-	inline ~CSteamNetworkingMessage() {}
-	static void ReleaseFunc( SteamNetworkingMessage_t *pIMsg );
+	inline CshreemNetworkingMessage() {}
+	inline ~CshreemNetworkingMessage() {}
+	static void ReleaseFunc( shreemNetworkingMessage_t *pIMsg );
 };
 
-/// A doubly-linked list of CSteamNetworkingMessage
-struct SteamNetworkingMessageQueue
+/// A doubly-linked list of CshreemNetworkingMessage
+struct shreemNetworkingMessageQueue
 {
-	CSteamNetworkingMessage *m_pFirst = nullptr;
-	CSteamNetworkingMessage *m_pLast = nullptr;
+	CshreemNetworkingMessage *m_pFirst = nullptr;
+	CshreemNetworkingMessage *m_pLast = nullptr;
 
 	inline bool empty() const
 	{
@@ -163,7 +163,7 @@ struct SteamNetworkingMessageQueue
 	}
 
 	/// Remove the first messages out of the queue (up to nMaxMessages).  Returns the number returned
-	int RemoveMessages( SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages );
+	int RemoveMessages( shreemNetworkingMessage_t **ppOutMessages, int nMaxMessages );
 
 	/// Delete all queued messages
 	void PurgeMessages();
@@ -173,7 +173,7 @@ struct SteamNetworkingMessageQueue
 const int k_nMaxPacketsPerThink = 16;
 
 /// Max number of tokens we are allowed to store up in reserve, for a burst.
-const float k_flSendRateBurstOverageAllowance = k_cbSteamNetworkingSocketsMaxEncryptedPayloadSend;
+const float k_flSendRateBurstOverageAllowance = k_cbshreemNetworkingSocketsMaxEncryptedPayloadSend;
 
 struct SNPRange_t
 {
@@ -214,7 +214,7 @@ struct SNPInFlightPacket_t
 	//
 
 	/// Local timestamp when we sent it
-	SteamNetworkingMicroseconds m_usecWhenSent;
+	shreemNetworkingMicroseconds m_usecWhenSent;
 
 	/// Did we get an ack block from peer that explicitly marked this
 	/// packet as being skipped?  Note that we might subsequently get an
@@ -232,15 +232,15 @@ struct SNPInFlightPacket_t
 	vstd::small_vector<SNPRange_t,1> m_vecReliableSegments;
 };
 
-struct SSNPSendMessageList : public SteamNetworkingMessageQueue
+struct SSNPSendMessageList : public shreemNetworkingMessageQueue
 {
 
 	/// Unlink the message at the head, if any and return it.
 	/// Unlike STL pop_front, this will return nullptr if the
 	/// list is empty
-	CSteamNetworkingMessage *pop_front()
+	CshreemNetworkingMessage *pop_front()
 	{
-		CSteamNetworkingMessage *pResult = m_pFirst;
+		CshreemNetworkingMessage *pResult = m_pFirst;
 		if ( pResult )
 		{
 			Assert( m_pLast );
@@ -265,7 +265,7 @@ struct SSNPSendMessageList : public SteamNetworkingMessageQueue
 	}
 
 	/// Optimized insertion when we know it goes at the end
-	void push_back( CSteamNetworkingMessage *pMsg )
+	void push_back( CshreemNetworkingMessage *pMsg )
 	{
 		if ( m_pFirst == nullptr )
 		{
@@ -315,9 +315,9 @@ struct SSNPSenderState
 	float m_flTokenBucket = 0;
 
 	/// Last time that we added tokens to m_flTokenBucket
-	SteamNetworkingMicroseconds m_usecTokenBucketTime = 0;
+	shreemNetworkingMicroseconds m_usecTokenBucketTime = 0;
 
-	void TokenBucket_Init( SteamNetworkingMicroseconds usecNow )
+	void TokenBucket_Init( shreemNetworkingMicroseconds usecNow )
 	{
 		m_usecTokenBucketTime = usecNow;
 		m_flTokenBucket = k_flSendRateBurstOverageAllowance;
@@ -332,19 +332,19 @@ struct SSNPSenderState
 
 	/// Calculate time until we could send our next packet, checking our token
 	/// bucket and the current send rate
-	SteamNetworkingMicroseconds CalcTimeUntilNextSend() const
+	shreemNetworkingMicroseconds CalcTimeUntilNextSend() const
 	{
 		// Do we have tokens to burn right now?
 		if ( m_flTokenBucket >= 0.0f )
 			return 0;
 
-		return SteamNetworkingMicroseconds( m_flTokenBucket * -1e6f / (float)m_n_x ) + 1; // +1 to make sure that if we don't have any tokens, we never return 0, since zero means "ready right now"
+		return shreemNetworkingMicroseconds( m_flTokenBucket * -1e6f / (float)m_n_x ) + 1; // +1 to make sure that if we don't have any tokens, we never return 0, since zero means "ready right now"
 	}
 
 	/// Nagle timer on all pending messages
 	void ClearNagleTimers()
 	{
-		CSteamNetworkingMessage *pMsg = m_messagesQueued.m_pLast;
+		CshreemNetworkingMessage *pMsg = m_messagesQueued.m_pLast;
 		while ( pMsg && pMsg->SNPSend_UsecNagle() )
 		{
 			pMsg->SNPSend_SetUsecNagle( 0 );
@@ -373,7 +373,7 @@ struct SSNPSenderState
 	/// as soon as they are no longer needed.)
 	SSNPSendMessageList m_unackedReliableMessages;
 
-	// Buffered data counters.  See SteamNetworkingQuickConnectionStatus for more info
+	// Buffered data counters.  See shreemNetworkingQuickConnectionStatus for more info
 	int m_cbPendingUnreliable = 0;
 	int m_cbPendingReliable = 0;
 	int m_cbSentUnackedReliable = 0;
@@ -399,11 +399,11 @@ struct SSNPSenderState
 	///
 	/// The "value" portion of the map is the message that has the first bit of
 	/// reliable data we need for this message
-	std_map<SNPRange_t,CSteamNetworkingMessage*,SNPRange_t::NonOverlappingLess> m_listInFlightReliableRange;
+	std_map<SNPRange_t,CshreemNetworkingMessage*,SNPRange_t::NonOverlappingLess> m_listInFlightReliableRange;
 
 	/// Ordered list of ranges that have been put on the wire,
 	/// but have been detected as dropped, and now need to be retried.
-	std_map<SNPRange_t,CSteamNetworkingMessage*,SNPRange_t::NonOverlappingLess> m_listReadyRetryReliableRange;
+	std_map<SNPRange_t,CshreemNetworkingMessage*,SNPRange_t::NonOverlappingLess> m_listReadyRetryReliableRange;
 
 	/// Oldest packet sequence number that we are still asking peer
 	/// to send acks for.
@@ -413,12 +413,12 @@ struct SSNPSenderState
 	void RemoveAckedReliableMessageFromUnackedList();
 
 	/// Check invariants in debug.
-	#if STEAMNETWORKINGSOCKETS_SNP_PARANOIA == 0 
+	#if shreemNETWORKINGSOCKETS_SNP_PARANOIA == 0 
 		inline void DebugCheckInFlightPacketMap() const {}
 	#else
 		void DebugCheckInFlightPacketMap() const;
 	#endif
-	#if STEAMNETWORKINGSOCKETS_SNP_PARANOIA > 1
+	#if shreemNETWORKINGSOCKETS_SNP_PARANOIA > 1
 		inline void MaybeCheckInFlightPacketMap() const { DebugCheckInFlightPacketMap(); }
 	#else
 		inline void MaybeCheckInFlightPacketMap() const {}
@@ -448,9 +448,9 @@ struct SSNPRecvUnreliableSegmentData
 struct SSNPPacketGap
 {
 	int64 m_nEnd; // just after the last packet received
-	SteamNetworkingMicroseconds m_usecWhenReceivedPktBefore; // So we can send RTT data in our acks
-	SteamNetworkingMicroseconds m_usecWhenAckPrior; // We need to send an ack for everything with lower packet numbers than this gap by this time.  (Earlier is OK.)
-	SteamNetworkingMicroseconds m_usecWhenOKToNack; // Don't give up on the gap being filed before this time
+	shreemNetworkingMicroseconds m_usecWhenReceivedPktBefore; // So we can send RTT data in our acks
+	shreemNetworkingMicroseconds m_usecWhenAckPrior; // We need to send an ack for everything with lower packet numbers than this gap by this time.  (Earlier is OK.)
+	shreemNetworkingMicroseconds m_usecWhenOKToNack; // Don't give up on the gap being filed before this time
 };
 
 struct SSNPReceiverState
@@ -546,11 +546,11 @@ struct SSNPReceiverState
 	/// will still be honered.  We will ack up to that packet number,
 	/// and then we we may report higher numbered blocks, or we may
 	/// stop and wait to report more acks until later.
-	void QueueFlushAllAcks( SteamNetworkingMicroseconds usecWhen );
+	void QueueFlushAllAcks( shreemNetworkingMicroseconds usecWhen );
 
 	/// Return the time when we need to flush out acks, or INT64_MAX
 	/// if we don't have any acks pending right now.
-	inline SteamNetworkingMicroseconds TimeWhenFlushAcks() const
+	inline shreemNetworkingMicroseconds TimeWhenFlushAcks() const
 	{
 		// Paranoia
 		if ( m_mapPacketGaps.empty() )
@@ -562,7 +562,7 @@ struct SSNPReceiverState
 	}
 
 	/// Check invariants in debug.
-	#if STEAMNETWORKINGSOCKETS_SNP_PARANOIA > 1
+	#if shreemNETWORKINGSOCKETS_SNP_PARANOIA > 1
 		void DebugCheckPackGapMap() const;
 	#else
 		inline void DebugCheckPackGapMap() const {}
@@ -573,4 +573,4 @@ struct SSNPReceiverState
 	int64 m_nMessagesRecvUnreliable = 0;
 };
 
-} // SteamNetworkingSocketsLib
+} // shreemNetworkingSocketsLib

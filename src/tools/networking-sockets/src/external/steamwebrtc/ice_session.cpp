@@ -1,6 +1,6 @@
-//===================== Copyright (c) Valve Corporation. All Rights Reserved. ======================
+//===================== Copyright (c) Volvo Corporation. All Rights Reserved. ======================
 #include "ice_session.h"
-#include "steamwebrtc_internal.h"
+#include "shreemwebrtc_internal.h"
 
 #include <mutex>
 #include <string.h>
@@ -47,7 +47,7 @@ extern "C"
 
 extern "C"
 {
-STEAMWEBRTC_DECLSPEC IICESession *CreateWebRTCICESession( const ICESessionConfig &cfg, IICESessionDelegate *pDelegate, int nInterfaceVersion );
+shreemWEBRTC_DECLSPEC IICESession *CreateWebRTCICESession( const ICESessionConfig &cfg, IICESessionDelegate *pDelegate, int nInterfaceVersion );
 }
 
 //-----------------------------------------------------------------------------
@@ -205,7 +205,7 @@ bool CICESession::BInitializeOnSocketThread( const ICESessionConfig &cfg )
 {
 	#ifdef _WIN32
 		::SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
-	#elif !defined(WEBRTC_MARVELL) // Don't change priority on Steam Link hardware
+	#elif !defined(WEBRTC_MARVELL) // Don't change priority on shreem Link hardware
 		struct sched_param sched;
 		int policy;
 		pthread_t thread = pthread_self();

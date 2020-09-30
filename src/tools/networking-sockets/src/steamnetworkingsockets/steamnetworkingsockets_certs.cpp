@@ -1,13 +1,13 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 #include <crypto.h>
 #include <crypto_25519.h>
-#include "steamnetworkingsockets_internal.h"
+#include "shreemnetworkingsockets_internal.h"
 
 // Must be the last include
 #include <tier0/memdbgon.h>
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 uint64 CalculatePublicKeyID( const CECSigningPublicKey &pubKey )
 {
@@ -28,16 +28,16 @@ uint64 CalculatePublicKeyID( const CECSigningPublicKey &pubKey )
 // -1  Bogus data
 // 0   Unknown type
 // 1   OK
-static int SteamNetworkingIdentityFromLegacyBinaryProtobufMsg( SteamNetworkingIdentity &identity, const CMsgSteamNetworkingIdentityLegacyBinary &msgIdentity, SteamDatagramErrMsg &errMsg )
+static int shreemNetworkingIdentityFromLegacyBinaryProtobufMsg( shreemNetworkingIdentity &identity, const CMsgshreemNetworkingIdentityLegacyBinary &msgIdentity, shreemDatagramErrMsg &errMsg )
 {
-	if ( msgIdentity.has_steam_id() )
+	if ( msgIdentity.has_shreem_id() )
 	{
-		if ( !IsValidSteamIDForIdentity( msgIdentity.steam_id() ) )
+		if ( !IsValidshreemIDForIdentity( msgIdentity.shreem_id() ) )
 		{
-			V_sprintf_safe( errMsg, "Invalid SteamID %llu", (unsigned long long)msgIdentity.steam_id() );
+			V_sprintf_safe( errMsg, "Invalid shreemID %llu", (unsigned long long)msgIdentity.shreem_id() );
 			return -1;
 		}
-		identity.SetSteamID64( msgIdentity.steam_id() );
+		identity.SetshreemID64( msgIdentity.shreem_id() );
 		return 1;
 	}
 	if ( msgIdentity.has_generic_string() )
@@ -68,7 +68,7 @@ static int SteamNetworkingIdentityFromLegacyBinaryProtobufMsg( SteamNetworkingId
 			return -1;
 		}
 		const uint8 *b = (const uint8 *)msgIdentity.ipv6_and_port().c_str();
-		SteamNetworkingIPAddr tmpAddr;
+		shreemNetworkingIPAddr tmpAddr;
 		tmpAddr.SetIPv6( b, BigWord( *(uint16*)(b+16) ) );
 		identity.SetIPAddr( tmpAddr );
 		return 1;
@@ -78,10 +78,10 @@ static int SteamNetworkingIdentityFromLegacyBinaryProtobufMsg( SteamNetworkingId
 	return 0;
 }
 
-bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &identity, const CMsgSteamNetworkingIdentityLegacyBinary &msgIdentity, SteamDatagramErrMsg &errMsg )
+bool BshreemNetworkingIdentityFromLegacyBinaryProtobuf( shreemNetworkingIdentity &identity, const CMsgshreemNetworkingIdentityLegacyBinary &msgIdentity, shreemDatagramErrMsg &errMsg )
 {
 	// Parse it
-	int r = SteamNetworkingIdentityFromLegacyBinaryProtobufMsg( identity, msgIdentity, errMsg );
+	int r = shreemNetworkingIdentityFromLegacyBinaryProtobufMsg( identity, msgIdentity, errMsg );
 	if ( r > 0 )
 		return true;
 	if ( r < 0 )
@@ -100,7 +100,7 @@ bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &
 	}
 	else
 	{
-		AssertMsg( false, "SteamNetworkingIdentityFromProtobufMsg returned 0, but but we don't have any unknown fields?" );
+		AssertMsg( false, "shreemNetworkingIdentityFromProtobufMsg returned 0, but but we don't have any unknown fields?" );
 		V_strcpy_safe( errMsg, "Unrecognized identity format" );
 	}
 
@@ -108,19 +108,19 @@ bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &
 	return false;
 }
 
-bool BSteamNetworkingIdentityFromLegacySteamID( SteamNetworkingIdentity &identity, uint64 legacy_steam_id, SteamDatagramErrMsg &errMsg )
+bool BshreemNetworkingIdentityFromLegacyshreemID( shreemNetworkingIdentity &identity, uint64 legacy_shreem_id, shreemDatagramErrMsg &errMsg )
 {
-	if ( !IsValidSteamIDForIdentity( legacy_steam_id ) )
+	if ( !IsValidshreemIDForIdentity( legacy_shreem_id ) )
 	{
-		V_sprintf_safe( errMsg, "Invalid SteamID %llu (in legacy field)", legacy_steam_id );
+		V_sprintf_safe( errMsg, "Invalid shreemID %llu (in legacy field)", legacy_shreem_id );
 		return false;
 	}
-	identity.SetSteamID64( legacy_steam_id );
+	identity.SetshreemID64( legacy_shreem_id );
 	return true;
 }
 
 
-bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &identity, const std::string &bytesMsgIdentity, SteamDatagramErrMsg &errMsg )
+bool BshreemNetworkingIdentityFromLegacyBinaryProtobuf( shreemNetworkingIdentity &identity, const std::string &bytesMsgIdentity, shreemDatagramErrMsg &errMsg )
 {
 	// Assume failure
 	identity.Clear();
@@ -133,7 +133,7 @@ bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &
 	}
 
 	// Parse it
-	CMsgSteamNetworkingIdentityLegacyBinary msgIdentity;
+	CMsgshreemNetworkingIdentityLegacyBinary msgIdentity;
 	if ( !msgIdentity.ParseFromString( bytesMsgIdentity ) )
 	{
 		V_strcpy_safe( errMsg, "Protobuf failed to parse" );
@@ -141,7 +141,7 @@ bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &
 	}
 
 	// Parse it
-	int r = SteamNetworkingIdentityFromLegacyBinaryProtobufMsg( identity, msgIdentity, errMsg );
+	int r = shreemNetworkingIdentityFromLegacyBinaryProtobufMsg( identity, msgIdentity, errMsg );
 	if ( r > 0 )
 		return true;
 	if ( r < 0 )
@@ -161,56 +161,56 @@ bool BSteamNetworkingIdentityFromLegacyBinaryProtobuf( SteamNetworkingIdentity &
 	return false;
 }
 
-int SteamNetworkingIdentityFromSignedCert( SteamNetworkingIdentity &result, const CMsgSteamDatagramCertificateSigned &msgCertSigned, SteamDatagramErrMsg &errMsg )
+int shreemNetworkingIdentityFromSignedCert( shreemNetworkingIdentity &result, const CMsgshreemDatagramCertificateSigned &msgCertSigned, shreemDatagramErrMsg &errMsg )
 {
 	// !SPEED! We could optimize this by hand-parsing the protobuf.
 	// This would avoid some memory allocations and dealing with
 	// fields we don't care about.
-	CMsgSteamDatagramCertificate cert;
+	CMsgshreemDatagramCertificate cert;
 	if ( !cert.ParseFromString( msgCertSigned.cert() ) )
 	{
 		V_strcpy_safe( errMsg, "Cert failed protobuf parse" );
 		return -1;
 	}
-	return SteamNetworkingIdentityFromCert( result, cert, errMsg );
+	return shreemNetworkingIdentityFromCert( result, cert, errMsg );
 }
 
-bool BSteamNetworkingIdentityToProtobufInternal( const SteamNetworkingIdentity &identity, std::string *strIdentity, CMsgSteamNetworkingIdentityLegacyBinary *msgIdentityLegacyBinary, SteamDatagramErrMsg &errMsg )
+bool BshreemNetworkingIdentityToProtobufInternal( const shreemNetworkingIdentity &identity, std::string *strIdentity, CMsgshreemNetworkingIdentityLegacyBinary *msgIdentityLegacyBinary, shreemDatagramErrMsg &errMsg )
 {
 	switch ( identity.m_eType )
 	{
-		case k_ESteamNetworkingIdentityType_Invalid:
+		case k_EshreemNetworkingIdentityType_Invalid:
 			V_strcpy_safe( errMsg, "Identity is blank" );
 			return false;
 
-		case k_ESteamNetworkingIdentityType_SteamID:
-			Assert( identity.m_cbSize == sizeof(identity.m_steamID64) );
-			if ( !IsValidSteamIDForIdentity( identity.m_steamID64 ) )
+		case k_EshreemNetworkingIdentityType_shreemID:
+			Assert( identity.m_cbSize == sizeof(identity.m_shreemID64) );
+			if ( !IsValidshreemIDForIdentity( identity.m_shreemID64 ) )
 			{
-				V_sprintf_safe( errMsg, "Invalid SteamID %llu", identity.m_steamID64 );
+				V_sprintf_safe( errMsg, "Invalid shreemID %llu", identity.m_shreemID64 );
 				return false;
 			}
-			msgIdentityLegacyBinary->set_steam_id( identity.m_steamID64 );
+			msgIdentityLegacyBinary->set_shreem_id( identity.m_shreemID64 );
 			break;
 
-		case k_ESteamNetworkingIdentityType_IPAddress:
+		case k_EshreemNetworkingIdentityType_IPAddress:
 		{
-			COMPILE_TIME_ASSERT( sizeof( SteamNetworkingIPAddr ) == 18 );
-			Assert( identity.m_cbSize == sizeof( SteamNetworkingIPAddr ) );
-			SteamNetworkingIPAddr tmpAddr( identity.m_ip );
+			COMPILE_TIME_ASSERT( sizeof( shreemNetworkingIPAddr ) == 18 );
+			Assert( identity.m_cbSize == sizeof( shreemNetworkingIPAddr ) );
+			shreemNetworkingIPAddr tmpAddr( identity.m_ip );
 			tmpAddr.m_port = BigWord( tmpAddr.m_port );
 			msgIdentityLegacyBinary->set_ipv6_and_port( &tmpAddr, sizeof(tmpAddr) );
 			break;
 		}
 
-		case k_ESteamNetworkingIdentityType_GenericString:
+		case k_EshreemNetworkingIdentityType_GenericString:
 			Assert( identity.m_cbSize == (int)V_strlen( identity.m_szGenericString ) + 1 );
 			Assert( identity.m_cbSize > 1 );
 			Assert( identity.m_cbSize <= sizeof( identity.m_szGenericString ) );
 			msgIdentityLegacyBinary->set_generic_string( identity.m_szGenericString );
 			break;
 
-		case k_ESteamNetworkingIdentityType_GenericBytes:
+		case k_EshreemNetworkingIdentityType_GenericBytes:
 			Assert( identity.m_cbSize > 1 );
 			Assert( identity.m_cbSize <= sizeof( identity.m_genericBytes ) );
 			msgIdentityLegacyBinary->set_generic_bytes( identity.m_genericBytes, identity.m_cbSize );
@@ -224,17 +224,17 @@ bool BSteamNetworkingIdentityToProtobufInternal( const SteamNetworkingIdentity &
 	}
 
 	// And return string format
-	char buf[ SteamNetworkingIdentity::k_cchMaxString ];
-	SteamNetworkingIdentity_ToString( &identity, buf, sizeof(buf) );
+	char buf[ shreemNetworkingIdentity::k_cchMaxString ];
+	shreemNetworkingIdentity_ToString( &identity, buf, sizeof(buf) );
 	*strIdentity = buf;
 
 	return true;
 }
 
-bool BSteamNetworkingIdentityToProtobufInternal( const SteamNetworkingIdentity &identity, std::string *strIdentity, std::string *bytesMsgIdentityLegacyBinary, SteamDatagramErrMsg &errMsg )
+bool BshreemNetworkingIdentityToProtobufInternal( const shreemNetworkingIdentity &identity, std::string *strIdentity, std::string *bytesMsgIdentityLegacyBinary, shreemDatagramErrMsg &errMsg )
 {
-	CMsgSteamNetworkingIdentityLegacyBinary msgIdentity;
-	if ( !BSteamNetworkingIdentityToProtobufInternal( identity, strIdentity, &msgIdentity, errMsg ) )
+	CMsgshreemNetworkingIdentityLegacyBinary msgIdentity;
+	if ( !BshreemNetworkingIdentityToProtobufInternal( identity, strIdentity, &msgIdentity, errMsg ) )
 		return false;
 
 	if ( !msgIdentity.SerializeToString( bytesMsgIdentityLegacyBinary ) )
@@ -248,7 +248,7 @@ bool BSteamNetworkingIdentityToProtobufInternal( const SteamNetworkingIdentity &
 }
 
 /// Check an arbitrary signature against a public key.
-bool BCheckSignature( const std::string &signed_data, CMsgSteamDatagramCertificate_EKeyType eKeyType, const std::string &public_key, const std::string &signature, SteamDatagramErrMsg &errMsg )
+bool BCheckSignature( const std::string &signed_data, CMsgshreemDatagramCertificate_EKeyType eKeyType, const std::string &public_key, const std::string &signature, shreemDatagramErrMsg &errMsg )
 {
 
 	// Quick check for missing values
@@ -264,7 +264,7 @@ bool BCheckSignature( const std::string &signed_data, CMsgSteamDatagramCertifica
 	}
 
 	// Only one key type supported right now
-	if ( eKeyType != CMsgSteamDatagramCertificate_EKeyType_ED25519 )
+	if ( eKeyType != CMsgshreemDatagramCertificate_EKeyType_ED25519 )
 	{
 		V_sprintf_safe( errMsg, "Unsupported key type %d", eKeyType );
 		return false;
@@ -296,7 +296,7 @@ bool BCheckSignature( const std::string &signed_data, CMsgSteamDatagramCertifica
 	return true;
 }
 
-bool ParseCertFromBase64( const char *pBase64Data, size_t cbBase64Data, CMsgSteamDatagramCertificateSigned &outMsgSignedCert, SteamNetworkingErrMsg &errMsg )
+bool ParseCertFromBase64( const char *pBase64Data, size_t cbBase64Data, CMsgshreemDatagramCertificateSigned &outMsgSignedCert, shreemNetworkingErrMsg &errMsg )
 {
 
 	std_vector<uint8> buf;
@@ -310,7 +310,7 @@ bool ParseCertFromBase64( const char *pBase64Data, size_t cbBase64Data, CMsgStea
 
 	if ( !outMsgSignedCert.ParseFromArray( &buf[0], cbDecoded ) )
 	{
-		V_strcpy_safe( errMsg, "Protobuf failed to parse CMsgSteamDatagramCertificateSigned" );
+		V_strcpy_safe( errMsg, "Protobuf failed to parse CMsgshreemDatagramCertificateSigned" );
 		return false;
 	}
 	if ( !outMsgSignedCert.has_cert() )
@@ -322,10 +322,10 @@ bool ParseCertFromBase64( const char *pBase64Data, size_t cbBase64Data, CMsgStea
 	return true;
 }
 
-bool ParseCertFromPEM( const void *pCert, size_t cbCert, CMsgSteamDatagramCertificateSigned &outMsgSignedCert, SteamNetworkingErrMsg &errMsg )
+bool ParseCertFromPEM( const void *pCert, size_t cbCert, CMsgshreemDatagramCertificateSigned &outMsgSignedCert, shreemNetworkingErrMsg &errMsg )
 {
 	uint32 cbCertBody = (uint32)cbCert;
-	const char *pszCertBody = CCrypto::LocatePEMBody( (const char *)pCert, &cbCertBody, "STEAMDATAGRAM CERT" );
+	const char *pszCertBody = CCrypto::LocatePEMBody( (const char *)pCert, &cbCertBody, "shreemDATAGRAM CERT" );
 	if ( !pszCertBody )
 	{
 		V_strcpy_safe( errMsg, "Cert isn't a valid PEM-like text block" );

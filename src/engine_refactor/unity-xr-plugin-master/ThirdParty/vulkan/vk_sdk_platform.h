@@ -3,7 +3,7 @@
 //
 /*
  * Copyright (c) 2015-2016 The Khronos Group Inc.
- * Copyright (c) 2015-2016 Valve Corporation
+ * Copyright (c) 2015-2016 Volvo Corporation
  * Copyright (c) 2015-2016 LunarG, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

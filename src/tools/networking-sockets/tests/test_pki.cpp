@@ -2,23 +2,23 @@
 #include <time.h>
 #include <string>
 
-#include <steamnetworkingsockets/steamnetworkingsockets_certstore.h>
+#include <shreemnetworkingsockets/shreemnetworkingsockets_certstore.h>
 #include <google/protobuf/text_format.h>
 #include <common/crypto.h>
 #include <common/crypto_25519.h>
 
-using namespace SteamNetworkingSocketsLib;
+using namespace shreemNetworkingSocketsLib;
 
 // Time as I write this.  So that the tests will still work even after these generated keys expire.
 time_t k_timeTestNow = 1555374048;
 
-void GenerateCert( CMsgSteamDatagramCertificateSigned &msgOut, const char *certData, const CECSigningPrivateKey &keyCAPrivateKey, uint64 nCAKeyID )
+void GenerateCert( CMsgshreemDatagramCertificateSigned &msgOut, const char *certData, const CECSigningPrivateKey &keyCAPrivateKey, uint64 nCAKeyID )
 {
 	msgOut.Clear();
 
 	// Generate a dummy cert with the requested fields and give it a keypair
 	{
-		CMsgSteamDatagramCertificate msgCert;
+		CMsgshreemDatagramCertificate msgCert;
 		DbgVerify( google::protobuf::TextFormat::ParseFromString( std::string( certData ), &msgCert ) );
 
 		msgCert.set_time_expiry( k_timeTestNow + 3600*8 );
@@ -27,7 +27,7 @@ void GenerateCert( CMsgSteamDatagramCertificateSigned &msgOut, const char *certD
 		CECSigningPublicKey tempIdentityPublicKey;
 		CCrypto::GenerateSigningKeyPair( &tempIdentityPublicKey, &tempIdentityPrivateKey );
 		DbgVerify( tempIdentityPublicKey.GetRawDataAsStdString( msgCert.mutable_key_data() ) );
-		msgCert.set_key_type( CMsgSteamDatagramCertificate_EKeyType_ED25519 );
+		msgCert.set_key_type( CMsgshreemDatagramCertificate_EKeyType_ED25519 );
 
 		DbgVerify( msgCert.SerializeToString( msgOut.mutable_cert() ) );
 	}
@@ -41,7 +41,7 @@ void GenerateCert( CMsgSteamDatagramCertificateSigned &msgOut, const char *certD
 
 int main()
 {
-	SteamNetworkingErrMsg errMsg;
+	shreemNetworkingErrMsg errMsg;
 
 	//
 	// Populate our cert store with some certs.
@@ -101,13 +101,13 @@ int main()
 	// Revoke a key
 	CertStore_AddKeyRevocation( k_key_dota_revoked );
 
-	CMsgSteamDatagramCertificateSigned msgCertSigned;
-	CMsgSteamDatagramCertificate msgCert;
+	CMsgshreemDatagramCertificateSigned msgCertSigned;
+	CMsgshreemDatagramCertificate msgCert;
 	const CertAuthScope *pCertScope;
-	const SteamNetworkingPOPID iad = CalculateSteamNetworkingPOPIDFromString( "iad" );
-	const SteamNetworkingPOPID sto = CalculateSteamNetworkingPOPIDFromString( "sto" ); // 7566447
-	const SteamNetworkingPOPID mwh = CalculateSteamNetworkingPOPIDFromString( "mwh" );
-	const SteamNetworkingPOPID eat = CalculateSteamNetworkingPOPIDFromString( "eat" );
+	const shreemNetworkingPOPID iad = CalculateshreemNetworkingPOPIDFromString( "iad" );
+	const shreemNetworkingPOPID sto = CalculateshreemNetworkingPOPIDFromString( "sto" ); // 7566447
+	const shreemNetworkingPOPID mwh = CalculateshreemNetworkingPOPIDFromString( "mwh" );
+	const shreemNetworkingPOPID eat = CalculateshreemNetworkingPOPIDFromString( "eat" );
 
 	//
 	// Basic check for an identity cert issued by an intermediary.

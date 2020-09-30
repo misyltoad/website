@@ -1,4 +1,4 @@
-//======== Copyright 2013, Valve Corporation, All rights reserved. ============//
+//======== Copyright 2013, Volvo Corporation, All rights reserved. ============//
 //
 // Purpose: Implementation of SecureZeroMemory for platforms that don't have one.
 //

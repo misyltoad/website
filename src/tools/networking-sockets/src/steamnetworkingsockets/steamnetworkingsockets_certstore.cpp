@@ -1,4 +1,4 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 // Ug, I didn't know ostream used exceptions.  Isn't there a decent
 // stream implementation that won't bring in 10000000000 dependencies?
@@ -11,7 +11,7 @@
 #include <memory>
 #include <crypto.h>
 #include <crypto_25519.h>
-#include "steamnetworkingsockets_certstore.h"
+#include "shreemnetworkingsockets_certstore.h"
 #include <tier1/utlhashmap.h>
 
 #ifdef DBGFLAG_VALIDATE
@@ -23,7 +23,7 @@
 
 #define MsgOrOK( s ) ( (s).empty() ? "OK" : (s).c_str() )
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 template <typename T, T kInvalidItem >
 void CertAuthParameter<T,kInvalidItem>::SetIntersection( const CertAuthParameter<T,kInvalidItem> &a, const CertAuthParameter<T,kInvalidItem> &b )
@@ -114,9 +114,9 @@ void CertAuthScope::Print( std::ostream &out, const char *pszIndent ) const
 	{
 		o << x;
 	};
-	auto PrintPOPID = []( std::ostream &o, const SteamNetworkingPOPID &x )
+	auto PrintPOPID = []( std::ostream &o, const shreemNetworkingPOPID &x )
 	{
-		o << SteamNetworkingPOPIDRender( x ).c_str();
+		o << shreemNetworkingPOPIDRender( x ).c_str();
 	};
 
 	out << pszIndent << "AppIDs . . : "; m_apps.Print( out, PrintAppID ); out << std::endl;
@@ -148,7 +148,7 @@ struct Cert
 	CertAuthScope m_authScope;
 	time_t m_timeCreated;
 
-	bool Setup( const CMsgSteamDatagramCertificateSigned &msgCertSigned, CECSigningPublicKey &outPublicKey, SteamNetworkingErrMsg &errMsg )
+	bool Setup( const CMsgshreemDatagramCertificateSigned &msgCertSigned, CECSigningPublicKey &outPublicKey, shreemNetworkingErrMsg &errMsg )
 	{
 		m_signed_data = msgCertSigned.cert();
 		m_signature = msgCertSigned.ca_signature();
@@ -165,7 +165,7 @@ struct Cert
 			return false;
 		}
 
-		CMsgSteamDatagramCertificate msgCert;
+		CMsgshreemDatagramCertificate msgCert;
 		if ( !msgCert.ParseFromString( m_signed_data ) )
 		{
 			V_strcpy_safe( errMsg, "Cert failed protobuf parse" );
@@ -173,13 +173,13 @@ struct Cert
 		}
 
 		// We don't store certs bound to a particular identity in the cert store
-		if ( msgCert.has_identity_string() || msgCert.has_legacy_identity_binary() || msgCert.has_legacy_steam_id() )
+		if ( msgCert.has_identity_string() || msgCert.has_legacy_identity_binary() || msgCert.has_legacy_shreem_id() )
 		{
 			V_strcpy_safe( errMsg, "Cert is bound to particular identity; doesn't go in the cert store" );
 			return false;
 		}
 
-		if ( msgCert.key_type() != CMsgSteamDatagramCertificate_EKeyType_ED25519 )
+		if ( msgCert.key_type() != CMsgshreemDatagramCertificate_EKeyType_ED25519 )
 		{
 			V_strcpy_safe( errMsg, "Only ED25519 public key supported" );
 			return false;
@@ -248,10 +248,10 @@ struct PublicKey
 		return false;
 	}
 
-	#ifdef STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY
+	#ifdef shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY
 		void SlamHardcodedRootCA()
 		{
-			bool bOK = m_keyPublic.SetFromOpenSSHAuthorizedKeys( STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY, sizeof(STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY) );
+			bool bOK = m_keyPublic.SetFromOpenSSHAuthorizedKeys( shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY, sizeof(shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY) );
 			Assert( bOK );
 			m_eTrust = k_ETrust_Hardcoded;
 			m_effectiveAuthScope.SetAll();
@@ -281,7 +281,7 @@ static PublicKey *FindPublicKey( uint64 nKeyID )
 
 static void CertStore_OneTimeInit()
 {
-	#ifdef STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY
+	#ifdef shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY
 		if ( s_mapPublicKeys.Count() == 0 )
 		{
 			PublicKey *pKey = new PublicKey;
@@ -291,7 +291,7 @@ static void CertStore_OneTimeInit()
 			// Make sure calculated ID matches what we expect!
 			char checkID[64];
 			V_sprintf_safe( checkID, "ID%llu", (unsigned long long)nKeyID );
-			AssertFatal( V_stristr( STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY, checkID ) != NULL );
+			AssertFatal( V_stristr( shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY, checkID ) != NULL );
 
 			s_mapPublicKeys.Insert( nKeyID, std::unique_ptr<PublicKey>( pKey ) );
 		}
@@ -332,12 +332,12 @@ void CertStore_AddKeyRevocation( uint64 key_id )
 	s_bTrustValid = false;
 }
 
-bool CertStore_AddCertFromBase64( const char *pszBase64, SteamNetworkingErrMsg &errMsg )
+bool CertStore_AddCertFromBase64( const char *pszBase64, shreemNetworkingErrMsg &errMsg )
 {
 	CertStore_OneTimeInit();
 
 	// Decode
-	CMsgSteamDatagramCertificateSigned msgSignedCert;
+	CMsgshreemDatagramCertificateSigned msgSignedCert;
 	if ( !ParseCertFromBase64( pszBase64, V_strlen( pszBase64 ), msgSignedCert, errMsg ) )
 		return false;
 
@@ -455,7 +455,7 @@ static void RecursiveEvaluateKeyTrust( PublicKey *pKey )
 		// Self-signed (root cert)?
 		if ( pSignerKey == pKey )
 		{
-			#ifdef STEAMNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY
+			#ifdef shreemNETWORKINGSOCKETS_HARDCODED_ROOT_CA_KEY
 				// If hardcoded root cert is in use, only trust the
 				// one hardcoded root key.  (We've already tagged it
 				// as trusted by hardcoded, so we don't get this far
@@ -585,7 +585,7 @@ static void CertStore_EnsureTrustValid()
 	s_bTrustValid = true;
 }
 
-const CertAuthScope *CertStore_CheckCASignature( const std::string &signed_data, uint64 nCAKeyID, const std::string &signature, time_t timeNow, SteamNetworkingErrMsg &errMsg )
+const CertAuthScope *CertStore_CheckCASignature( const std::string &signed_data, uint64 nCAKeyID, const std::string &signature, time_t timeNow, shreemNetworkingErrMsg &errMsg )
 {
 	CertStore_EnsureTrustValid();
 
@@ -648,7 +648,7 @@ const CertAuthScope *CertStore_CheckCASignature( const std::string &signed_data,
 	return &pKey->m_effectiveAuthScope;
 }
 
-const CertAuthScope *CertStore_CheckCert( const CMsgSteamDatagramCertificateSigned &msgCertSigned, CMsgSteamDatagramCertificate &outMsgCert, time_t timeNow, SteamNetworkingErrMsg &errMsg )
+const CertAuthScope *CertStore_CheckCert( const CMsgshreemDatagramCertificateSigned &msgCertSigned, CMsgshreemDatagramCertificate &outMsgCert, time_t timeNow, shreemNetworkingErrMsg &errMsg )
 {
 	const CertAuthScope *pResult = CertStore_CheckCASignature( msgCertSigned.cert(), msgCertSigned.ca_key_id(), msgCertSigned.ca_signature(), timeNow, errMsg );
 	if ( !pResult )
@@ -669,7 +669,7 @@ const CertAuthScope *CertStore_CheckCert( const CMsgSteamDatagramCertificateSign
 	return pResult;
 }
 
-bool CheckCertAppID( const CMsgSteamDatagramCertificate &msgCert, const CertAuthScope *pCACertAuthScope, AppId_t nAppID, SteamNetworkingErrMsg &errMsg )
+bool CheckCertAppID( const CMsgshreemDatagramCertificate &msgCert, const CertAuthScope *pCACertAuthScope, AppId_t nAppID, shreemNetworkingErrMsg &errMsg )
 {
 
 	// Not bound to specific AppIDs?
@@ -705,7 +705,7 @@ bool CheckCertAppID( const CMsgSteamDatagramCertificate &msgCert, const CertAuth
 	return false;
 }
 
-bool CheckCertPOPID( const CMsgSteamDatagramCertificate &msgCert, const CertAuthScope *pCACertAuthScope, SteamNetworkingPOPID popID, SteamNetworkingErrMsg &errMsg )
+bool CheckCertPOPID( const CMsgshreemDatagramCertificate &msgCert, const CertAuthScope *pCACertAuthScope, shreemNetworkingPOPID popID, shreemNetworkingErrMsg &errMsg )
 {
 
 	// Not bound to specific PopIDs?
@@ -713,31 +713,31 @@ bool CheckCertPOPID( const CMsgSteamDatagramCertificate &msgCert, const CertAuth
 	{
 		if ( !pCACertAuthScope || pCACertAuthScope->m_pops.HasItem( popID ) )
 			return true;
-		V_sprintf_safe( errMsg, "Cert is not restricted by POPID, by CA trust chain is, and does not authorize %s", SteamNetworkingPOPIDRender( popID ).c_str() );
+		V_sprintf_safe( errMsg, "Cert is not restricted by POPID, by CA trust chain is, and does not authorize %s", shreemNetworkingPOPIDRender( popID ).c_str() );
 		return true;
 	}
 
 	// Search cert for the one they are trying
-	for ( SteamNetworkingPOPID certPOPID: msgCert.gameserver_datacenter_ids() )
+	for ( shreemNetworkingPOPID certPOPID: msgCert.gameserver_datacenter_ids() )
 	{
 		if ( certPOPID == popID )
 		{
 			if ( !pCACertAuthScope || pCACertAuthScope->m_pops.HasItem( popID ) )
 				return true;
-			V_sprintf_safe( errMsg, "Cert allows POPID %s, but CA trust chain does not", SteamNetworkingPOPIDRender( popID ).c_str() );
+			V_sprintf_safe( errMsg, "Cert allows POPID %s, but CA trust chain does not", shreemNetworkingPOPIDRender( popID ).c_str() );
 			return false;
 		}
 	}
 
 	// No good
-	SteamNetworkingPOPIDRender firstAuthorizedPopID( msgCert.gameserver_datacenter_ids(0) );
+	shreemNetworkingPOPIDRender firstAuthorizedPopID( msgCert.gameserver_datacenter_ids(0) );
 	if ( msgCert.app_ids_size() == 1 )
 	{
-		V_sprintf_safe( errMsg, "Cert is not authorized for POPID %s, only %s", SteamNetworkingPOPIDRender( popID ).c_str(), firstAuthorizedPopID.c_str() );
+		V_sprintf_safe( errMsg, "Cert is not authorized for POPID %s, only %s", shreemNetworkingPOPIDRender( popID ).c_str(), firstAuthorizedPopID.c_str() );
 	}
 	else
 	{
-		V_sprintf_safe( errMsg, "Cert is not authorized for POPID %s, only %s (and %d more)", SteamNetworkingPOPIDRender( popID ).c_str(), firstAuthorizedPopID.c_str(), msgCert.gameserver_datacenter_ids_size()-1 );
+		V_sprintf_safe( errMsg, "Cert is not authorized for POPID %s, only %s (and %d more)", shreemNetworkingPOPIDRender( popID ).c_str(), firstAuthorizedPopID.c_str(), msgCert.gameserver_datacenter_ids_size()-1 );
 	}
 	return false;
 }
@@ -787,4 +787,4 @@ void CertStore_ValidateStatics( CValidator &validator )
 }
 #endif
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib

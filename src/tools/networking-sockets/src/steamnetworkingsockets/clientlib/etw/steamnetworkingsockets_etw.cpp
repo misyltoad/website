@@ -1,7 +1,7 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#include "../steamnetworkingsockets_lowlevel.h"
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ETW
+#include "../shreemnetworkingsockets_lowlevel.h"
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_ETW
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -14,9 +14,9 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #define EVNTAPI __stdcall
-#define EventRegister EventRegister_SteamNetworkingSocketsHack
-#define EventWrite EventWrite_SteamNetworkingSocketsHack
-#define EventUnregister EventUnregister_SteamNetworkingSocketsHack
+#define EventRegister EventRegister_shreemNetworkingSocketsHack
+#define EventWrite EventWrite_shreemNetworkingSocketsHack
+#define EventUnregister EventUnregister_shreemNetworkingSocketsHack
 #include <evntprov.h>
 
 // Typedefs for use with GetProcAddress
@@ -56,7 +56,7 @@ ULONG EVNTAPI EventUnregister( REGHANDLE RegHandle )
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "steamnetworkingsockets_etw_events.h"
+#include "shreemnetworkingsockets_etw_events.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -64,7 +64,7 @@ ULONG EVNTAPI EventUnregister( REGHANDLE RegHandle )
 //
 /////////////////////////////////////////////////////////////////////////////
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 void ETW_Init()
 {
@@ -78,17 +78,17 @@ void ETW_Init()
 		s_pEventWrite = ( tEventWrite )GetProcAddress( pAdvapiDLL, "EventWrite" );
 		s_pEventUnregister = ( tEventUnregister )GetProcAddress( pAdvapiDLL, "EventUnregister" );
 
-		EventRegisterValve_SteamNetworkingSockets();
+		EventRegisterValve_shreemNetworkingSockets();
 	}
 }
 
 void ETW_Kill()
 {
 	// Unregister our providers.
-	EventUnregisterValve_SteamNetworkingSockets();
+	EventUnregisterValve_shreemNetworkingSockets();
 }
 
-void ETW_LongOp( const char *opName, SteamNetworkingMicroseconds usec, const char *pszInfo )
+void ETW_LongOp( const char *opName, shreemNetworkingMicroseconds usec, const char *pszInfo )
 {
 	EventWriteLongOp( opName, usec, pszInfo ? pszInfo : "" );
 }
@@ -103,17 +103,17 @@ void ETW_UDPRecvPacket( const netadr_t &adrFrom, int cbPkt )
 	EventWriteUDPRecvPacket( CUtlNetAdrRender( adrFrom ).String(), cbPkt );
 }
 
-void ETW_ICESendPacket( HSteamNetConnection hConn, int cbPkt )
+void ETW_ICESendPacket( HshreemNetConnection hConn, int cbPkt )
 {
 	EventWriteICESendPacket( hConn, cbPkt );
 }
 
-void ETW_ICERecvPacket( HSteamNetConnection hConn, int cbPkt )
+void ETW_ICERecvPacket( HshreemNetConnection hConn, int cbPkt )
 {
 	EventWriteICERecvPacket( hConn, cbPkt );
 }
 
-void ETW_ICEProcessPacket( HSteamNetConnection hConn, int cbPkt )
+void ETW_ICEProcessPacket( HshreemNetConnection hConn, int cbPkt )
 {
 	EventWriteICEProcessPacket( hConn, cbPkt );
 }
@@ -139,4 +139,4 @@ void ETW_webrtc_sendto( void *addr, int length )
 
 }
 
-#endif // #ifdef STEAMNETWORKINGSOCKETS_ENABLE_ETW
+#endif // #ifdef shreemNETWORKINGSOCKETS_ENABLE_ETW

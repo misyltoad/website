@@ -9,12 +9,12 @@
 #include <thread>
 
 
-#include <steam/steamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
+#include <shreem/shreemnetworkingsockets.h>
+#include <shreem/ishreemnetworkingutils.h>
 #include "../examples/trivial_signaling_client.h"
 
-HSteamListenSocket g_hListenSock;
-HSteamNetConnection g_hConnection;
+HshreemListenSocket g_hListenSock;
+HshreemNetConnection g_hConnection;
 enum ETestRole
 {
 	k_ETestRole_Undefined,
@@ -54,38 +54,38 @@ void Quit( int rc )
 // Send a simple string message to out peer, using reliable transport.
 void SendMessageToPeer( const char *pszMsg )
 {
-	EResult r = SteamNetworkingSockets()->SendMessageToConnection(
-		g_hConnection, pszMsg, (int)strlen(pszMsg)+1, k_nSteamNetworkingSend_Reliable, nullptr );
+	EResult r = shreemNetworkingSockets()->SendMessageToConnection(
+		g_hConnection, pszMsg, (int)strlen(pszMsg)+1, k_nshreemNetworkingSend_Reliable, nullptr );
 	assert( r == k_EResultOK );
 }
 
 // Called when a connection undergoes a state transition.
-void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t *pInfo )
+void OnshreemNetConnectionStatusChanged( shreemNetConnectionStatusChangedCallback_t *pInfo )
 {
 	// What's the state of the connection?
 	switch ( pInfo->m_info.m_eState )
 	{
-	case k_ESteamNetworkingConnectionState_ClosedByPeer:
-	case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+	case k_EshreemNetworkingConnectionState_ClosedByPeer:
+	case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 
 		TEST_Printf( "[%s] %s, reason %d: %s\n",
 			pInfo->m_info.m_szConnectionDescription,
-			( pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ClosedByPeer ? "closed by peer" : "problem detected locally" ),
+			( pInfo->m_info.m_eState == k_EshreemNetworkingConnectionState_ClosedByPeer ? "closed by peer" : "problem detected locally" ),
 			pInfo->m_info.m_eEndReason,
 			pInfo->m_info.m_szEndDebug
 		);
 
 		// Close our end
-		SteamNetworkingSockets()->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
+		shreemNetworkingSockets()->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
 
 		if ( g_hConnection == pInfo->m_hConn )
 		{
-			g_hConnection = k_HSteamNetConnection_Invalid;
+			g_hConnection = k_HshreemNetConnection_Invalid;
 
 			// In this example, we will bail the test whenever this happens.
 			// Was this a normal termination?
 			int rc = 0;
-			if ( rc == k_ESteamNetworkingConnectionState_ProblemDetectedLocally || pInfo->m_info.m_eEndReason != k_ESteamNetConnectionEnd_App_Generic )
+			if ( rc == k_EshreemNetworkingConnectionState_ProblemDetectedLocally || pInfo->m_info.m_eEndReason != k_EshreemNetConnectionEnd_App_Generic )
 				rc = 1; // failure
 			Quit( rc );
 		}
@@ -97,23 +97,23 @@ void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_
 
 		break;
 
-	case k_ESteamNetworkingConnectionState_None:
+	case k_EshreemNetworkingConnectionState_None:
 		// Notification that a connection was destroyed.  (By us, presumably.)
 		// We don't need this, so ignore it.
 		break;
 
-	case k_ESteamNetworkingConnectionState_Connecting:
+	case k_EshreemNetworkingConnectionState_Connecting:
 
 		// Is this a connection we initiated, or one that we are receiving?
-		if ( g_hListenSock != k_HSteamListenSocket_Invalid && pInfo->m_info.m_hListenSocket == g_hListenSock )
+		if ( g_hListenSock != k_HshreemListenSocket_Invalid && pInfo->m_info.m_hListenSocket == g_hListenSock )
 		{
 			// Somebody's knocking
 			// Note that we assume we will only ever receive a single connection
-			assert( g_hConnection == k_HSteamNetConnection_Invalid ); // not really a bug in this code, but a bug in the test
+			assert( g_hConnection == k_HshreemNetConnection_Invalid ); // not really a bug in this code, but a bug in the test
 
 			TEST_Printf( "[%s] Accepting\n", pInfo->m_info.m_szConnectionDescription );
 			g_hConnection = pInfo->m_hConn;
-			SteamNetworkingSockets()->AcceptConnection( pInfo->m_hConn );
+			shreemNetworkingSockets()->AcceptConnection( pInfo->m_hConn );
 		}
 		else
 		{
@@ -124,13 +124,13 @@ void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_
 		}
 		break;
 
-	case k_ESteamNetworkingConnectionState_FindingRoute:
+	case k_EshreemNetworkingConnectionState_FindingRoute:
 		// P2P connections will spend a bried time here where they swap addresses
 		// and try to find a route.
 		TEST_Printf( "[%s] finding route\n", pInfo->m_info.m_szConnectionDescription );
 		break;
 
-	case k_ESteamNetworkingConnectionState_Connected:
+	case k_EshreemNetworkingConnectionState_Connected:
 		// We got fully connected
 		assert( pInfo->m_hConn == g_hConnection ); // We don't initiate or accept any other connections, so this should be out own connection
 		TEST_Printf( "[%s] connected\n", pInfo->m_info.m_szConnectionDescription );
@@ -144,8 +144,8 @@ void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_
 
 int main( int argc, const char **argv )
 {
-	SteamNetworkingIdentity identityLocal; identityLocal.Clear();
-	SteamNetworkingIdentity identityRemote; identityRemote.Clear();
+	shreemNetworkingIdentity identityLocal; identityLocal.Clear();
+	shreemNetworkingIdentity identityRemote; identityRemote.Clear();
 	const char *pszTrivialSignalingService = "localhost:10000";
 
 	// Parse the command line
@@ -158,7 +158,7 @@ int main( int argc, const char **argv )
 				TEST_Fatal( "Expected argument after %s", pszSwitch );
 			return argv[++idxArg];
 		};
-		auto ParseIdentity = [&]( SteamNetworkingIdentity &x ) {
+		auto ParseIdentity = [&]( shreemNetworkingIdentity &x ) {
 			const char *pszArg = GetArg();
 			if ( !x.ParseString( pszArg ) )
 				TEST_Fatal( "'%s' is not a valid identity string", pszArg );
@@ -191,32 +191,32 @@ int main( int argc, const char **argv )
 	TEST_Init( &identityLocal );
 
 	// Hardcode STUN servers
-	SteamNetworkingUtils()->SetGlobalConfigValueString( k_ESteamNetworkingConfig_P2P_STUN_ServerList, "stun.l.google.com:19302" );
+	shreemNetworkingUtils()->SetGlobalConfigValueString( k_EshreemNetworkingConfig_P2P_STUN_ServerList, "stun.l.google.com:19302" );
 
 	// Allow sharing of any kind of ICE address.
 	// We don't have any method of relaying (TURN) in this example, so we are essentially
 	// forced to disclose our public address if we want to pierce NAT.  But if we
 	// had relay fallback, or if we only wanted to connect on the LAN, we could restrict
 	// to only sharing private addresses.
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_P2P_Transport_ICE_Enable, k_nSteamNetworkingConfig_P2P_Transport_ICE_Enable_All );
+	shreemNetworkingUtils()->SetGlobalConfigValueInt32(k_EshreemNetworkingConfig_P2P_Transport_ICE_Enable, k_nshreemNetworkingConfig_P2P_Transport_ICE_Enable_All );
 
 	// Create the signaling service
-	SteamNetworkingErrMsg errMsg;
-	ITrivialSignalingClient *pSignaling = CreateTrivialSignalingClient( pszTrivialSignalingService, SteamNetworkingSockets(), errMsg );
+	shreemNetworkingErrMsg errMsg;
+	ITrivialSignalingClient *pSignaling = CreateTrivialSignalingClient( pszTrivialSignalingService, shreemNetworkingSockets(), errMsg );
 	if ( pSignaling == nullptr )
 		TEST_Fatal( "Failed to initializing signaling client.  %s", errMsg );
 
-	SteamNetworkingUtils()->SetGlobalCallback_SteamNetConnectionStatusChanged( OnSteamNetConnectionStatusChanged );
+	shreemNetworkingUtils()->SetGlobalCallback_shreemNetConnectionStatusChanged( OnshreemNetConnectionStatusChanged );
 
 	// Comment this line in for more detailed spew about signals, route finding, ICE, etc
-	//SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_LogLevel_P2PRendezvous, k_ESteamNetworkingSocketsDebugOutputType_Verbose );
+	//shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_LogLevel_P2PRendezvous, k_EshreemNetworkingSocketsDebugOutputType_Verbose );
 
 	// Create listen socket to receive connections on, unless we are the client
 	if ( g_eTestRole == k_ETestRole_Server )
 	{
 		TEST_Printf( "Creating listen socket, local virtual port %d\n", g_nVirtualPortLocal );
-		g_hListenSock = SteamNetworkingSockets()->CreateListenSocketP2P( g_nVirtualPortLocal, 0, nullptr );
-		assert( g_hListenSock != k_HSteamListenSocket_Invalid  );
+		g_hListenSock = shreemNetworkingSockets()->CreateListenSocketP2P( g_nVirtualPortLocal, 0, nullptr );
+		assert( g_hListenSock != k_HshreemListenSocket_Invalid  );
 	}
 	else if ( g_eTestRole == k_ETestRole_Symmetric )
 	{
@@ -235,16 +235,16 @@ int main( int argc, const char **argv )
 		// to ignore it, as the app has given no indication that it desires to
 		// receive inbound connections at all.
 		TEST_Printf( "Creating listen socket in symmetric mode, local virtual port %d\n", g_nVirtualPortLocal );
-		SteamNetworkingConfigValue_t opt;
-		opt.SetInt32( k_ESteamNetworkingConfig_SymmetricConnect, 1 ); // << Note we set symmetric mode on the listen socket
-		g_hListenSock = SteamNetworkingSockets()->CreateListenSocketP2P( g_nVirtualPortLocal, 1, &opt );
-		assert( g_hListenSock != k_HSteamListenSocket_Invalid  );
+		shreemNetworkingConfigValue_t opt;
+		opt.SetInt32( k_EshreemNetworkingConfig_SymmetricConnect, 1 ); // << Note we set symmetric mode on the listen socket
+		g_hListenSock = shreemNetworkingSockets()->CreateListenSocketP2P( g_nVirtualPortLocal, 1, &opt );
+		assert( g_hListenSock != k_HshreemListenSocket_Invalid  );
 	}
 
 	// Begin connecting to peer, unless we are the server
 	if ( g_eTestRole != k_ETestRole_Server )
 	{
-		std::vector< SteamNetworkingConfigValue_t > vecOpts;
+		std::vector< shreemNetworkingConfigValue_t > vecOpts;
 
 		// If we want the local and virtual port to differ, we must set
 		// an option.  This is a pretty rare use case, and usually not needed.
@@ -254,8 +254,8 @@ int main( int argc, const char **argv )
 		// needed them to differ.
 		if ( g_nVirtualPortRemote != g_nVirtualPortLocal )
 		{
-			SteamNetworkingConfigValue_t opt;
-			opt.SetInt32( k_ESteamNetworkingConfig_LocalVirtualPort, g_nVirtualPortLocal );
+			shreemNetworkingConfigValue_t opt;
+			opt.SetInt32( k_EshreemNetworkingConfig_LocalVirtualPort, g_nVirtualPortLocal );
 			vecOpts.push_back( opt );
 		}
 
@@ -266,17 +266,17 @@ int main( int argc, const char **argv )
 		// explicit.
 		if ( g_eTestRole == k_ETestRole_Symmetric )
 		{
-			SteamNetworkingConfigValue_t opt;
-			opt.SetInt32( k_ESteamNetworkingConfig_SymmetricConnect, 1 );
+			shreemNetworkingConfigValue_t opt;
+			opt.SetInt32( k_EshreemNetworkingConfig_SymmetricConnect, 1 );
 			vecOpts.push_back( opt );
 			TEST_Printf( "Connecting to '%s' in symmetric mode, virtual port %d, from local virtual port %d.\n",
-				SteamNetworkingIdentityRender( identityRemote ).c_str(), g_nVirtualPortRemote,
+				shreemNetworkingIdentityRender( identityRemote ).c_str(), g_nVirtualPortRemote,
 				g_nVirtualPortLocal );
 		}
 		else
 		{
 			TEST_Printf( "Connecting to '%s', virtual port %d, from local virtual port %d.\n",
-				SteamNetworkingIdentityRender( identityRemote ).c_str(), g_nVirtualPortRemote,
+				shreemNetworkingIdentityRender( identityRemote ).c_str(), g_nVirtualPortRemote,
 				g_nVirtualPortLocal );
 		}
 
@@ -285,15 +285,15 @@ int main( int argc, const char **argv )
 		// since we don't need it.  (Your signaling object already
 		// knows how to talk to the peer) and then the peer identity
 		// will be confirmed via rendezvous.
-		SteamNetworkingErrMsg errMsg;
-		ISteamNetworkingConnectionCustomSignaling *pConnSignaling = pSignaling->CreateSignalingForConnection(
+		shreemNetworkingErrMsg errMsg;
+		IshreemNetworkingConnectionCustomSignaling *pConnSignaling = pSignaling->CreateSignalingForConnection(
 			identityRemote,
 			nullptr,
 			errMsg
 		);
 		assert( pConnSignaling );
-		g_hConnection = SteamNetworkingSockets()->ConnectP2PCustomSignaling( pConnSignaling, &identityRemote, g_nVirtualPortRemote, (int)vecOpts.size(), vecOpts.data() );
-		assert( g_hConnection != k_HSteamNetConnection_Invalid );
+		g_hConnection = shreemNetworkingSockets()->ConnectP2PCustomSignaling( pConnSignaling, &identityRemote, g_nVirtualPortRemote, (int)vecOpts.size(), vecOpts.data() );
+		assert( g_hConnection != k_HshreemNetConnection_Invalid );
 
 		// Go ahead and send a message now.  The message will be queued until route finding
 		// completes.
@@ -310,10 +310,10 @@ int main( int argc, const char **argv )
 		TEST_PumpCallbacks();
 
 		// If we have a connection, then poll it for messages
-		if ( g_hConnection != k_HSteamNetConnection_Invalid )
+		if ( g_hConnection != k_HshreemNetConnection_Invalid )
 		{
-			SteamNetworkingMessage_t *pMessage;
-			int r = SteamNetworkingSockets()->ReceiveMessagesOnConnection( g_hConnection, &pMessage, 1 );
+			shreemNetworkingMessage_t *pMessage;
+			int r = shreemNetworkingSockets()->ReceiveMessagesOnConnection( g_hConnection, &pMessage, 1 );
 			assert( r == 0 || r == 1 ); // <0 indicates an error
 			if ( r == 1 )
 			{
@@ -336,7 +336,7 @@ int main( int argc, const char **argv )
 				if ( g_eTestRole != k_ETestRole_Server )
 				{
 					TEST_Printf( "Closing connection and shutting down.\n" );
-					SteamNetworkingSockets()->CloseConnection( g_hConnection, 0, "Test completed OK", true );
+					shreemNetworkingSockets()->CloseConnection( g_hConnection, 0, "Test completed OK", true );
 					Quit(0);
 				}
 

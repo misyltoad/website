@@ -1,29 +1,29 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
 // Some public types for communicating detailed connection stats
 //
 //=============================================================================
 
-#ifndef STEAMNETWORKING_STATS_H
-#define STEAMNETWORKING_STATS_H
+#ifndef shreemNETWORKING_STATS_H
+#define shreemNETWORKING_STATS_H
 #ifdef _WIN32
 #pragma once
 #endif
 
-#include <steam/steamnetworkingtypes.h>
+#include <shreem/shreemnetworkingtypes.h>
 
 #pragma pack(push)
 #pragma pack(8)
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
-struct SteamDatagramLinkStats;
-struct SteamDatagramLinkLifetimeStats;
-struct SteamDatagramLinkInstantaneousStats;
-struct SteamNetworkingDetailedConnectionStatus;
+struct shreemDatagramLinkStats;
+struct shreemDatagramLinkLifetimeStats;
+struct shreemDatagramLinkInstantaneousStats;
+struct shreemNetworkingDetailedConnectionStatus;
 
 /// Instantaneous statistics for a link between two hosts.
-struct SteamDatagramLinkInstantaneousStats
+struct shreemDatagramLinkInstantaneousStats
 {
 
 	/// Data rates
@@ -143,7 +143,7 @@ struct JitterHistogram
 	int m_n10; // 10--20ms
 	int m_n20; // 20ms or more
 
-	void AddSample( SteamNetworkingMicroseconds usecJitter )
+	void AddSample( shreemNetworkingMicroseconds usecJitter )
 	{
 
 		// Add to histogram
@@ -168,8 +168,8 @@ struct JitterHistogram
 };
 
 /// Stats for the lifetime of a connection.
-/// Should match CMsgSteamDatagramLinkLifetimeStats
-struct SteamDatagramLinkLifetimeStats
+/// Should match CMsgshreemDatagramLinkLifetimeStats
+struct shreemDatagramLinkLifetimeStats
 {
 	/// Reset all values to zero / unknown status
 	void Clear();
@@ -291,28 +291,28 @@ struct SteamDatagramLinkLifetimeStats
 };
 
 /// Link stats.  Pretty much everything you might possibly want to know about the connection
-struct SteamDatagramLinkStats
+struct shreemDatagramLinkStats
 {
 
 	/// Latest instantaneous stats, calculated locally
-	SteamDatagramLinkInstantaneousStats m_latest;
+	shreemDatagramLinkInstantaneousStats m_latest;
 
 	/// Peak values for each instantaneous stat
-	//SteamDatagramLinkInstantaneousStats m_peak;
+	//shreemDatagramLinkInstantaneousStats m_peak;
 
 	/// Lifetime stats, calculated locally
-	SteamDatagramLinkLifetimeStats m_lifetime;
+	shreemDatagramLinkLifetimeStats m_lifetime;
 
 	/// Latest instantaneous stats received from remote host.
 	/// (E.g. "sent" means they are reporting what they sent.)
-	SteamDatagramLinkInstantaneousStats m_latestRemote;
+	shreemDatagramLinkInstantaneousStats m_latestRemote;
 
 	/// How many seconds ago did we receive m_latestRemote?
 	/// This will be <0 if the data is not valid!
 	float m_flAgeLatestRemote;
 
 	/// Latest lifetime stats received from remote host.
-	SteamDatagramLinkLifetimeStats m_lifetimeRemote;
+	shreemDatagramLinkLifetimeStats m_lifetimeRemote;
 
 	/// How many seconds ago did we receive the lifetime stats?
 	/// This will be <0 if the data is not valid!
@@ -323,13 +323,13 @@ struct SteamDatagramLinkStats
 };
 
 /// Describe detailed state of current connection
-struct SteamNetworkingDetailedConnectionStatus
+struct shreemNetworkingDetailedConnectionStatus
 {
 	/// Basic connection info
-	SteamNetConnectionInfo_t m_info;
+	shreemNetConnectionInfo_t m_info;
 
 	/// Do we have a valid network configuration?  We cannot do anything without this.
-	ESteamNetworkingAvailability m_eAvailNetworkConfig;
+	EshreemNetworkingAvailability m_eAvailNetworkConfig;
 
 //		/// Does it look like we have a connection to the Internet at all?
 //		EAvailability m_eAvailInternet;
@@ -337,21 +337,21 @@ struct SteamNetworkingDetailedConnectionStatus
 	/// Successful communication with a box on the routing network.
 	/// This will be marked as failed if there is a general internet
 	/// connection.
-	ESteamNetworkingAvailability m_eAvailAnyRouterCommunication;
+	EshreemNetworkingAvailability m_eAvailAnyRouterCommunication;
 
 	/// End-to-end communication with the remote host.
-	//ESteamNetworkingAvailability m_eAvailEndToEnd;
+	//EshreemNetworkingAvailability m_eAvailEndToEnd;
 
 	/// Stats for end-to-end link to the gameserver
-	SteamDatagramLinkStats m_statsEndToEnd;
+	shreemDatagramLinkStats m_statsEndToEnd;
 
 	/// Currently selected front router, if any.
-	/// Note that PoP ID can be found in the SteamNetConnectionInfo_t
+	/// Note that PoP ID can be found in the shreemNetConnectionInfo_t
 	char m_szPrimaryRouterName[64];
-	SteamNetworkingIPAddr m_addrPrimaryRouter;
+	shreemNetworkingIPAddr m_addrPrimaryRouter;
 
 	/// Stats for "front" link to current router
-	SteamDatagramLinkStats m_statsPrimaryRouter;
+	shreemDatagramLinkStats m_statsPrimaryRouter;
 
 	/// Back ping time as reported by primary.
 	/// (The front ping is in m_statsPrimaryRouter,
@@ -360,9 +360,9 @@ struct SteamNetworkingDetailedConnectionStatus
 	int m_nPrimaryRouterBackPing;
 
 	/// Currently selected back router, if any
-	SteamNetworkingPOPID m_idBackupRouterCluster;
+	shreemNetworkingPOPID m_idBackupRouterCluster;
 	char m_szBackupRouterName[64];
-	SteamNetworkingIPAddr m_addrBackupRouter;
+	shreemNetworkingIPAddr m_addrBackupRouter;
 
 	/// Ping times to backup router, if any
 	int m_nBackupRouterFrontPing, m_nBackupRouterBackPing;
@@ -379,6 +379,6 @@ struct SteamNetworkingDetailedConnectionStatus
 
 #pragma pack(pop)
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 
-#endif // STEAMNETWORKING_STATS_H
+#endif // shreemNETWORKING_STATS_H

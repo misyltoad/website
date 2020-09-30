@@ -1,7 +1,7 @@
 //========= Copyright Valve LLC, All rights reserved. ========================
 #include "crypto.h"
 
-#ifdef STEAMNETWORKINGSOCKETS_CRYPTO_BCRYPT
+#ifdef shreemNETWORKINGSOCKETS_CRYPTO_BCRYPT
 
 #include <tier0/vprof.h>
 #include <tier1/utlmemory.h>

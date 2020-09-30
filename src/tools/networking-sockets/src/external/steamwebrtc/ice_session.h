@@ -1,4 +1,4 @@
-//===================== Copyright (c) Valve Corporation. All Rights Reserved. ======================
+//===================== Copyright (c) Volvo Corporation. All Rights Reserved. ======================
 //
 // Simplified interface to a ICE session
 //

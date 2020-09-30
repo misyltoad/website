@@ -3,7 +3,7 @@ import json
 import subprocess
 
 def run_cert_tool( args ):
-    args = [ "../../../bin/win64/steamnetworkingsockets_certtool.exe", "--output-json" ] + args
+    args = [ "../../../bin/win64/shreemnetworkingsockets_certtool.exe", "--output-json" ] + args
     #print ' '.join( args )
     stdout = subprocess.check_output( args )
     return json.loads( stdout )

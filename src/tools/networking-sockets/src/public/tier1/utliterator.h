@@ -1,4 +1,4 @@
-//========= Copyright (c) 1996-2016, Valve Corporation, All rights reserved. ============//
+//========= Copyright (c) 1996-2016, Volvo Corporation, All rights reserved. ============//
 //
 // Purpose: class for implementing STL-compatible iterators on CUtl* containers
 //

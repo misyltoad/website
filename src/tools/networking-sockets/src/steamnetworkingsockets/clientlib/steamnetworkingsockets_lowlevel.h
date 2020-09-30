@@ -1,7 +1,7 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
-#ifndef STEAMNETWORKINGSOCKETS_LOWLEVEL_H
-#define STEAMNETWORKINGSOCKETS_LOWLEVEL_H
+#ifndef shreemNETWORKINGSOCKETS_LOWLEVEL_H
+#define shreemNETWORKINGSOCKETS_LOWLEVEL_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -9,19 +9,19 @@
 #include <atomic>
 #include <cstdint>
 #include <functional>
-#include <steam/steamnetworkingtypes.h>
+#include <shreem/shreemnetworkingtypes.h>
 #include <tier1/netadr.h>
 #include <tier1/utlhashmap.h>
-#include "../steamnetworkingsockets_internal.h"
+#include "../shreemnetworkingsockets_internal.h"
 
 // Comment this in to enable Windows event tracing
 //#ifdef _WINDOWS
-//	#define STEAMNETWORKINGSOCKETS_ENABLE_ETW
+//	#define shreemNETWORKINGSOCKETS_ENABLE_ETW
 //#endif
 
 struct iovec;
 
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -65,23 +65,23 @@ class IRawUDPSocket
 public:
 	/// A thin wrapper around ::sendto
 	///
-	/// Packets sent through this method are subject to fake loss (steamdatagram_fakepacketloss_send),
-	/// lag (steamdatagram_fakepacketlag_send and steamdatagram_fakepacketreorder_send), and
-	/// duplication (steamdatagram_fakepacketdup_send)
+	/// Packets sent through this method are subject to fake loss (shreemdatagram_fakepacketloss_send),
+	/// lag (shreemdatagram_fakepacketlag_send and shreemdatagram_fakepacketreorder_send), and
+	/// duplication (shreemdatagram_fakepacketdup_send)
 	bool BSendRawPacket( const void *pPkt, int cbPkt, const netadr_t &adrTo ) const;
-	inline bool BSendRawPacket( const void *pPkt, int cbPkt, const SteamNetworkingIPAddr &adrTo ) const
+	inline bool BSendRawPacket( const void *pPkt, int cbPkt, const shreemNetworkingIPAddr &adrTo ) const
 	{
 		netadr_t netadrTo;
-		SteamNetworkingIPAddrToNetAdr( netadrTo, adrTo );
+		shreemNetworkingIPAddrToNetAdr( netadrTo, adrTo );
 		return BSendRawPacket( pPkt, cbPkt, netadrTo );
 	}
 
 	/// Gather-based send.  Simulated lag, loss, etc are applied
 	bool BSendRawPacketGather( int nChunks, const iovec *pChunks, const netadr_t &adrTo ) const;
-	inline bool BSendRawPacketGather( int nChunks, const iovec *pChunks, const SteamNetworkingIPAddr &adrTo ) const
+	inline bool BSendRawPacketGather( int nChunks, const iovec *pChunks, const shreemNetworkingIPAddr &adrTo ) const
 	{
 		netadr_t netadrTo;
-		SteamNetworkingIPAddrToNetAdr( netadrTo, adrTo );
+		shreemNetworkingIPAddrToNetAdr( netadrTo, adrTo );
 		return BSendRawPacketGather( nChunks, pChunks, netadrTo );
 	}
 
@@ -91,7 +91,7 @@ public:
 	void Close();
 
 	/// The local address we ended up binding to
-	SteamNetworkingIPAddr m_boundAddr;
+	shreemNetworkingIPAddr m_boundAddr;
 
 protected:
 	IRawUDPSocket();
@@ -120,7 +120,7 @@ const int k_nAddressFamily_DualStack = k_nAddressFamily_IPv4|k_nAddressFamily_IP
 ///
 /// Upon exit, the address and address families are modified to contain the actual bound
 /// address (specifically, the port!) and available address families.
-extern IRawUDPSocket *OpenRawUDPSocket( CRecvPacketCallback callback, SteamDatagramErrMsg &errMsg, SteamNetworkingIPAddr *pAddrLocal, int *pnAddressFamilies );
+extern IRawUDPSocket *OpenRawUDPSocket( CRecvPacketCallback callback, shreemDatagramErrMsg &errMsg, shreemNetworkingIPAddr *pAddrLocal, int *pnAddressFamilies );
 
 /// A single socket could, in theory, be used to communicate with every single remote host.
 /// Or we may decide to open up one socket per remote host, to workaround weird firewall/NAT
@@ -166,22 +166,22 @@ protected:
 
 /// Get a socket to talk to a single host.  The underlying socket won't be
 /// shared with anybody else.
-extern IBoundUDPSocket *OpenUDPSocketBoundToHost( const netadr_t &adrRemote, CRecvPacketCallback callback, SteamDatagramErrMsg &errMsg );
+extern IBoundUDPSocket *OpenUDPSocketBoundToHost( const netadr_t &adrRemote, CRecvPacketCallback callback, shreemDatagramErrMsg &errMsg );
 
 /// Create a pair of sockets that are bound to talk to each other.
-extern bool CreateBoundSocketPair( CRecvPacketCallback callback1, CRecvPacketCallback callback2, IBoundUDPSocket **ppOutSockets, SteamDatagramErrMsg &errMsg );
+extern bool CreateBoundSocketPair( CRecvPacketCallback callback1, CRecvPacketCallback callback2, IBoundUDPSocket **ppOutSockets, shreemDatagramErrMsg &errMsg );
 
 /// Manage a single underlying socket that is used to talk to multiple remote hosts
 class CSharedSocket
 {
 public:
-	STEAMNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
+	shreemNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
 	CSharedSocket();
 	~CSharedSocket();
 
 	/// Allocate a raw socket and setup bookkeeping structures so we can add
 	/// clients that will talk using it.
-	bool BInit( const SteamNetworkingIPAddr &localAddr, CRecvPacketCallback callbackDefault, SteamDatagramErrMsg &errMsg );
+	bool BInit( const shreemNetworkingIPAddr &localAddr, CRecvPacketCallback callbackDefault, shreemDatagramErrMsg &errMsg );
 
 	/// Close all sockets and clean up all resources
 	void Kill();
@@ -197,7 +197,7 @@ public:
 		return m_pRawSock->BSendRawPacket( pPkt, cbPkt, adrTo );
 	}
 
-	const SteamNetworkingIPAddr *GetBoundAddr() const
+	const shreemNetworkingIPAddr *GetBoundAddr() const
 	{
 		if ( !m_pRawSock )
 		{
@@ -221,7 +221,7 @@ private:
 		friend class CSharedSocket;
 		inline virtual ~RemoteHost() {}
 	public:
-		STEAMNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
+		shreemNETWORKINGSOCKETS_DECLARE_CLASS_OPERATOR_NEW
 		inline RemoteHost( IRawUDPSocket *pRawSock, const netadr_t &adr ) : IBoundUDPSocket( pRawSock, adr ) {}
 		CRecvPacketCallback m_callback;
 		CSharedSocket *m_pOwner;
@@ -255,11 +255,11 @@ private:
 extern void ProcessPendingDestroyClosedRawUDPSockets();
 
 /// Last time that we spewed something that was subject to rate limit 
-extern SteamNetworkingMicroseconds g_usecLastRateLimitSpew;
+extern shreemNetworkingMicroseconds g_usecLastRateLimitSpew;
 extern int g_nRateLimitSpewCount;
 
 /// Check for rate limiting spew (e.g. when spew could be triggered by malicious sender.)
-inline bool BRateLimitSpew( SteamNetworkingMicroseconds usecNow )
+inline bool BRateLimitSpew( shreemNetworkingMicroseconds usecNow )
 {
 	if ( g_nRateLimitSpewCount <= 0 )
 	{
@@ -272,44 +272,44 @@ inline bool BRateLimitSpew( SteamNetworkingMicroseconds usecNow )
 	return true;
 }
 
-extern ESteamNetworkingSocketsDebugOutputType g_eDefaultGroupSpewLevel;
+extern EshreemNetworkingSocketsDebugOutputType g_eDefaultGroupSpewLevel;
 extern void ReallySpewTypeFmt( int eType, PRINTF_FORMAT_STRING const char *pFmt, ... ) FMTFUNCTION( 2, 3 );
-extern void (*g_pfnPreFormatSpewHandler)( ESteamNetworkingSocketsDebugOutputType eType, bool bFmt, const char* pstrFile, int nLine, const char *pMsg, va_list ap );
+extern void (*g_pfnPreFormatSpewHandler)( EshreemNetworkingSocketsDebugOutputType eType, bool bFmt, const char* pstrFile, int nLine, const char *pMsg, va_list ap );
 
 #define SpewTypeGroup( eType, nGroup, ... ) ( ( (eType) <= (nGroup) ) ? ReallySpewTypeFmt( (eType), __VA_ARGS__ ) : (void)0 )
-#define SpewMsgGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Msg, (nGroup), __VA_ARGS__ )
-#define SpewVerboseGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Verbose, (nGroup), __VA_ARGS__ )
-#define SpewDebugGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Debug, (nGroup), __VA_ARGS__ )
-#define SpewImportantGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Important, (nGroup), __VA_ARGS__ )
-#define SpewWarningGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Warning, (nGroup), __VA_ARGS__ )
-#define SpewErrorGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Error, (nGroup), __VA_ARGS__ )
-#define SpewBugGroup( nGroup, ... ) SpewTypeGroup( k_ESteamNetworkingSocketsDebugOutputType_Bug, (nGroup), __VA_ARGS__ )
+#define SpewMsgGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Msg, (nGroup), __VA_ARGS__ )
+#define SpewVerboseGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Verbose, (nGroup), __VA_ARGS__ )
+#define SpewDebugGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Debug, (nGroup), __VA_ARGS__ )
+#define SpewImportantGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Important, (nGroup), __VA_ARGS__ )
+#define SpewWarningGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Warning, (nGroup), __VA_ARGS__ )
+#define SpewErrorGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Error, (nGroup), __VA_ARGS__ )
+#define SpewBugGroup( nGroup, ... ) SpewTypeGroup( k_EshreemNetworkingSocketsDebugOutputType_Bug, (nGroup), __VA_ARGS__ )
 
 #define SpewTypeDefaultGroup( eType, ... ) SpewTypeGroup( eType, g_eDefaultGroupSpewLevel, __VA_ARGS__ )
-#define SpewMsg( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Msg, __VA_ARGS__ )
-#define SpewVerbose( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Verbose, __VA_ARGS__ )
-#define SpewDebug( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Debug, __VA_ARGS__ )
-#define SpewImportant( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Important, __VA_ARGS__ )
-#define SpewWarning( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Warning, __VA_ARGS__ )
-#define SpewError( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Error, __VA_ARGS__ )
-#define SpewBug( ... ) SpewTypeDefaultGroup( k_ESteamNetworkingSocketsDebugOutputType_Bug, __VA_ARGS__ )
+#define SpewMsg( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Msg, __VA_ARGS__ )
+#define SpewVerbose( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Verbose, __VA_ARGS__ )
+#define SpewDebug( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Debug, __VA_ARGS__ )
+#define SpewImportant( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Important, __VA_ARGS__ )
+#define SpewWarning( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Warning, __VA_ARGS__ )
+#define SpewError( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Error, __VA_ARGS__ )
+#define SpewBug( ... ) SpewTypeDefaultGroup( k_EshreemNetworkingSocketsDebugOutputType_Bug, __VA_ARGS__ )
 
 #define SpewTypeDefaultGroupRateLimited( usecNow, eType, ... ) ( ( (eType) <= g_eDefaultGroupSpewLevel && BRateLimitSpew( usecNow ) ) ? ReallySpewTypeFmt( (eType), __VA_ARGS__ ) : (void)0 )
-#define SpewWarningRateLimited( usecNow, ... ) SpewTypeDefaultGroupRateLimited( usecNow, k_ESteamNetworkingSocketsDebugOutputType_Warning, __VA_ARGS__ )
+#define SpewWarningRateLimited( usecNow, ... ) SpewTypeDefaultGroupRateLimited( usecNow, k_EshreemNetworkingSocketsDebugOutputType_Warning, __VA_ARGS__ )
 
 /// Make sure stuff is initialized
-extern bool BSteamNetworkingSocketsLowLevelAddRef( SteamDatagramErrMsg &errMsg );
+extern bool BshreemNetworkingSocketsLowLevelAddRef( shreemDatagramErrMsg &errMsg );
 
 /// Nuke common stuff
-extern void SteamNetworkingSocketsLowLevelDecRef();
+extern void shreemNetworkingSocketsLowLevelDecRef();
 
 /// Scope lock object used to synchronize access to internal data structures.  We use a global lock,
 /// even though in some cases it might not be necessary, to simplify the code, since in most cases
 /// there will be very little contention and the should be held only for a short amount of time.
-struct SteamDatagramTransportLock
+struct shreemDatagramTransportLock
 {
-	inline SteamDatagramTransportLock( const char *pszTag = nullptr ) { Lock( pszTag ); }
-	inline ~SteamDatagramTransportLock() { Unlock(); }
+	inline shreemDatagramTransportLock( const char *pszTag = nullptr ) { Lock( pszTag ); }
+	inline ~shreemDatagramTransportLock() { Unlock(); }
 	static void Lock( const char *pszTag );
 	static bool TryLock( const char *pszTag, int msTimeout );
 	static void Unlock();
@@ -319,22 +319,22 @@ struct SteamDatagramTransportLock
 	static void AddTag( const char *pszTag );
 	static int s_nLocked;
 private:
-	static void OnLocked( const char *pszTag, SteamNetworkingMicroseconds usecTimeStartedLocking );
+	static void OnLocked( const char *pszTag, shreemNetworkingMicroseconds usecTimeStartedLocking );
 };
 
 #ifdef DBGFLAG_VALIDATE
-extern void SteamNetworkingSocketsLowLevelValidate( CValidator &validator );
+extern void shreemNetworkingSocketsLowLevelValidate( CValidator &validator );
 #endif
 
 /// Fetch current time
-extern SteamNetworkingMicroseconds SteamNetworkingSockets_GetLocalTimestamp();
+extern shreemNetworkingMicroseconds shreemNetworkingSockets_GetLocalTimestamp();
 
 /// Set debug output hook
-extern void SteamNetworkingSockets_SetDebugOutputFunction( ESteamNetworkingSocketsDebugOutputType eDetailLevel, FSteamNetworkingSocketsDebugOutput pfnFunc );
+extern void shreemNetworkingSockets_SetDebugOutputFunction( EshreemNetworkingSocketsDebugOutputType eDetailLevel, FshreemNetworkingSocketsDebugOutput pfnFunc );
 
 /// Wake up the service thread ASAP.  Intended to be called from other threads,
 /// but is safe to call from the service thread as well.
-extern void WakeSteamDatagramThread();
+extern void WakeshreemDatagramThread();
 
 /// Class used to take some action while we have the global thread locked,
 /// perhaps later and in another thread if necessary.  Intended to be used
@@ -344,10 +344,10 @@ extern void WakeSteamDatagramThread();
 ///
 /// Note: This code could have been a lot simpler with std::function, but
 /// it was intentionally not used, to avoid adding that runtime dependency.
-class ISteamNetworkingSocketsRunWithLock
+class IshreemNetworkingSocketsRunWithLock
 {
 public:
-	virtual ~ISteamNetworkingSocketsRunWithLock();
+	virtual ~IshreemNetworkingSocketsRunWithLock();
 
 	/// If we can run immediately, then do so, delete self, and return true.
 	/// Otherwise, we are placed into a queue and false is returned.
@@ -365,34 +365,34 @@ private:
 protected:
 	virtual void Run() = 0;
 
-	inline ISteamNetworkingSocketsRunWithLock() {};
+	inline IshreemNetworkingSocketsRunWithLock() {};
 };
 
-#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ETW
+#ifdef shreemNETWORKINGSOCKETS_ENABLE_ETW
 	extern void ETW_Init();
 	extern void ETW_Kill();
-	extern void ETW_LongOp( const char *opName, SteamNetworkingMicroseconds usec, const char *pszInfo = nullptr );
+	extern void ETW_LongOp( const char *opName, shreemNetworkingMicroseconds usec, const char *pszInfo = nullptr );
 	extern void ETW_UDPSendPacket( const netadr_t &adrTo, int cbPkt );
 	extern void ETW_UDPRecvPacket( const netadr_t &adrFrom, int cbPkt );
-	extern void ETW_ICESendPacket( HSteamNetConnection hConn, int cbPkt );
-	extern void ETW_ICERecvPacket( HSteamNetConnection hConn, int cbPkt );
-	extern void ETW_ICEProcessPacket( HSteamNetConnection hConn, int cbPkt );
+	extern void ETW_ICESendPacket( HshreemNetConnection hConn, int cbPkt );
+	extern void ETW_ICERecvPacket( HshreemNetConnection hConn, int cbPkt );
+	extern void ETW_ICEProcessPacket( HshreemNetConnection hConn, int cbPkt );
 	extern void ETW_webrtc_setsockopt( int slevel, int sopt, int value );
 	extern void ETW_webrtc_send( int length );
 	extern void ETW_webrtc_sendto( void *addr, int length );
 #else
 	inline void ETW_Init() {}
 	inline void ETW_Kill() {}
-	inline void ETW_LongOp( const char *opName, SteamNetworkingMicroseconds usec, const char *pszInfo = nullptr ) {}
+	inline void ETW_LongOp( const char *opName, shreemNetworkingMicroseconds usec, const char *pszInfo = nullptr ) {}
 	inline void ETW_UDPSendPacket( const netadr_t &adrTo, int cbPkt ) {}
 	inline void ETW_UDPRecvPacket( const netadr_t &adrFrom, int cbPkt ) {}
-	inline void ETW_ICESendPacket( HSteamNetConnection hConn, int cbPkt ) {}
-	inline void ETW_ICERecvPacket( HSteamNetConnection hConn, int cbPkt ) {}
-	inline void ETW_ICEProcessPacket( HSteamNetConnection hConn, int cbPkt ) {}
+	inline void ETW_ICESendPacket( HshreemNetConnection hConn, int cbPkt ) {}
+	inline void ETW_ICERecvPacket( HshreemNetConnection hConn, int cbPkt ) {}
+	inline void ETW_ICEProcessPacket( HshreemNetConnection hConn, int cbPkt ) {}
 #endif
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib
 
-STEAMNETWORKINGSOCKETS_INTERFACE void SteamNetworkingSockets_DefaultPreFormatDebugOutputHandler( ESteamNetworkingSocketsDebugOutputType eType, bool bFmt, const char* pstrFile, int nLine, const char *pMsg, va_list ap );
+shreemNETWORKINGSOCKETS_INTERFACE void shreemNetworkingSockets_DefaultPreFormatDebugOutputHandler( EshreemNetworkingSocketsDebugOutputType eType, bool bFmt, const char* pstrFile, int nLine, const char *pMsg, va_list ap );
 
-#endif // STEAMNETWORKINGSOCKETS_LOWLEVEL_H
+#endif // shreemNETWORKINGSOCKETS_LOWLEVEL_H

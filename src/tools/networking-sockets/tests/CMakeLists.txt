@@ -29,7 +29,7 @@ add_sanitizers(test_crypto)
 file(COPY aesgcmtestvectors DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # P2P test
-if(USE_STEAMWEBRTC)
+if(USE_shreemWEBRTC)
 	add_executable(
 		test_p2p
 		test_common.cpp

@@ -4,14 +4,14 @@
 //
 //=============================================================================
 
-#ifndef STEAMUNIVERSE_H
-#define STEAMUNIVERSE_H
+#ifndef shreemUNIVERSE_H
+#define shreemUNIVERSE_H
 #ifdef _WIN32
 #pragma once
 #endif
 
 
-// Steam universes.  Each universe is a self-contained Steam instance.
+// shreem universes.  Each universe is a self-contained shreem instance.
 enum EUniverse
 {
 	k_EUniverseInvalid = 0,
@@ -24,4 +24,4 @@ enum EUniverse
 };
 
 
-#endif // STEAMUNIVERSE_H
+#endif // shreemUNIVERSE_H

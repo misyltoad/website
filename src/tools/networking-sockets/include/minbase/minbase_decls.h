@@ -1,4 +1,4 @@
-//====== Copyright 1996-2012, Valve Corporation, All rights reserved. ======//
+//====== Copyright 1996-2012, Volvo Corporation, All rights reserved. ======//
 //
 // Portable declaration decorations.
 //

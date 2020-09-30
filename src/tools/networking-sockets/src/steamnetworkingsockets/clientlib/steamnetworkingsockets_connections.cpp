@@ -1,12 +1,12 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 
 #include <time.h>
 
-#include <steam/isteamnetworkingsockets.h>
-#include "steamnetworkingsockets_connections.h"
-#include "steamnetworkingsockets_lowlevel.h"
-#include "../steamnetworkingsockets_certstore.h"
-#include "csteamnetworkingsockets.h"
+#include <shreem/ishreemnetworkingsockets.h>
+#include "shreemnetworkingsockets_connections.h"
+#include "shreemnetworkingsockets_lowlevel.h"
+#include "../shreemnetworkingsockets_certstore.h"
+#include "cshreemnetworkingsockets.h"
 #include "crypto.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -14,12 +14,12 @@
 
 #ifdef __GNUC__
 	// error: assuming signed overflow does not occur when assuming that (X + c) < X is always false [-Werror=strict-overflow]
-	// current steamrt:scout gcc "g++ (SteamRT 4.8.4-1ubuntu15~12.04+steamrt1.2+srt1) 4.8.4" requires this at the top due to optimizations
+	// current shreemrt:scout gcc "g++ (shreemRT 4.8.4-1ubuntu15~12.04+shreemrt1.2+srt1) 4.8.4" requires this at the top due to optimizations
 	#pragma GCC diagnostic ignored "-Wstrict-overflow"
 #endif
 
 // Put everything in a namespace, so we don't violate the one definition rule
-namespace SteamNetworkingSocketsLib {
+namespace shreemNetworkingSocketsLib {
 
 const int k_nMaxRecentLocalConnectionIDs = 256;
 static CUtlVectorFixed<uint16,k_nMaxRecentLocalConnectionIDs> s_vecRecentLocalConnectionIDs;
@@ -30,9 +30,9 @@ static CUtlVectorFixed<uint16,k_nMaxRecentLocalConnectionIDs> s_vecRecentLocalCo
 /// being taken advantage of.  Returns true if we haven't sent too many
 /// such packets recently, and it's OK to send one now.  (If true is returned,
 /// it's assumed that you will send one.)
-bool BCheckGlobalSpamReplyRateLimit( SteamNetworkingMicroseconds usecNow )
+bool BCheckGlobalSpamReplyRateLimit( shreemNetworkingMicroseconds usecNow )
 {
-	static SteamNetworkingMicroseconds s_usecLastSpamReplySent;
+	static shreemNetworkingMicroseconds s_usecLastSpamReplySent;
 	if ( s_usecLastSpamReplySent + k_nMillion/4 > usecNow )
 		return false;
 	s_usecLastSpamReplySent = usecNow;
@@ -61,15 +61,15 @@ bool BCheckGlobalSpamReplyRateLimit( SteamNetworkingMicroseconds usecNow )
 //
 /////////////////////////////////////////////////////////////////////////////
 
-void CSteamNetworkingMessage::DefaultFreeData( SteamNetworkingMessage_t *pMsg )
+void CshreemNetworkingMessage::DefaultFreeData( shreemNetworkingMessage_t *pMsg )
 {
 	free( pMsg->m_pData );
 }
 
 
-void CSteamNetworkingMessage::ReleaseFunc( SteamNetworkingMessage_t *pIMsg )
+void CshreemNetworkingMessage::ReleaseFunc( shreemNetworkingMessage_t *pIMsg )
 {
-	CSteamNetworkingMessage *pMsg = static_cast<CSteamNetworkingMessage *>( pIMsg );
+	CshreemNetworkingMessage *pMsg = static_cast<CshreemNetworkingMessage *>( pIMsg );
 
 	// Free up the buffer, if we have one
 	if ( pMsg->m_pData && pMsg->m_pfnFreeData )
@@ -90,10 +90,10 @@ void CSteamNetworkingMessage::ReleaseFunc( SteamNetworkingMessage_t *pIMsg )
 	delete pMsg;
 }
 
-CSteamNetworkingMessage *CSteamNetworkingMessage::New( uint32 cbSize )
+CshreemNetworkingMessage *CshreemNetworkingMessage::New( uint32 cbSize )
 {
 	// FIXME Should avoid this dynamic memory call with some sort of pooling
-	CSteamNetworkingMessage *pMsg = new CSteamNetworkingMessage;
+	CshreemNetworkingMessage *pMsg = new CshreemNetworkingMessage;
 
 	// NOTE: Intentionally not memsetting the whole thing;
 	// this struct is pretty big.
@@ -109,7 +109,7 @@ CSteamNetworkingMessage *CSteamNetworkingMessage::New( uint32 cbSize )
 			return nullptr;
 		}
 		pMsg->m_cbSize = cbSize;
-		pMsg->m_pfnFreeData = CSteamNetworkingMessage::DefaultFreeData;
+		pMsg->m_pfnFreeData = CshreemNetworkingMessage::DefaultFreeData;
 	}
 	else
 	{
@@ -119,8 +119,8 @@ CSteamNetworkingMessage *CSteamNetworkingMessage::New( uint32 cbSize )
 	}
 
 	// Clear identity
-	pMsg->m_conn = k_HSteamNetConnection_Invalid;
-	pMsg->m_identityPeer.m_eType = k_ESteamNetworkingIdentityType_Invalid;
+	pMsg->m_conn = k_HshreemNetConnection_Invalid;
+	pMsg->m_identityPeer.m_eType = k_EshreemNetworkingIdentityType_Invalid;
 	pMsg->m_identityPeer.m_cbSize = 0;
 
 	// Set the release function
@@ -135,15 +135,15 @@ CSteamNetworkingMessage *CSteamNetworkingMessage::New( uint32 cbSize )
 	return pMsg;
 }
 
-CSteamNetworkingMessage *CSteamNetworkingMessage::New( CSteamNetworkConnectionBase *pParent, uint32 cbSize, int64 nMsgNum, int nFlags, SteamNetworkingMicroseconds usecNow )
+CshreemNetworkingMessage *CshreemNetworkingMessage::New( CshreemNetworkConnectionBase *pParent, uint32 cbSize, int64 nMsgNum, int nFlags, shreemNetworkingMicroseconds usecNow )
 {
-	CSteamNetworkingMessage *pMsg = New( cbSize );
+	CshreemNetworkingMessage *pMsg = New( cbSize );
 	if ( !pMsg )
 	{
 		// Failed!  if it's for a reliable message, then we must abort the connection.
 		// If unreliable message....well we've spewed, but let's try to keep on chugging.
-		if ( pParent && ( nFlags & k_nSteamNetworkingSend_Reliable ) )
-			pParent->ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_InternalError, "Failed to allocate buffer to receive reliable message" );
+		if ( pParent && ( nFlags & k_nshreemNetworkingSend_Reliable ) )
+			pParent->ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_InternalError, "Failed to allocate buffer to receive reliable message" );
 		return nullptr;
 	}
 
@@ -160,7 +160,7 @@ CSteamNetworkingMessage *CSteamNetworkingMessage::New( CSteamNetworkConnectionBa
 	return pMsg;
 }
 
-void CSteamNetworkingMessage::LinkBefore( CSteamNetworkingMessage *pSuccessor, Links CSteamNetworkingMessage::*pMbrLinks, SteamNetworkingMessageQueue *pQueue )
+void CshreemNetworkingMessage::LinkBefore( CshreemNetworkingMessage *pSuccessor, Links CshreemNetworkingMessage::*pMbrLinks, shreemNetworkingMessageQueue *pQueue )
 {
 	// Make sure we're not already in a queue
 	UnlinkFromQueue( pMbrLinks );
@@ -177,7 +177,7 @@ void CSteamNetworkingMessage::LinkBefore( CSteamNetworkingMessage *pSuccessor, L
 	Assert( pQueue->m_pLast );
 	Assert( (pSuccessor->*pMbrLinks).m_pQueue == pQueue );
 
-	CSteamNetworkingMessage *pPrev = (pSuccessor->*pMbrLinks).m_pPrev;
+	CshreemNetworkingMessage *pPrev = (pSuccessor->*pMbrLinks).m_pPrev;
 	if ( pPrev )
 	{
 		Assert( pQueue->m_pFirst != pSuccessor );
@@ -200,7 +200,7 @@ void CSteamNetworkingMessage::LinkBefore( CSteamNetworkingMessage *pSuccessor, L
 	(pSuccessor->*pMbrLinks).m_pPrev = this;
 }
 
-void CSteamNetworkingMessage::LinkToQueueTail( Links CSteamNetworkingMessage::*pMbrLinks, SteamNetworkingMessageQueue *pQueue )
+void CshreemNetworkingMessage::LinkToQueueTail( Links CshreemNetworkingMessage::*pMbrLinks, shreemNetworkingMessageQueue *pQueue )
 {
 	// Locate previous link that should point to us.
 	// Does the queue have anything in it?
@@ -227,12 +227,12 @@ void CSteamNetworkingMessage::LinkToQueueTail( Links CSteamNetworkingMessage::*p
 	(this->*pMbrLinks).m_pQueue = pQueue;
 }
 
-void CSteamNetworkingMessage::UnlinkFromQueue( Links CSteamNetworkingMessage::*pMbrLinks )
+void CshreemNetworkingMessage::UnlinkFromQueue( Links CshreemNetworkingMessage::*pMbrLinks )
 {
 	Links &links = this->*pMbrLinks;
 	if ( links.m_pQueue == nullptr )
 		return;
-	SteamNetworkingMessageQueue &q = *links.m_pQueue;
+	shreemNetworkingMessageQueue &q = *links.m_pQueue;
 
 	// Unlink from previous
 	if ( links.m_pPrev )
@@ -266,33 +266,33 @@ void CSteamNetworkingMessage::UnlinkFromQueue( Links CSteamNetworkingMessage::*p
 	links.m_pNext = nullptr;
 }
 
-void CSteamNetworkingMessage::Unlink()
+void CshreemNetworkingMessage::Unlink()
 {
 	// Unlink from any queues we are in
-	UnlinkFromQueue( &CSteamNetworkingMessage::m_links );
-	UnlinkFromQueue( &CSteamNetworkingMessage::m_linksSecondaryQueue );
+	UnlinkFromQueue( &CshreemNetworkingMessage::m_links );
+	UnlinkFromQueue( &CshreemNetworkingMessage::m_linksSecondaryQueue );
 }
 
-void SteamNetworkingMessageQueue::PurgeMessages()
+void shreemNetworkingMessageQueue::PurgeMessages()
 {
 
 	while ( !empty() )
 	{
-		CSteamNetworkingMessage *pMsg = m_pFirst;
+		CshreemNetworkingMessage *pMsg = m_pFirst;
 		pMsg->Unlink();
 		Assert( m_pFirst != pMsg );
 		pMsg->Release();
 	}
 }
 
-int SteamNetworkingMessageQueue::RemoveMessages( SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
+int shreemNetworkingMessageQueue::RemoveMessages( shreemNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
 	int nMessagesReturned = 0;
 
 	while ( !empty() && nMessagesReturned < nMaxMessages )
 	{
 		// Locate message, put into caller's list
-		CSteamNetworkingMessage *pMsg = m_pFirst;
+		CshreemNetworkingMessage *pMsg = m_pFirst;
 		ppOutMessages[nMessagesReturned++] = pMsg;
 
 		// Unlink from all queues
@@ -307,21 +307,21 @@ int SteamNetworkingMessageQueue::RemoveMessages( SteamNetworkingMessage_t **ppOu
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// CSteamNetworkPollGroup
+// CshreemNetworkPollGroup
 //
 /////////////////////////////////////////////////////////////////////////////
 
-CSteamNetworkPollGroup::CSteamNetworkPollGroup( CSteamNetworkingSockets *pInterface )
-: m_pSteamNetworkingSocketsInterface( pInterface )
-, m_hPollGroupSelf( k_HSteamListenSocket_Invalid )
+CshreemNetworkPollGroup::CshreemNetworkPollGroup( CshreemNetworkingSockets *pInterface )
+: m_pshreemNetworkingSocketsInterface( pInterface )
+, m_hPollGroupSelf( k_HshreemListenSocket_Invalid )
 {
 }
 
-CSteamNetworkPollGroup::~CSteamNetworkPollGroup()
+CshreemNetworkPollGroup::~CshreemNetworkPollGroup()
 {
 	FOR_EACH_VEC_BACK( m_vecConnections, i )
 	{
-		CSteamNetworkConnectionBase *pConn = m_vecConnections[i];
+		CshreemNetworkConnectionBase *pConn = m_vecConnections[i];
 		Assert( pConn->m_pPollGroup == this );
 		pConn->RemoveFromPollGroup();
 		Assert( m_vecConnections.Count() == i );
@@ -333,7 +333,7 @@ CSteamNetworkPollGroup::~CSteamNetworkPollGroup()
 	// But if we do, unlink them but leave them in the main queue.
 	while ( !m_queueRecvMessages.empty() )
 	{
-		CSteamNetworkingMessage *pMsg = m_queueRecvMessages.m_pFirst;
+		CshreemNetworkingMessage *pMsg = m_queueRecvMessages.m_pFirst;
 
 		// The poll group queue is the "secondary queue"
 		Assert( pMsg->m_linksSecondaryQueue.m_pQueue == &m_queueRecvMessages );
@@ -343,14 +343,14 @@ CSteamNetworkPollGroup::~CSteamNetworkPollGroup()
 		Assert( pMsg->m_links.m_pQueue != nullptr );
 
 		// OK, do the work
-		pMsg->UnlinkFromQueue( &CSteamNetworkingMessage::m_linksSecondaryQueue );
+		pMsg->UnlinkFromQueue( &CshreemNetworkingMessage::m_linksSecondaryQueue );
 
 		// Make sure it worked.
 		Assert( pMsg != m_queueRecvMessages.m_pFirst );
 	}
 
 	// Remove us from global table, if we're in it
-	if ( m_hPollGroupSelf != k_HSteamNetPollGroup_Invalid )
+	if ( m_hPollGroupSelf != k_HshreemNetPollGroup_Invalid )
 	{
 		int idx = m_hPollGroupSelf & 0xffff;
 		if ( g_mapPollGroups.IsValidIndex( idx ) && g_mapPollGroups[ idx ] == this )
@@ -363,13 +363,13 @@ CSteamNetworkPollGroup::~CSteamNetworkPollGroup()
 			AssertMsg( false, "Poll group handle bookkeeping bug!" );
 		}
 
-		m_hPollGroupSelf = k_HSteamNetPollGroup_Invalid;
+		m_hPollGroupSelf = k_HshreemNetPollGroup_Invalid;
 	}
 }
 
-void CSteamNetworkPollGroup::AssignHandleAndAddToGlobalTable()
+void CshreemNetworkPollGroup::AssignHandleAndAddToGlobalTable()
 {
-	Assert( m_hPollGroupSelf == k_HSteamNetPollGroup_Invalid );
+	Assert( m_hPollGroupSelf == k_HshreemNetPollGroup_Invalid );
 
 	// We actually don't do map "lookups".  We assume the number of listen sockets
 	// is going to be reasonably small.
@@ -389,32 +389,32 @@ void CSteamNetworkPollGroup::AssignHandleAndAddToGlobalTable()
 		s_nUpperBits = 0x10000;
 
 	// Set the handle
-	m_hPollGroupSelf = HSteamNetPollGroup( idx | s_nUpperBits | 0x80000000 );
+	m_hPollGroupSelf = HshreemNetPollGroup( idx | s_nUpperBits | 0x80000000 );
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// CSteamNetworkListenSocketBase
+// CshreemNetworkListenSocketBase
 //
 /////////////////////////////////////////////////////////////////////////////
 
-CSteamNetworkListenSocketBase::CSteamNetworkListenSocketBase( CSteamNetworkingSockets *pSteamNetworkingSocketsInterface )
-: m_pSteamNetworkingSocketsInterface( pSteamNetworkingSocketsInterface )
-, m_hListenSocketSelf( k_HSteamListenSocket_Invalid )
-#ifdef STEAMNETWORKINGSOCKETS_STEAMCLIENT
-, m_legacyPollGroup( pSteamNetworkingSocketsInterface )
+CshreemNetworkListenSocketBase::CshreemNetworkListenSocketBase( CshreemNetworkingSockets *pshreemNetworkingSocketsInterface )
+: m_pshreemNetworkingSocketsInterface( pshreemNetworkingSocketsInterface )
+, m_hListenSocketSelf( k_HshreemListenSocket_Invalid )
+#ifdef shreemNETWORKINGSOCKETS_shreemCLIENT
+, m_legacyPollGroup( pshreemNetworkingSocketsInterface )
 #endif
 {
-	m_connectionConfig.Init( &pSteamNetworkingSocketsInterface->m_connectionConfig );
+	m_connectionConfig.Init( &pshreemNetworkingSocketsInterface->m_connectionConfig );
 }
 
-CSteamNetworkListenSocketBase::~CSteamNetworkListenSocketBase()
+CshreemNetworkListenSocketBase::~CshreemNetworkListenSocketBase()
 {
 	AssertMsg( m_mapChildConnections.Count() == 0, "Destroy() not used properly" );
 
 	// Remove us from global table, if we're in it
-	if ( m_hListenSocketSelf != k_HSteamListenSocket_Invalid )
+	if ( m_hListenSocketSelf != k_HshreemListenSocket_Invalid )
 	{
 		int idx = m_hListenSocketSelf & 0xffff;
 		if ( g_mapListenSockets.IsValidIndex( idx ) && g_mapListenSockets[ idx ] == this )
@@ -427,13 +427,13 @@ CSteamNetworkListenSocketBase::~CSteamNetworkListenSocketBase()
 			AssertMsg( false, "Listen socket handle bookkeeping bug!" );
 		}
 
-		m_hListenSocketSelf = k_HSteamListenSocket_Invalid;
+		m_hListenSocketSelf = k_HshreemListenSocket_Invalid;
 	}
 }
 
-bool CSteamNetworkListenSocketBase::BInitListenSocketCommon( int nOptions, const SteamNetworkingConfigValue_t *pOptions, SteamDatagramErrMsg &errMsg )
+bool CshreemNetworkListenSocketBase::BInitListenSocketCommon( int nOptions, const shreemNetworkingConfigValue_t *pOptions, shreemDatagramErrMsg &errMsg )
 {
-	Assert( m_hListenSocketSelf == k_HSteamListenSocket_Invalid );
+	Assert( m_hListenSocketSelf == k_HshreemListenSocket_Invalid );
 
 	// Assign us a handle, and add us to the global table
 	{
@@ -455,7 +455,7 @@ bool CSteamNetworkListenSocketBase::BInitListenSocketCommon( int nOptions, const
 			s_nUpperBits = 0x10000;
 
 		// Add it to our table of listen sockets
-		m_hListenSocketSelf = HSteamListenSocket( idx | s_nUpperBits );
+		m_hListenSocketSelf = HshreemListenSocket( idx | s_nUpperBits );
 	}
 
 	// Set options, if any
@@ -463,7 +463,7 @@ bool CSteamNetworkListenSocketBase::BInitListenSocketCommon( int nOptions, const
 	{
 		for ( int i = 0 ; i < nOptions ; ++i )
 		{
-			if ( !m_pSteamNetworkingSocketsInterface->m_pSteamNetworkingUtils->SetConfigValueStruct( pOptions[i], k_ESteamNetworkingConfig_ListenSocket, m_hListenSocketSelf ) )
+			if ( !m_pshreemNetworkingSocketsInterface->m_pshreemNetworkingUtils->SetConfigValueStruct( pOptions[i], k_EshreemNetworkingConfig_ListenSocket, m_hListenSocketSelf ) )
 			{
 				V_sprintf_safe( errMsg, "Error setting option %d", pOptions[i].m_eValue );
 				return false;
@@ -492,13 +492,13 @@ bool CSteamNetworkListenSocketBase::BInitListenSocketCommon( int nOptions, const
 	return true;
 }
 
-void CSteamNetworkListenSocketBase::Destroy()
+void CshreemNetworkListenSocketBase::Destroy()
 {
 
 	// Destroy all child connections
 	FOR_EACH_HASHMAP( m_mapChildConnections, h )
 	{
-		CSteamNetworkConnectionBase *pChild = m_mapChildConnections[ h ];
+		CshreemNetworkConnectionBase *pChild = m_mapChildConnections[ h ];
 		Assert( pChild->m_pParentListenSocket == this );
 		Assert( pChild->m_hSelfInParentListenSocketMap == h );
 
@@ -511,25 +511,25 @@ void CSteamNetworkListenSocketBase::Destroy()
 	delete this;
 }
 
-bool CSteamNetworkListenSocketBase::APIGetAddress( SteamNetworkingIPAddr *pAddress )
+bool CshreemNetworkListenSocketBase::APIGetAddress( shreemNetworkingIPAddr *pAddress )
 {
 	// Base class doesn't know
 	return false;
 }
 
-bool CSteamNetworkListenSocketBase::BSupportsSymmetricMode()
+bool CshreemNetworkListenSocketBase::BSupportsSymmetricMode()
 {
 	return false;
 }
 
-bool CSteamNetworkListenSocketBase::BAddChildConnection( CSteamNetworkConnectionBase *pConn, SteamNetworkingErrMsg &errMsg )
+bool CshreemNetworkListenSocketBase::BAddChildConnection( CshreemNetworkConnectionBase *pConn, shreemNetworkingErrMsg &errMsg )
 {
 	// Safety check
-	if ( pConn->m_pParentListenSocket || pConn->m_hSelfInParentListenSocketMap != -1 || pConn->m_hConnectionSelf != k_HSteamNetConnection_Invalid )
+	if ( pConn->m_pParentListenSocket || pConn->m_hSelfInParentListenSocketMap != -1 || pConn->m_hConnectionSelf != k_HshreemNetConnection_Invalid )
 	{
 		Assert( pConn->m_pParentListenSocket == nullptr );
 		Assert( pConn->m_hSelfInParentListenSocketMap == -1 );
-		Assert( pConn->m_hConnectionSelf == k_HSteamNetConnection_Invalid );
+		Assert( pConn->m_hConnectionSelf == k_HshreemNetConnection_Invalid );
 		V_sprintf_safe( errMsg, "Cannot add child connection - connection already has a parent or is in connection map?" );
 		return false;
 	}
@@ -545,7 +545,7 @@ bool CSteamNetworkListenSocketBase::BAddChildConnection( CSteamNetworkConnection
 	RemoteConnectionKey_t key{ pConn->m_identityRemote, pConn->m_unConnectionIDRemote };
 	if ( m_mapChildConnections.Find( key ) != m_mapChildConnections.InvalidIndex() )
 	{
-		V_sprintf_safe( errMsg, "Duplicate child connection!  %s %u", SteamNetworkingIdentityRender( pConn->m_identityRemote ).c_str(), pConn->m_unConnectionIDRemote );
+		V_sprintf_safe( errMsg, "Duplicate child connection!  %s %u", shreemNetworkingIdentityRender( pConn->m_identityRemote ).c_str(), pConn->m_unConnectionIDRemote );
 		AssertMsg1( false, "%s", errMsg );
 		return false;
 	}
@@ -562,7 +562,7 @@ bool CSteamNetworkListenSocketBase::BAddChildConnection( CSteamNetworkConnection
 	// add the connection to the default poll group.  (But note that certain use cases,
 	// e.g. custom signaling, the poll group may have already been assigned by the app code.
 	// Don't override it, if so.)
-	#ifdef STEAMNETWORKINGSOCKETS_STEAMCLIENT
+	#ifdef shreemNETWORKINGSOCKETS_shreemCLIENT
 	if ( !pConn->m_pPollGroup )
 		pConn->SetPollGroup( &m_legacyPollGroup );
 	#endif
@@ -570,7 +570,7 @@ bool CSteamNetworkListenSocketBase::BAddChildConnection( CSteamNetworkConnection
 	return true;
 }
 
-void CSteamNetworkListenSocketBase::AboutToDestroyChildConnection( CSteamNetworkConnectionBase *pConn )
+void CshreemNetworkListenSocketBase::AboutToDestroyChildConnection( CshreemNetworkConnectionBase *pConn )
 {
 	Assert( pConn->m_pParentListenSocket == this );
 	int hChild = pConn->m_hSelfInParentListenSocketMap;
@@ -600,18 +600,18 @@ void CSteamNetworkListenSocketBase::AboutToDestroyChildConnection( CSteamNetwork
 //
 /////////////////////////////////////////////////////////////////////////////
 
-CSteamNetworkConnectionBase::CSteamNetworkConnectionBase( CSteamNetworkingSockets *pSteamNetworkingSocketsInterface )
-: m_pSteamNetworkingSocketsInterface( pSteamNetworkingSocketsInterface )
+CshreemNetworkConnectionBase::CshreemNetworkConnectionBase( CshreemNetworkingSockets *pshreemNetworkingSocketsInterface )
+: m_pshreemNetworkingSocketsInterface( pshreemNetworkingSocketsInterface )
 {
-	m_hConnectionSelf = k_HSteamNetConnection_Invalid;
+	m_hConnectionSelf = k_HshreemNetConnection_Invalid;
 	m_nUserData = -1;
-	m_eConnectionState = k_ESteamNetworkingConnectionState_None;
-	m_eConnectionWireState = k_ESteamNetworkingConnectionState_None;
+	m_eConnectionState = k_EshreemNetworkingConnectionState_None;
+	m_eConnectionWireState = k_EshreemNetworkingConnectionState_None;
 	m_usecWhenEnteredConnectionState = 0;
 	m_usecWhenSentConnectRequest = 0;
 	m_ulHandshakeRemoteTimestamp = 0;
 	m_usecWhenReceivedHandshakeRemoteTimestamp = 0;
-	m_eEndReason = k_ESteamNetConnectionEnd_Invalid;
+	m_eEndReason = k_EshreemNetConnectionEnd_Invalid;
 	m_szEndDebug[0] = '\0';
 	memset( &m_identityLocal, 0, sizeof(m_identityLocal) );
 	memset( &m_identityRemote, 0, sizeof(m_identityRemote) );
@@ -622,7 +622,7 @@ CSteamNetworkConnectionBase::CSteamNetworkConnectionBase( CSteamNetworkingSocket
 	m_hSelfInParentListenSocketMap = -1;
 	m_bCertHasIdentity = false;
 	m_bCryptKeysValid = false;
-	m_eNegotiatedCipher = k_ESteamNetworkingSocketsCipher_INVALID;
+	m_eNegotiatedCipher = k_EshreemNetworkingSocketsCipher_INVALID;
 	memset( m_szAppName, 0, sizeof( m_szAppName ) );
 	memset( m_szDescription, 0, sizeof( m_szDescription ) );
 	m_bConnectionInitiatedRemotely = false;
@@ -630,19 +630,19 @@ CSteamNetworkConnectionBase::CSteamNetworkConnectionBase( CSteamNetworkingSocket
 	m_nSupressStateChangeCallbacks = 0;
  
 	// Initialize configuration using parent interface for now.
-	m_connectionConfig.Init( &m_pSteamNetworkingSocketsInterface->m_connectionConfig );
+	m_connectionConfig.Init( &m_pshreemNetworkingSocketsInterface->m_connectionConfig );
 }
 
-CSteamNetworkConnectionBase::~CSteamNetworkConnectionBase()
+CshreemNetworkConnectionBase::~CshreemNetworkConnectionBase()
 {
-	Assert( m_hConnectionSelf == k_HSteamNetConnection_Invalid );
-	Assert( m_eConnectionState == k_ESteamNetworkingConnectionState_Dead );
-	Assert( m_eConnectionWireState == k_ESteamNetworkingConnectionState_Dead );
+	Assert( m_hConnectionSelf == k_HshreemNetConnection_Invalid );
+	Assert( m_eConnectionState == k_EshreemNetworkingConnectionState_Dead );
+	Assert( m_eConnectionWireState == k_EshreemNetworkingConnectionState_Dead );
 	Assert( m_queueRecvMessages.empty() );
 	Assert( m_pParentListenSocket == nullptr );
 }
 
-void CSteamNetworkConnectionBase::ConnectionDestroySelfNow()
+void CshreemNetworkConnectionBase::ConnectionDestroySelfNow()
 {
 
 	// Make sure all resources have been freed, etc
@@ -665,20 +665,20 @@ void CConnectionTransport::TransportFreeResources()
 {
 }
 
-void CSteamNetworkConnectionBase::QueueDestroy()
+void CshreemNetworkConnectionBase::QueueDestroy()
 {
 	FreeResources();
 
 	// We'll delete ourselves from within Think();
-	SetNextThinkTime( SteamNetworkingSockets_GetLocalTimestamp() );
+	SetNextThinkTime( shreemNetworkingSockets_GetLocalTimestamp() );
 }
 
-void CSteamNetworkConnectionBase::FreeResources()
+void CshreemNetworkConnectionBase::FreeResources()
 {
 	// Make sure we're marked in the dead state, and also if we were in an
 	// API-visible state, this will queue the state change notification
 	// while we still know who our listen socket is (if any).
-	SetState( k_ESteamNetworkingConnectionState_Dead, SteamNetworkingSockets_GetLocalTimestamp() );
+	SetState( k_EshreemNetworkingConnectionState_Dead, shreemNetworkingSockets_GetLocalTimestamp() );
 
 	// Discard any messages that weren't retrieved
 	m_queueRecvMessages.PurgeMessages();
@@ -691,7 +691,7 @@ void CSteamNetworkConnectionBase::FreeResources()
 		m_pParentListenSocket->AboutToDestroyChildConnection( this );
 
 	// Remove from global connection list
-	if ( m_hConnectionSelf != k_HSteamNetConnection_Invalid )
+	if ( m_hConnectionSelf != k_HshreemNetConnection_Invalid )
 	{
 		int idx = g_mapConnections.Find( uint16( m_hConnectionSelf ) );
 		if ( idx == g_mapConnections.InvalidIndex() || g_mapConnections[ idx ] != this )
@@ -709,7 +709,7 @@ void CSteamNetworkConnectionBase::FreeResources()
 			g_mapConnections.RemoveAt( idx );
 		}
 
-		m_hConnectionSelf = k_HSteamNetConnection_Invalid;
+		m_hConnectionSelf = k_HshreemNetConnection_Invalid;
 	}
 
 	// Make sure and clean out crypto keys and such now
@@ -734,7 +734,7 @@ void CSteamNetworkConnectionBase::FreeResources()
 	DestroyTransport();
 }
 
-void CSteamNetworkConnectionBase::DestroyTransport()
+void CshreemNetworkConnectionBase::DestroyTransport()
 {
 	if ( m_pTransport )
 	{
@@ -743,13 +743,13 @@ void CSteamNetworkConnectionBase::DestroyTransport()
 	}
 }
 
-void CSteamNetworkConnectionBase::RemoveFromPollGroup()
+void CshreemNetworkConnectionBase::RemoveFromPollGroup()
 {
 	if ( !m_pPollGroup )
 		return;
 
 	// Scan all of our messages, and make sure they are not in the secondary queue
-	for ( CSteamNetworkingMessage *pMsg = m_queueRecvMessages.m_pFirst ; pMsg ; pMsg = pMsg->m_linksSecondaryQueue.m_pNext )
+	for ( CshreemNetworkingMessage *pMsg = m_queueRecvMessages.m_pFirst ; pMsg ; pMsg = pMsg->m_linksSecondaryQueue.m_pNext )
 	{
 		Assert( pMsg->m_links.m_pQueue == &m_queueRecvMessages );
 
@@ -757,7 +757,7 @@ void CSteamNetworkConnectionBase::RemoveFromPollGroup()
 		Assert( pMsg->m_linksSecondaryQueue.m_pQueue == &m_pPollGroup->m_queueRecvMessages );
 
 		// OK, do the work
-		pMsg->UnlinkFromQueue( &CSteamNetworkingMessage::m_linksSecondaryQueue );
+		pMsg->UnlinkFromQueue( &CshreemNetworkingMessage::m_linksSecondaryQueue );
 	}
 
 	// Remove us from the poll group's list.  DbgVerify because we should be in the list!
@@ -767,7 +767,7 @@ void CSteamNetworkConnectionBase::RemoveFromPollGroup()
 	m_pPollGroup = nullptr;
 }
 
-void CSteamNetworkConnectionBase::SetPollGroup( CSteamNetworkPollGroup *pPollGroup )
+void CshreemNetworkConnectionBase::SetPollGroup( CshreemNetworkPollGroup *pPollGroup )
 {
 
 	// Quick early-out for no change
@@ -789,8 +789,8 @@ void CSteamNetworkConnectionBase::SetPollGroup( CSteamNetworkPollGroup *pPollGro
 	// regarding ordering of messages from different connections, and
 	// really anybody who is expecting or relying on such guarantees
 	// is probably doing something wrong.
-	CSteamNetworkingMessage *pInsertBefore = pPollGroup->m_queueRecvMessages.m_pFirst;
-	for ( CSteamNetworkingMessage *pMsg = m_queueRecvMessages.m_pFirst ; pMsg ; pMsg = pMsg->m_links.m_pNext )
+	CshreemNetworkingMessage *pInsertBefore = pPollGroup->m_queueRecvMessages.m_pFirst;
+	for ( CshreemNetworkingMessage *pMsg = m_queueRecvMessages.m_pFirst ; pMsg ; pMsg = pMsg->m_links.m_pNext )
 	{
 		Assert( pMsg->m_links.m_pQueue == &m_queueRecvMessages );
 
@@ -798,7 +798,7 @@ void CSteamNetworkConnectionBase::SetPollGroup( CSteamNetworkPollGroup *pPollGro
 		if ( pMsg->m_linksSecondaryQueue.m_pQueue )
 		{
 			Assert( m_pPollGroup && pMsg->m_linksSecondaryQueue.m_pQueue == &m_pPollGroup->m_queueRecvMessages );
-			pMsg->UnlinkFromQueue( &CSteamNetworkingMessage::m_linksSecondaryQueue );
+			pMsg->UnlinkFromQueue( &CshreemNetworkingMessage::m_linksSecondaryQueue );
 		}
 		else
 		{
@@ -812,14 +812,14 @@ void CSteamNetworkConnectionBase::SetPollGroup( CSteamNetworkPollGroup *pPollGro
 			// End of queue?
 			if ( !pInsertBefore )
 			{
-				pMsg->LinkToQueueTail( &CSteamNetworkingMessage::m_linksSecondaryQueue, &pPollGroup->m_queueRecvMessages );
+				pMsg->LinkToQueueTail( &CshreemNetworkingMessage::m_linksSecondaryQueue, &pPollGroup->m_queueRecvMessages );
 				break;
 			}
 
 			Assert( pInsertBefore->m_linksSecondaryQueue.m_pQueue == &pPollGroup->m_queueRecvMessages );
 			if ( pInsertBefore->m_usecTimeReceived > pMsg->m_usecTimeReceived )
 			{
-				pMsg->LinkBefore( pInsertBefore, &CSteamNetworkingMessage::m_linksSecondaryQueue, &pPollGroup->m_queueRecvMessages );
+				pMsg->LinkBefore( pInsertBefore, &CshreemNetworkingMessage::m_linksSecondaryQueue, &pPollGroup->m_queueRecvMessages );
 				break;
 			}
 
@@ -839,10 +839,10 @@ void CSteamNetworkConnectionBase::SetPollGroup( CSteamNetworkPollGroup *pPollGro
 	m_pPollGroup->m_vecConnections.AddToTail( this );
 }
 
-bool CSteamNetworkConnectionBase::BInitConnection( SteamNetworkingMicroseconds usecNow, int nOptions, const SteamNetworkingConfigValue_t *pOptions, SteamDatagramErrMsg &errMsg )
+bool CshreemNetworkConnectionBase::BInitConnection( shreemNetworkingMicroseconds usecNow, int nOptions, const shreemNetworkingConfigValue_t *pOptions, shreemDatagramErrMsg &errMsg )
 {
 	// Should only be called while we are in the initial state
-	Assert( GetState() == k_ESteamNetworkingConnectionState_None );
+	Assert( GetState() == k_EshreemNetworkingConnectionState_None );
 
 	// Make sure MTU values are initialized
 	UpdateMTUFromConfig();
@@ -885,21 +885,21 @@ bool CSteamNetworkConnectionBase::BInitConnection( SteamNetworkingMicroseconds u
 		break;
 	}
 
-	Assert( m_hConnectionSelf == k_HSteamNetConnection_Invalid );
+	Assert( m_hConnectionSelf == k_HshreemNetConnection_Invalid );
 
-	Assert( m_pParentListenSocket == nullptr || m_pSteamNetworkingSocketsInterface == m_pParentListenSocket->m_pSteamNetworkingSocketsInterface );
+	Assert( m_pParentListenSocket == nullptr || m_pshreemNetworkingSocketsInterface == m_pParentListenSocket->m_pshreemNetworkingSocketsInterface );
 
 	// We need to know who we are
 	if ( m_identityLocal.IsInvalid() )
 	{
-		if ( !m_pSteamNetworkingSocketsInterface->GetIdentity( &m_identityLocal ) )
+		if ( !m_pshreemNetworkingSocketsInterface->GetIdentity( &m_identityLocal ) )
 		{
 			V_strcpy_safe( errMsg, "We don't know our local identity." );
 			return false;
 		}
 	}
 
-	m_eEndReason = k_ESteamNetConnectionEnd_Invalid;
+	m_eEndReason = k_EshreemNetConnectionEnd_Invalid;
 	m_szEndDebug[0] = '\0';
 	m_statsEndToEnd.Init( usecNow, true ); // Until we go connected don't try to send acks, etc
 
@@ -919,7 +919,7 @@ bool CSteamNetworkConnectionBase::BInitConnection( SteamNetworkingMicroseconds u
 	{
 		for ( int i = 0 ; i < nOptions ; ++i )
 		{
-			if ( !m_pSteamNetworkingSocketsInterface->m_pSteamNetworkingUtils->SetConfigValueStruct( pOptions[i], k_ESteamNetworkingConfig_Connection, m_hConnectionSelf ) )
+			if ( !m_pshreemNetworkingSocketsInterface->m_pshreemNetworkingUtils->SetConfigValueStruct( pOptions[i], k_EshreemNetworkingConfig_Connection, m_hConnectionSelf ) )
 			{
 				V_sprintf_safe( errMsg, "Error setting option %d", pOptions[i].m_eValue );
 				return false;
@@ -939,13 +939,13 @@ bool CSteamNetworkConnectionBase::BInitConnection( SteamNetworkingMicroseconds u
 	ClearCrypto();
 
 	// We should still be in the initial state
-	Assert( GetState() == k_ESteamNetworkingConnectionState_None );
+	Assert( GetState() == k_EshreemNetworkingConnectionState_None );
 
 	// Take action to start obtaining a cert, or if we already have one, then set it now
 	InitConnectionCrypto( usecNow );
-	if ( GetState() != k_ESteamNetworkingConnectionState_None )
+	if ( GetState() != k_EshreemNetworkingConnectionState_None )
 	{
-		Assert( GetState() == k_ESteamNetworkingConnectionState_ProblemDetectedLocally );
+		Assert( GetState() == k_EshreemNetworkingConnectionState_ProblemDetectedLocally );
 		V_sprintf_safe( errMsg, "Crypto init error.  %s", m_szEndDebug );
 		return false;
 	}
@@ -953,12 +953,12 @@ bool CSteamNetworkConnectionBase::BInitConnection( SteamNetworkingMicroseconds u
 	return true;
 }
 
-bool CSteamNetworkConnectionBase::BSupportsSymmetricMode()
+bool CshreemNetworkConnectionBase::BSupportsSymmetricMode()
 {
 	return false;
 }
 
-void CSteamNetworkConnectionBase::SetAppName( const char *pszName )
+void CshreemNetworkConnectionBase::SetAppName( const char *pszName )
 {
 	V_strcpy_safe( m_szAppName, pszName ? pszName : "" );
 
@@ -966,7 +966,7 @@ void CSteamNetworkConnectionBase::SetAppName( const char *pszName )
 	SetDescription();
 }
 
-void CSteamNetworkConnectionBase::SetDescription()
+void CshreemNetworkConnectionBase::SetDescription()
 {
 	ConnectionTypeDescription_t szTypeDescription;
 	GetConnectionTypeDescription( szTypeDescription );
@@ -977,12 +977,12 @@ void CSteamNetworkConnectionBase::SetDescription()
 		V_sprintf_safe( m_szDescription, "#%u %s", m_unConnectionIDLocal, szTypeDescription );
 }
 
-void CSteamNetworkConnectionBase::InitConnectionCrypto( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::InitConnectionCrypto( shreemNetworkingMicroseconds usecNow )
 {
 	BThinkCryptoReady( usecNow );
 }
 
-void CSteamNetworkConnectionBase::ClearCrypto()
+void CshreemNetworkConnectionBase::ClearCrypto()
 {
 	m_msgCertRemote.Clear();
 	m_msgCryptRemote.Clear();
@@ -991,9 +991,9 @@ void CSteamNetworkConnectionBase::ClearCrypto()
 	ClearLocalCrypto();
 }
 
-void CSteamNetworkConnectionBase::ClearLocalCrypto()
+void CshreemNetworkConnectionBase::ClearLocalCrypto()
 {
-	m_eNegotiatedCipher = k_ESteamNetworkingSocketsCipher_INVALID;
+	m_eNegotiatedCipher = k_EshreemNetworkingSocketsCipher_INVALID;
 	m_keyExchangePrivateKeyLocal.Wipe();
 	m_msgCryptLocal.Clear();
 	m_msgSignedCryptLocal.Clear();
@@ -1004,7 +1004,7 @@ void CSteamNetworkConnectionBase::ClearLocalCrypto()
 	m_cryptIVRecv.Wipe();
 }
 
-void CSteamNetworkConnectionBase::RecvNonDataSequencedPacket( int64 nPktNum, SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::RecvNonDataSequencedPacket( int64 nPktNum, shreemNetworkingMicroseconds usecNow )
 {
 	// Note: order of operations is important betwen these two calls
 
@@ -1017,10 +1017,10 @@ void CSteamNetworkConnectionBase::RecvNonDataSequencedPacket( int64 nPktNum, Ste
 	m_statsEndToEnd.TrackProcessSequencedPacket( nPktNum, usecNow, 0 );
 }
 
-bool CSteamNetworkConnectionBase::BThinkCryptoReady( SteamNetworkingMicroseconds usecNow )
+bool CshreemNetworkConnectionBase::BThinkCryptoReady( shreemNetworkingMicroseconds usecNow )
 {
 	// Should only be called from initial states
-	Assert( GetState() == k_ESteamNetworkingConnectionState_None || GetState() == k_ESteamNetworkingConnectionState_Connecting );
+	Assert( GetState() == k_EshreemNetworkingConnectionState_None || GetState() == k_EshreemNetworkingConnectionState_Connecting );
 
 	// Do we already have a cert?
 	if ( m_msgSignedCertLocal.has_cert() )
@@ -1037,7 +1037,7 @@ bool CSteamNetworkConnectionBase::BThinkCryptoReady( SteamNetworkingMicroseconds
 
 	// Check for fetching a cert, if a previous cert attempt failed,
 	// or the cert we have is old
-	#ifdef STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
+	#ifdef shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
 		if ( AllowLocalUnsignedCert() != k_EUnsignedCert_Allow )
 		{
 
@@ -1045,32 +1045,32 @@ bool CSteamNetworkConnectionBase::BThinkCryptoReady( SteamNetworkingMicroseconds
 			// If this fails (either immediately, or asynchronously), we will
 			// get a CertFailed call with the appropriate code, and we can decide
 			// what we want to do.
-			m_pSteamNetworkingSocketsInterface->CheckAuthenticationPrerequisites( usecNow );
+			m_pshreemNetworkingSocketsInterface->CheckAuthenticationPrerequisites( usecNow );
 
 			// Handle synchronous failure.
-			if ( GetState() != k_ESteamNetworkingConnectionState_None && GetState() != k_ESteamNetworkingConnectionState_Connecting )
+			if ( GetState() != k_EshreemNetworkingConnectionState_None && GetState() != k_EshreemNetworkingConnectionState_Connecting )
 				return false;
 
 			// If fetching of cert or trusted cert list in flight, then wait for that to finish
-			SteamNetAuthenticationStatus_t authStatus;
-			m_pSteamNetworkingSocketsInterface->GetAuthenticationStatus( &authStatus );
+			shreemNetAuthenticationStatus_t authStatus;
+			m_pshreemNetworkingSocketsInterface->GetAuthenticationStatus( &authStatus );
 			switch ( authStatus.m_eAvail )
 			{
-				case k_ESteamNetworkingAvailability_CannotTry:
-				case k_ESteamNetworkingAvailability_Failed:
-				case k_ESteamNetworkingAvailability_Previously:
-				case k_ESteamNetworkingAvailability_NeverTried:
+				case k_EshreemNetworkingAvailability_CannotTry:
+				case k_EshreemNetworkingAvailability_Failed:
+				case k_EshreemNetworkingAvailability_Previously:
+				case k_EshreemNetworkingAvailability_NeverTried:
 				default:
 					AssertMsg2( false, "Unexpected auth avail %d (%s)", authStatus.m_eAvail, authStatus.m_debugMsg );
 					break;
 
-				case k_ESteamNetworkingAvailability_Retrying:
-				case k_ESteamNetworkingAvailability_Waiting:
-				case k_ESteamNetworkingAvailability_Attempting:
+				case k_EshreemNetworkingAvailability_Retrying:
+				case k_EshreemNetworkingAvailability_Waiting:
+				case k_EshreemNetworkingAvailability_Attempting:
 					// Keep waiting
 					return false;
 
-				case k_ESteamNetworkingAvailability_Current:
+				case k_EshreemNetworkingAvailability_Current:
 					break;
 			}
 
@@ -1078,7 +1078,7 @@ bool CSteamNetworkConnectionBase::BThinkCryptoReady( SteamNetworkingMicroseconds
 	#endif
 
 	// Already have a signed cert?
-	int nSecondsUntilCertExpiry = m_pSteamNetworkingSocketsInterface->GetSecondsUntilCertExpiry();
+	int nSecondsUntilCertExpiry = m_pshreemNetworkingSocketsInterface->GetSecondsUntilCertExpiry();
 	if ( nSecondsUntilCertExpiry > 0 )
 	{
 
@@ -1086,12 +1086,12 @@ bool CSteamNetworkConnectionBase::BThinkCryptoReady( SteamNetworkingMicroseconds
 		// because there's a good chance that our peer will reject it.  (We usually refresh our certs
 		// well ahead of time, so we really should never hit this.)  Note that if this request
 		// fails, we will get a callback, and an opportunity to attempt to proceed with an unsigned cert
-		if ( nSecondsUntilCertExpiry < 300 && m_pSteamNetworkingSocketsInterface->BCertRequestInFlight() )
+		if ( nSecondsUntilCertExpiry < 300 && m_pshreemNetworkingSocketsInterface->BCertRequestInFlight() )
 			return false;
 
 		// Use it!
 		SpewVerbose( "[%s] Our cert expires in %d seconds.\n", GetDescription(), nSecondsUntilCertExpiry );
-		SetLocalCert( m_pSteamNetworkingSocketsInterface->m_msgSignedCert, m_pSteamNetworkingSocketsInterface->m_keyPrivateKey, m_pSteamNetworkingSocketsInterface->BCertHasIdentity() );
+		SetLocalCert( m_pshreemNetworkingSocketsInterface->m_msgSignedCert, m_pshreemNetworkingSocketsInterface->m_keyPrivateKey, m_pshreemNetworkingSocketsInterface->BCertHasIdentity() );
 		return true;
 	}
 
@@ -1103,29 +1103,29 @@ bool CSteamNetworkConnectionBase::BThinkCryptoReady( SteamNetworkingMicroseconds
 	}
 
 	// Otherwise, we don't have a signed cert (yet?).
-	#ifndef STEAMNETWORKINGSOCKETS_CAN_REQUEST_CERT
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_InternalError, "Need a cert authority!" );
+	#ifndef shreemNETWORKINGSOCKETS_CAN_REQUEST_CERT
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_InternalError, "Need a cert authority!" );
 		Assert( false );
 	#endif
 	return false;
 }
 
-void CSteamNetworkConnectionBase::InterfaceGotCert()
+void CshreemNetworkConnectionBase::InterfaceGotCert()
 {
 	// Make sure we care about this
-	if ( GetState() != k_ESteamNetworkingConnectionState_Connecting )
+	if ( GetState() != k_EshreemNetworkingConnectionState_Connecting )
 		return;
 	if ( BHasLocalCert() )
 		return;
 
 	// Setup with this cert
-	SetLocalCert( m_pSteamNetworkingSocketsInterface->m_msgSignedCert, m_pSteamNetworkingSocketsInterface->m_keyPrivateKey, m_pSteamNetworkingSocketsInterface->BCertHasIdentity() );
+	SetLocalCert( m_pshreemNetworkingSocketsInterface->m_msgSignedCert, m_pshreemNetworkingSocketsInterface->m_keyPrivateKey, m_pshreemNetworkingSocketsInterface->BCertHasIdentity() );
 
 	// Don't check state machine now, let's just schedule immediate wake up to deal with it
-	SetNextThinkTime( SteamNetworkingSockets_GetLocalTimestamp() );
+	SetNextThinkTime( shreemNetworkingSockets_GetLocalTimestamp() );
 }
 
-void CSteamNetworkConnectionBase::SetLocalCert( const CMsgSteamDatagramCertificateSigned &msgSignedCert, const CECSigningPrivateKey &keyPrivate, bool bCertHasIdentity )
+void CshreemNetworkConnectionBase::SetLocalCert( const CMsgshreemDatagramCertificateSigned &msgSignedCert, const CECSigningPrivateKey &keyPrivate, bool bCertHasIdentity )
 {
 	Assert( msgSignedCert.has_cert() );
 	Assert( keyPrivate.IsValid() );
@@ -1148,7 +1148,7 @@ void CSteamNetworkConnectionBase::SetLocalCert( const CMsgSteamDatagramCertifica
 	}
 }
 
-void CSteamNetworkConnectionBase::SetCryptoCipherList()
+void CshreemNetworkConnectionBase::SetCryptoCipherList()
 {
 	Assert( m_msgCryptLocal.ciphers_size() == 0 ); // Should only do this once
 
@@ -1163,29 +1163,29 @@ void CSteamNetworkConnectionBase::SetCryptoCipherList()
 			// FALLTHROUGH
 		case 0:
 			// Not allowed
-			m_msgCryptLocal.add_ciphers( k_ESteamNetworkingSocketsCipher_AES_256_GCM );
+			m_msgCryptLocal.add_ciphers( k_EshreemNetworkingSocketsCipher_AES_256_GCM );
 			break;
 
 		case 1:
 			// Allowed, but prefer encrypted
-			m_msgCryptLocal.add_ciphers( k_ESteamNetworkingSocketsCipher_AES_256_GCM );
-			m_msgCryptLocal.add_ciphers( k_ESteamNetworkingSocketsCipher_NULL );
+			m_msgCryptLocal.add_ciphers( k_EshreemNetworkingSocketsCipher_AES_256_GCM );
+			m_msgCryptLocal.add_ciphers( k_EshreemNetworkingSocketsCipher_NULL );
 			break;
 
 		case 2:
 			// Allowed, preferred
-			m_msgCryptLocal.add_ciphers( k_ESteamNetworkingSocketsCipher_NULL );
-			m_msgCryptLocal.add_ciphers( k_ESteamNetworkingSocketsCipher_AES_256_GCM );
+			m_msgCryptLocal.add_ciphers( k_EshreemNetworkingSocketsCipher_NULL );
+			m_msgCryptLocal.add_ciphers( k_EshreemNetworkingSocketsCipher_AES_256_GCM );
 			break;
 
 		case 3:
 			// Required
-			m_msgCryptLocal.add_ciphers( k_ESteamNetworkingSocketsCipher_NULL );
+			m_msgCryptLocal.add_ciphers( k_EshreemNetworkingSocketsCipher_NULL );
 			break;
 	}
 }
 
-void CSteamNetworkConnectionBase::FinalizeLocalCrypto()
+void CshreemNetworkConnectionBase::FinalizeLocalCrypto()
 {
 	// Make sure we have what we need
 	Assert( m_msgCryptLocal.ciphers_size() > 0 );
@@ -1200,7 +1200,7 @@ void CSteamNetworkConnectionBase::FinalizeLocalCrypto()
 	// Generate a keypair for key exchange
 	CECKeyExchangePublicKey publicKeyLocal;
 	CCrypto::GenerateKeyExchangeKeyPair( &publicKeyLocal, &m_keyExchangePrivateKeyLocal );
-	m_msgCryptLocal.set_key_type( CMsgSteamDatagramSessionCryptInfo_EKeyType_CURVE25519 );
+	m_msgCryptLocal.set_key_type( CMsgshreemDatagramSessionCryptInfo_EKeyType_CURVE25519 );
 	publicKeyLocal.GetRawDataAsStdString( m_msgCryptLocal.mutable_key_data() );
 
 	// Generate some more randomness for the secret key
@@ -1218,7 +1218,7 @@ void CSteamNetworkConnectionBase::FinalizeLocalCrypto()
 	//m_keyPrivate.Wipe();
 }
 
-void CSteamNetworkConnectionBase::SetLocalCertUnsigned()
+void CshreemNetworkConnectionBase::SetLocalCertUnsigned()
 {
 
 	// Generate a keypair
@@ -1227,28 +1227,28 @@ void CSteamNetworkConnectionBase::SetLocalCertUnsigned()
 	CCrypto::GenerateSigningKeyPair( &keyPublic, &keyPrivate );
 
 	// Generate a cert
-	CMsgSteamDatagramCertificate msgCert;
+	CMsgshreemDatagramCertificate msgCert;
 	keyPublic.GetRawDataAsStdString( msgCert.mutable_key_data() );
-	msgCert.set_key_type( CMsgSteamDatagramCertificate_EKeyType_ED25519 );
-	SteamNetworkingIdentityToProtobuf( m_identityLocal, msgCert, identity_string, legacy_identity_binary, legacy_steam_id );
-	msgCert.add_app_ids( m_pSteamNetworkingSocketsInterface->m_pSteamNetworkingUtils->GetAppID() );
+	msgCert.set_key_type( CMsgshreemDatagramCertificate_EKeyType_ED25519 );
+	shreemNetworkingIdentityToProtobuf( m_identityLocal, msgCert, identity_string, legacy_identity_binary, legacy_shreem_id );
+	msgCert.add_app_ids( m_pshreemNetworkingSocketsInterface->m_pshreemNetworkingUtils->GetAppID() );
 
 	// Should we set an expiry?  I mean it's unsigned, so it has zero value, so probably not
 	//s_msgCertLocal.set_time_created( );
 
 	// Serialize into "signed" message type, although we won't actually sign it.
-	CMsgSteamDatagramCertificateSigned msgSignedCert;
+	CMsgshreemDatagramCertificateSigned msgSignedCert;
 	msgSignedCert.set_cert( msgCert.SerializeAsString() );
 
 	// Standard init, as if this were a normal cert
 	SetLocalCert( msgSignedCert, keyPrivate, true );
 }
 
-void CSteamNetworkConnectionBase::CertRequestFailed( ESteamNetConnectionEnd nConnectionEndReason, const char *pszMsg )
+void CshreemNetworkConnectionBase::CertRequestFailed( EshreemNetConnectionEnd nConnectionEndReason, const char *pszMsg )
 {
 
 	// Make sure we care about this
-	if ( GetState() != k_ESteamNetworkingConnectionState_Connecting && GetState() != k_ESteamNetworkingConnectionState_None )
+	if ( GetState() != k_EshreemNetworkingConnectionState_Connecting && GetState() != k_EshreemNetworkingConnectionState_None )
 		return;
 	if ( BHasLocalCert() )
 		return;
@@ -1267,27 +1267,27 @@ void CSteamNetworkConnectionBase::CertRequestFailed( ESteamNetConnectionEnd nCon
 	SetLocalCertUnsigned();
 
 	// Schedule immediate wake up to check on state machine
-	SetNextThinkTime( SteamNetworkingSockets_GetLocalTimestamp() );
+	SetNextThinkTime( shreemNetworkingSockets_GetLocalTimestamp() );
 }
 
-bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramCertificateSigned &msgCert, const CMsgSteamDatagramSessionCryptInfoSigned &msgSessionInfo, bool bServer )
+bool CshreemNetworkConnectionBase::BRecvCryptoHandshake( const CMsgshreemDatagramCertificateSigned &msgCert, const CMsgshreemDatagramSessionCryptInfoSigned &msgSessionInfo, bool bServer )
 {
-	SteamDatagramTransportLock::AssertHeldByCurrentThread( "BRecvCryptoHandshake" );
-	SteamNetworkingErrMsg errMsg;
+	shreemDatagramTransportLock::AssertHeldByCurrentThread( "BRecvCryptoHandshake" );
+	shreemNetworkingErrMsg errMsg;
 
 	// Have we already done key exchange?
 	if ( m_bCryptKeysValid )
 	{
 		// FIXME - Probably should check that they aren't changing any keys.
-		Assert( m_eNegotiatedCipher != k_ESteamNetworkingSocketsCipher_INVALID );
+		Assert( m_eNegotiatedCipher != k_EshreemNetworkingSocketsCipher_INVALID );
 		return true;
 	}
-	Assert( m_eNegotiatedCipher == k_ESteamNetworkingSocketsCipher_INVALID );
+	Assert( m_eNegotiatedCipher == k_EshreemNetworkingSocketsCipher_INVALID );
 
 	// Make sure we have what we need
 	if ( !msgCert.has_cert() || !msgSessionInfo.has_info() )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Crypto handshake missing cert or session data" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Crypto handshake missing cert or session data" );
 		return false;
 	}
 
@@ -1302,11 +1302,11 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 	{
 
 		// Check the signature and chain of trust, and expiry, and deserialize the signed cert
-		time_t timeNow = m_pSteamNetworkingSocketsInterface->m_pSteamNetworkingUtils->GetTimeSecure();
+		time_t timeNow = m_pshreemNetworkingSocketsInterface->m_pshreemNetworkingUtils->GetTimeSecure();
 		pCACertAuthScope = CertStore_CheckCert( msgCert, m_msgCertRemote, timeNow, errMsg );
 		if ( !pCACertAuthScope )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCert, "Bad cert: %s", errMsg );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCert, "Bad cert: %s", errMsg );
 			return false;
 		}
 	}
@@ -1316,7 +1316,7 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 		// Deserialize the cert
 		if ( !m_msgCertRemote.ParseFromString( m_sCertRemote ) )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Cert failed protobuf decode" );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Cert failed protobuf decode" );
 			return false;
 		}
 
@@ -1324,11 +1324,11 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 	}
 
 	// Check identity from cert
-	SteamNetworkingIdentity identityCert;
-	int rIdentity = SteamNetworkingIdentityFromCert( identityCert, m_msgCertRemote, errMsg );
+	shreemNetworkingIdentity identityCert;
+	int rIdentity = shreemNetworkingIdentityFromCert( identityCert, m_msgCertRemote, errMsg );
 	if ( rIdentity < 0 )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCert, "Bad cert identity.  %s", errMsg );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCert, "Bad cert identity.  %s", errMsg );
 		return false;
 	}
 	if ( rIdentity > 0 && !identityCert.IsLocalHost() )
@@ -1337,15 +1337,15 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 		// They sent an identity.  Then it must match the identity we expect!
 		if ( !( identityCert == m_identityRemote ) )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCert, "Cert was issued to %s, not %s",
-				SteamNetworkingIdentityRender( identityCert ).c_str(), SteamNetworkingIdentityRender( m_identityRemote ).c_str() );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCert, "Cert was issued to %s, not %s",
+				shreemNetworkingIdentityRender( identityCert ).c_str(), shreemNetworkingIdentityRender( m_identityRemote ).c_str() );
 			return false;
 		}
 
 		// We require certs to be bound to a particular AppID.
 		if ( m_msgCertRemote.app_ids_size() == 0 )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCert, "Cert must be bound to an AppID." );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCert, "Cert must be bound to an AppID." );
 			return false;
 		}
 	}
@@ -1360,22 +1360,22 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 
 		// Signed cert, not issued to a particular identity!  This is only allowed
 		// right now when connecting to anonymous gameservers
-		if ( !m_identityRemote.GetSteamID().BAnonGameServerAccount() )
+		if ( !m_identityRemote.GetshreemID().BAnonGameServerAccount() )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCert, "Certs with no identity can only by anonymous gameservers, not %s", SteamNetworkingIdentityRender( m_identityRemote ).c_str() );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCert, "Certs with no identity can only by anonymous gameservers, not %s", shreemNetworkingIdentityRender( m_identityRemote ).c_str() );
 			return false;
 		}
 
 		// And cert must be scoped to a data center, we don't permit blanked certs for anybody with no restrictions at all
 		if ( m_msgCertRemote.gameserver_datacenter_ids_size() == 0 )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCert, "Cert with no identity must be scoped to PoPID." );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCert, "Cert with no identity must be scoped to PoPID." );
 			return false;
 		}
 	}
 
 	// OK, we've parsed everything out, now do any connection-type-specific checks on the cert
-	ESteamNetConnectionEnd eRemoteCertFailure = CheckRemoteCert( pCACertAuthScope, errMsg );
+	EshreemNetConnectionEnd eRemoteCertFailure = CheckRemoteCert( pCACertAuthScope, errMsg );
 	if ( eRemoteCertFailure )
 	{
 		ConnectionState_ProblemDetectedLocally( eRemoteCertFailure, "%s", errMsg );
@@ -1385,21 +1385,21 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 	// Check the signature of the crypt info
 	if ( !BCheckSignature( m_sCryptRemote, m_msgCertRemote.key_type(), m_msgCertRemote.key_data(), msgSessionInfo.signature(), errMsg ) )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "%s", errMsg );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "%s", errMsg );
 		return false;
 	}
 
 	// Deserialize crypt info
 	if ( !m_msgCryptRemote.ParseFromString( m_sCryptRemote ) )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Crypt info failed protobuf decode" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Crypt info failed protobuf decode" );
 		return false;
 	}
 
 	// Protocol version
 	if ( m_msgCryptRemote.protocol_version() < k_nMinRequiredProtocolVersion )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadProtocolVersion, "Peer is running old software and needs to be updated.  (V%u, >=V%u is required)",
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadProtocolVersion, "Peer is running old software and needs to be updated.  (V%u, >=V%u is required)",
 			m_msgCryptRemote.protocol_version(), k_nMinRequiredProtocolVersion );
 		return false;
 	}
@@ -1407,14 +1407,14 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 	// Did they already send a protocol version in an earlier message?  If so, it needs to match.
 	if ( m_statsEndToEnd.m_nPeerProtocolVersion != 0 && m_statsEndToEnd.m_nPeerProtocolVersion != m_msgCryptRemote.protocol_version() )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadProtocolVersion, "Claiming protocol V%u now, but earlier was using V%u",m_msgCryptRemote.protocol_version(), m_statsEndToEnd.m_nPeerProtocolVersion );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadProtocolVersion, "Claiming protocol V%u now, but earlier was using V%u",m_msgCryptRemote.protocol_version(), m_statsEndToEnd.m_nPeerProtocolVersion );
 		return false;
 	}
 	m_statsEndToEnd.m_nPeerProtocolVersion = m_msgCryptRemote.protocol_version();
 
 	// Check for legacy client that didn't send a list of ciphers
 	if ( m_msgCryptRemote.ciphers_size() == 0 )
-		m_msgCryptRemote.add_ciphers( k_ESteamNetworkingSocketsCipher_AES_256_GCM );
+		m_msgCryptRemote.add_ciphers( k_EshreemNetworkingSocketsCipher_AES_256_GCM );
 
 	// We need our own cert.  If we don't have one by now, then we might try generating one
 	if ( !m_msgSignedCertLocal.has_cert() )
@@ -1426,7 +1426,7 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 		{
 			// Derived class / calling code should check for this and handle it better and fail
 			// earlier with a more specific error message.  (Or allow self-signed certs)
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_InternalError, "We don't have cert, and self-signed certs not allowed" );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_InternalError, "We don't have cert, and self-signed certs not allowed" );
 			return false;
 		}
 		if ( eLocalUnsignedCert == k_EUnsignedCert_AllowWarn )
@@ -1442,12 +1442,12 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 		// The server MUST send back the single cipher that they decided to use
 		if ( m_msgCryptRemote.ciphers_size() != 1 )
 		{
-			ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Server must select exactly only one cipher!" );
+			ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Server must select exactly only one cipher!" );
 			return false;
 		}
 		if ( !BFinishCryptoHandshake( bServer ) )
 		{
-			Assert( GetState() == k_ESteamNetworkingConnectionState_ProblemDetectedLocally );
+			Assert( GetState() == k_EshreemNetworkingConnectionState_ProblemDetectedLocally );
 			return false;
 		}
 	}
@@ -1455,7 +1455,7 @@ bool CSteamNetworkConnectionBase::BRecvCryptoHandshake( const CMsgSteamDatagramC
 	return true;
 }
 
-bool CSteamNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
+bool CshreemNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
 {
 
 	// On the server, we have been waiting to decide what ciphers we are willing to use.
@@ -1468,19 +1468,19 @@ bool CSteamNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
 	Assert( m_msgCryptLocal.ciphers_size() > 0 );
 	
 	// Find a mutually-acceptable cipher
-	Assert( m_eNegotiatedCipher == k_ESteamNetworkingSocketsCipher_INVALID );
-	m_eNegotiatedCipher = k_ESteamNetworkingSocketsCipher_INVALID;
+	Assert( m_eNegotiatedCipher == k_EshreemNetworkingSocketsCipher_INVALID );
+	m_eNegotiatedCipher = k_EshreemNetworkingSocketsCipher_INVALID;
 	for ( int eCipher : m_msgCryptLocal.ciphers() )
 	{
 		if ( std::find( m_msgCryptRemote.ciphers().begin(), m_msgCryptRemote.ciphers().end(), eCipher ) != m_msgCryptRemote.ciphers().end() )
 		{
-			m_eNegotiatedCipher = ESteamNetworkingSocketsCipher(eCipher);
+			m_eNegotiatedCipher = EshreemNetworkingSocketsCipher(eCipher);
 			break;
 		}
 	}
-	if ( m_eNegotiatedCipher == k_ESteamNetworkingSocketsCipher_INVALID )
+	if ( m_eNegotiatedCipher == k_EshreemNetworkingSocketsCipher_INVALID )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Failed to negotiate mutually-agreeable cipher" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Failed to negotiate mutually-agreeable cipher" );
 		return false;
 	}
 
@@ -1502,22 +1502,22 @@ bool CSteamNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
 
 	// Key exchange public key
 	CECKeyExchangePublicKey keyExchangePublicKeyRemote;
-	if ( m_msgCryptRemote.key_type() != CMsgSteamDatagramSessionCryptInfo_EKeyType_CURVE25519 )
+	if ( m_msgCryptRemote.key_type() != CMsgshreemDatagramSessionCryptInfo_EKeyType_CURVE25519 )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Unsupported DH key type" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Unsupported DH key type" );
 		return false;
 	}
 	if ( !keyExchangePublicKeyRemote.SetRawDataWithoutWipingInput( m_msgCryptRemote.key_data().c_str(), m_msgCryptRemote.key_data().length() ) )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Invalid DH key" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Invalid DH key" );
 		return false;
 	}
 
-	// Diffie–Hellman key exchange to get "premaster secret"
+	// Diffieï¿½Hellman key exchange to get "premaster secret"
 	AutoWipeFixedSizeBuffer<sizeof(SHA256Digest_t)> premasterSecret;
 	if ( !CCrypto::PerformKeyExchange( m_keyExchangePrivateKeyLocal, keyExchangePublicKeyRemote, &premasterSecret.m_buf ) )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Key exchange failed" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Key exchange failed" );
 		return false;
 	}
 	//SpewMsg( "%s premaster: %02x%02x%02x%02x\n", bServer ? "Server" : "Client", premasterSecret.m_buf[0], premasterSecret.m_buf[1], premasterSecret.m_buf[2], premasterSecret.m_buf[3] );
@@ -1579,7 +1579,7 @@ bool CSteamNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
 	// Write connection ID(s) into context buffer
 	bufContext.Put( unConnectionIDContext, sizeof(unConnectionIDContext) );
 
-	bufContext.Put( "Steam datagram", 14 );
+	bufContext.Put( "shreem datagram", 14 );
 	for ( const std::string *c: context )
 		bufContext.Put( c->c_str(), (int)c->length() );
 
@@ -1601,10 +1601,10 @@ bool CSteamNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
 
 	// Set encryption keys into the contexts, and set parameters
 	if (
-		!m_cryptContextSend.Init( cryptKeySend.m_buf, cryptKeySend.k_nSize, m_cryptIVSend.k_nSize, k_cbSteamNetwokingSocketsEncrytionTagSize )
-		|| !m_cryptContextRecv.Init( cryptKeyRecv.m_buf, cryptKeyRecv.k_nSize, m_cryptIVRecv.k_nSize, k_cbSteamNetwokingSocketsEncrytionTagSize ) )
+		!m_cryptContextSend.Init( cryptKeySend.m_buf, cryptKeySend.k_nSize, m_cryptIVSend.k_nSize, k_cbshreemNetwokingSocketsEncrytionTagSize )
+		|| !m_cryptContextRecv.Init( cryptKeyRecv.m_buf, cryptKeyRecv.k_nSize, m_cryptIVRecv.k_nSize, k_cbshreemNetwokingSocketsEncrytionTagSize ) )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Remote_BadCrypt, "Error initializing crypto" );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Remote_BadCrypt, "Error initializing crypto" );
 		return false;
 	}
 
@@ -1627,9 +1627,9 @@ bool CSteamNetworkConnectionBase::BFinishCryptoHandshake( bool bServer )
 	return true;
 }
 
-EUnsignedCert CSteamNetworkConnectionBase::AllowLocalUnsignedCert()
+EUnsignedCert CshreemNetworkConnectionBase::AllowLocalUnsignedCert()
 {
-	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+	#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 		// We don't have a cert authority.  We probably ought to make this customizable
 		return k_EUnsignedCert_Allow;
 	#else
@@ -1639,9 +1639,9 @@ EUnsignedCert CSteamNetworkConnectionBase::AllowLocalUnsignedCert()
 	#endif
 }
 
-EUnsignedCert CSteamNetworkConnectionBase::AllowRemoteUnsignedCert()
+EUnsignedCert CshreemNetworkConnectionBase::AllowRemoteUnsignedCert()
 {
-	#ifdef STEAMNETWORKINGSOCKETS_OPENSOURCE
+	#ifdef shreemNETWORKINGSOCKETS_OPENSOURCE
 		// We don't have a cert authority.  We probably ought to make this customizable
 		return k_EUnsignedCert_Allow;
 	#else
@@ -1650,12 +1650,12 @@ EUnsignedCert CSteamNetworkConnectionBase::AllowRemoteUnsignedCert()
 	#endif
 }
 
-ESteamNetConnectionEnd CSteamNetworkConnectionBase::CheckRemoteCert( const CertAuthScope *pCACertAuthScope, SteamNetworkingErrMsg &errMsg )
+EshreemNetConnectionEnd CshreemNetworkConnectionBase::CheckRemoteCert( const CertAuthScope *pCACertAuthScope, shreemNetworkingErrMsg &errMsg )
 {
 
 	// Allowed for this app?
-	if ( !CheckCertAppID( m_msgCertRemote, pCACertAuthScope, m_pSteamNetworkingSocketsInterface->m_pSteamNetworkingUtils->GetAppID(), errMsg ) )
-		return k_ESteamNetConnectionEnd_Remote_BadCert;
+	if ( !CheckCertAppID( m_msgCertRemote, pCACertAuthScope, m_pshreemNetworkingSocketsInterface->m_pshreemNetworkingUtils->GetAppID(), errMsg ) )
+		return k_EshreemNetConnectionEnd_Remote_BadCert;
 
 	// Check if we don't allow unsigned certs
 	if ( pCACertAuthScope == nullptr )
@@ -1668,14 +1668,14 @@ ESteamNetConnectionEnd CSteamNetworkConnectionBase::CheckRemoteCert( const CertA
 		else if ( eAllow != k_EUnsignedCert_Allow )
 		{
 			V_strcpy_safe( errMsg, "Unsigned certs are not allowed" );
-			return k_ESteamNetConnectionEnd_Remote_BadCert;
+			return k_EshreemNetConnectionEnd_Remote_BadCert;
 		}
 	}
 
-	return k_ESteamNetConnectionEnd_Invalid;
+	return k_EshreemNetConnectionEnd_Invalid;
 }
 
-void CSteamNetworkConnectionBase::SetUserData( int64 nUserData )
+void CshreemNetworkConnectionBase::SetUserData( int64 nUserData )
 {
 	m_nUserData = nUserData;
 
@@ -1683,14 +1683,14 @@ void CSteamNetworkConnectionBase::SetUserData( int64 nUserData )
 	// of the queue yet.  This way we don't expose the client to weird
 	// race conditions where they create a connection, and before they
 	// are able to install their user data, some messages come in
-	for ( CSteamNetworkingMessage *m = m_queueRecvMessages.m_pFirst ; m ; m = m->m_links.m_pNext )
+	for ( CshreemNetworkingMessage *m = m_queueRecvMessages.m_pFirst ; m ; m = m->m_links.m_pNext )
 	{
 		Assert( m->m_conn == m_hConnectionSelf );
 		m->m_nConnUserData = m_nUserData;
 	}
 }
 
-void CConnectionTransport::TransportConnectionStateChanged( ESteamNetworkingConnectionState eOldState )
+void CConnectionTransport::TransportConnectionStateChanged( EshreemNetworkingConnectionState eOldState )
 {
 }
 
@@ -1701,26 +1701,26 @@ bool CConnectionTransport::BCanSendEndToEndConnectRequest() const
 	return false;
 }
 
-void CConnectionTransport::SendEndToEndConnectRequest( SteamNetworkingMicroseconds usecNow )
+void CConnectionTransport::SendEndToEndConnectRequest( shreemNetworkingMicroseconds usecNow )
 {
 	// You should override this, or your connection should not call it!
 	Assert( false );
 }
 
-void CConnectionTransport::TransportPopulateConnectionInfo( SteamNetConnectionInfo_t &info ) const
+void CConnectionTransport::TransportPopulateConnectionInfo( shreemNetConnectionInfo_t &info ) const
 {
 }
 
-void CConnectionTransport::GetDetailedConnectionStatus( SteamNetworkingDetailedConnectionStatus &stats, SteamNetworkingMicroseconds usecNow )
+void CConnectionTransport::GetDetailedConnectionStatus( shreemNetworkingDetailedConnectionStatus &stats, shreemNetworkingMicroseconds usecNow )
 {
 }
 
-void CSteamNetworkConnectionBase::ConnectionPopulateInfo( SteamNetConnectionInfo_t &info ) const
+void CshreemNetworkConnectionBase::ConnectionPopulateInfo( shreemNetConnectionInfo_t &info ) const
 {
 	memset( &info, 0, sizeof(info) );
 
 	info.m_eState = CollapseConnectionStateToAPIState( m_eConnectionState );
-	info.m_hListenSocket = m_pParentListenSocket ? m_pParentListenSocket->m_hListenSocketSelf : k_HSteamListenSocket_Invalid;
+	info.m_hListenSocket = m_pParentListenSocket ? m_pParentListenSocket->m_hListenSocketSelf : k_HshreemListenSocket_Invalid;
 	info.m_identityRemote = m_identityRemote;
 	info.m_nUserData = m_nUserData;
 	info.m_eEndReason = m_eEndReason;
@@ -1731,9 +1731,9 @@ void CSteamNetworkConnectionBase::ConnectionPopulateInfo( SteamNetConnectionInfo
 		m_pTransport->TransportPopulateConnectionInfo( info );
 }
 
-void CSteamNetworkConnectionBase::APIGetQuickConnectionStatus( SteamNetworkingQuickConnectionStatus &stats )
+void CshreemNetworkConnectionBase::APIGetQuickConnectionStatus( shreemNetworkingQuickConnectionStatus &stats )
 {
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
 	stats.m_eState = CollapseConnectionStateToAPIState( m_eConnectionState );
 	stats.m_nPing = m_statsEndToEnd.m_ping.m_nSmoothedPing;
@@ -1768,7 +1768,7 @@ void CSteamNetworkConnectionBase::APIGetQuickConnectionStatus( SteamNetworkingQu
 	SNP_PopulateQuickStats( stats, usecNow );
 }
 
-void CSteamNetworkConnectionBase::APIGetDetailedConnectionStatus( SteamNetworkingDetailedConnectionStatus &stats, SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::APIGetDetailedConnectionStatus( shreemNetworkingDetailedConnectionStatus &stats, shreemNetworkingMicroseconds usecNow )
 {
 	stats.Clear();
 	ConnectionPopulateInfo( stats.m_info );
@@ -1783,7 +1783,7 @@ void CSteamNetworkConnectionBase::APIGetDetailedConnectionStatus( SteamNetworkin
 		m_pTransport->GetDetailedConnectionStatus( stats, usecNow );
 }
 
-EResult CSteamNetworkConnectionBase::APISendMessageToConnection( const void *pData, uint32 cbData, int nSendFlags, int64 *pOutMessageNumber )
+EResult CshreemNetworkConnectionBase::APISendMessageToConnection( const void *pData, uint32 cbData, int nSendFlags, int64 *pOutMessageNumber )
 {
 	if ( pOutMessageNumber )
 		*pOutMessageNumber = -1;
@@ -1791,30 +1791,30 @@ EResult CSteamNetworkConnectionBase::APISendMessageToConnection( const void *pDa
 	// Check connection state
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
-		case k_ESteamNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Dead:
 		default:
 			AssertMsg( false, "Why are making API calls on this connection?" );
 			return k_EResultInvalidState;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-			if ( nSendFlags & k_nSteamNetworkingSend_NoDelay )
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+			if ( nSendFlags & k_nshreemNetworkingSend_NoDelay )
 				return k_EResultIgnored;
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connected:
 			break;
 
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 			return k_EResultNoConnection;
 	}
 
 	// Fill out a message object
-	CSteamNetworkingMessage *pMsg = CSteamNetworkingMessage::New( cbData );
+	CshreemNetworkingMessage *pMsg = CshreemNetworkingMessage::New( cbData );
 	if ( !pMsg )
 		return k_EResultFail;
 	pMsg->m_nFlags = nSendFlags;
@@ -1822,7 +1822,7 @@ EResult CSteamNetworkConnectionBase::APISendMessageToConnection( const void *pDa
 	// Copy in the payload
 	memcpy( pMsg->m_pData, pData, cbData );
 
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
 	// Connection-type specific logic
 	int64 nMsgNumberOrResult = _APISendMessageToConnection( pMsg, usecNow, nullptr );
@@ -1835,35 +1835,35 @@ EResult CSteamNetworkConnectionBase::APISendMessageToConnection( const void *pDa
 	return EResult( -nMsgNumberOrResult );
 }
 
-int64 CSteamNetworkConnectionBase::APISendMessageToConnection( CSteamNetworkingMessage *pMsg, SteamNetworkingMicroseconds usecNow, bool *pbThinkImmediately )
+int64 CshreemNetworkConnectionBase::APISendMessageToConnection( CshreemNetworkingMessage *pMsg, shreemNetworkingMicroseconds usecNow, bool *pbThinkImmediately )
 {
 
 	// Check connection state
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
-		case k_ESteamNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Dead:
 		default:
 			AssertMsg( false, "Why are making API calls on this connection?" );
 			pMsg->Release();
 			return -k_EResultInvalidState;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-			if ( pMsg->m_nFlags & k_nSteamNetworkingSend_NoDelay )
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+			if ( pMsg->m_nFlags & k_nshreemNetworkingSend_NoDelay )
 			{
 				pMsg->Release();
 				return -k_EResultIgnored;
 			}
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connected:
 			break;
 
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 			pMsg->Release();
 			return -k_EResultNoConnection;
 	}
@@ -1871,13 +1871,13 @@ int64 CSteamNetworkConnectionBase::APISendMessageToConnection( CSteamNetworkingM
 	return _APISendMessageToConnection( pMsg, usecNow, pbThinkImmediately );
 }
 
-int64 CSteamNetworkConnectionBase::_APISendMessageToConnection( CSteamNetworkingMessage *pMsg, SteamNetworkingMicroseconds usecNow, bool *pbThinkImmediately )
+int64 CshreemNetworkConnectionBase::_APISendMessageToConnection( CshreemNetworkingMessage *pMsg, shreemNetworkingMicroseconds usecNow, bool *pbThinkImmediately )
 {
 
 	// Message too big?
-	if ( pMsg->m_cbSize > k_cbMaxSteamNetworkingSocketsMessageSizeSend )
+	if ( pMsg->m_cbSize > k_cbMaxshreemNetworkingSocketsMessageSizeSend )
 	{
-		AssertMsg2( false, "Message size %d is too big.  Max is %d", pMsg->m_cbSize, k_cbMaxSteamNetworkingSocketsMessageSizeSend );
+		AssertMsg2( false, "Message size %d is too big.  Max is %d", pMsg->m_cbSize, k_cbMaxshreemNetworkingSocketsMessageSizeSend );
 		pMsg->Release();
 		return -k_EResultInvalidParam;
 	}
@@ -1887,40 +1887,40 @@ int64 CSteamNetworkConnectionBase::_APISendMessageToConnection( CSteamNetworking
 }
 
 
-EResult CSteamNetworkConnectionBase::APIFlushMessageOnConnection()
+EResult CshreemNetworkConnectionBase::APIFlushMessageOnConnection()
 {
 
 	// Check connection state
 	switch ( GetState() )
 	{
-	case k_ESteamNetworkingConnectionState_None:
-	case k_ESteamNetworkingConnectionState_FinWait:
-	case k_ESteamNetworkingConnectionState_Linger:
-	case k_ESteamNetworkingConnectionState_Dead:
+	case k_EshreemNetworkingConnectionState_None:
+	case k_EshreemNetworkingConnectionState_FinWait:
+	case k_EshreemNetworkingConnectionState_Linger:
+	case k_EshreemNetworkingConnectionState_Dead:
 	default:
 		AssertMsg( false, "Why are making API calls on this connection?" );
 		return k_EResultInvalidState;
 
-	case k_ESteamNetworkingConnectionState_Connecting:
-	case k_ESteamNetworkingConnectionState_FindingRoute:
-	case k_ESteamNetworkingConnectionState_Connected:
+	case k_EshreemNetworkingConnectionState_Connecting:
+	case k_EshreemNetworkingConnectionState_FindingRoute:
+	case k_EshreemNetworkingConnectionState_Connected:
 		break;
 
-	case k_ESteamNetworkingConnectionState_ClosedByPeer:
-	case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+	case k_EshreemNetworkingConnectionState_ClosedByPeer:
+	case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 		return k_EResultNoConnection;
 	}
 
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 	return SNP_FlushMessage( usecNow );
 }
 
-int CSteamNetworkConnectionBase::APIReceiveMessages( SteamNetworkingMessage_t **ppOutMessages, int nMaxMessages )
+int CshreemNetworkConnectionBase::APIReceiveMessages( shreemNetworkingMessage_t **ppOutMessages, int nMaxMessages )
 {
 	return m_queueRecvMessages.RemoveMessages( ppOutMessages, nMaxMessages );
 }
 
-bool CSteamNetworkConnectionBase::DecryptDataChunk( uint16 nWireSeqNum, int cbPacketSize, const void *pChunk, int cbChunk, RecvPacketContext_t &ctx )
+bool CshreemNetworkConnectionBase::DecryptDataChunk( uint16 nWireSeqNum, int cbPacketSize, const void *pChunk, int cbChunk, RecvPacketContext_t &ctx )
 {
 	if ( !m_bCryptKeysValid || !BStateIsActive() )
 	{
@@ -1951,7 +1951,7 @@ bool CSteamNetworkConnectionBase::DecryptDataChunk( uint16 nWireSeqNum, int cbPa
 			AssertMsg1( false, "Bogus cipher %d", m_eNegotiatedCipher );
 			return false;
 
-		case k_ESteamNetworkingSocketsCipher_NULL:
+		case k_EshreemNetworkingSocketsCipher_NULL:
 		{
 
 			// No encryption!
@@ -1960,7 +1960,7 @@ bool CSteamNetworkConnectionBase::DecryptDataChunk( uint16 nWireSeqNum, int cbPa
 		}
 		break;
 
-		case k_ESteamNetworkingSocketsCipher_AES_256_GCM:
+		case k_EshreemNetworkingSocketsCipher_AES_256_GCM:
 		{
 
 			// Adjust the IV by the packet number
@@ -2024,7 +2024,7 @@ bool CSteamNetworkConnectionBase::DecryptDataChunk( uint16 nWireSeqNum, int cbPa
 	int64 nGap = ctx.m_nPktNum - m_statsEndToEnd.m_nMaxRecvPktNum;
 	if ( nGap > 0x4000 )
 	{
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_Generic,
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_Generic,
 			"Pkt number lurch by %lld; %04x->%04x",
 			(long long)nGap, (uint16)m_statsEndToEnd.m_nMaxRecvPktNum, nWireSeqNum);
 		return false;
@@ -2035,12 +2035,12 @@ bool CSteamNetworkConnectionBase::DecryptDataChunk( uint16 nWireSeqNum, int cbPa
 	return true;
 }
 
-EResult CSteamNetworkConnectionBase::APIAcceptConnection()
+EResult CshreemNetworkConnectionBase::APIAcceptConnection()
 {
 	// Must be in in state ready to be accepted
-	if ( GetState() != k_ESteamNetworkingConnectionState_Connecting )
+	if ( GetState() != k_EshreemNetworkingConnectionState_Connecting )
 	{
-		if ( GetState() == k_ESteamNetworkingConnectionState_ClosedByPeer )
+		if ( GetState() == k_EshreemNetworkingConnectionState_ClosedByPeer )
 		{
 			SpewWarning( "[%s] Cannot accept connection; already closed by remote host.", GetDescription() );
 		}
@@ -2065,11 +2065,11 @@ EResult CSteamNetworkConnectionBase::APIAcceptConnection()
 
 	// Select the cipher.  We needed to wait until now to do it, because the app
 	// might have set connection options on a new connection.
-	Assert( m_eNegotiatedCipher == k_ESteamNetworkingSocketsCipher_INVALID );
+	Assert( m_eNegotiatedCipher == k_EshreemNetworkingSocketsCipher_INVALID );
 	if ( !BFinishCryptoHandshake( true ) )
 		return k_EResultHandshakeFailed;
 
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
 	// Derived class knows what to do next
 	EResult eResult = AcceptConnection( usecNow );
@@ -2077,20 +2077,20 @@ EResult CSteamNetworkConnectionBase::APIAcceptConnection()
 	{
 		// Make sure they properly transitioned the connection state
 		AssertMsg2(
-			GetState() == k_ESteamNetworkingConnectionState_FindingRoute || GetState() == k_ESteamNetworkingConnectionState_Connected,
+			GetState() == k_EshreemNetworkingConnectionState_FindingRoute || GetState() == k_EshreemNetworkingConnectionState_Connected,
 			"[%s] AcceptConnection put the connection into state %d", GetDescription(), (int)GetState() );
 	}
 	else
 	{
 		// Nuke connection if we fail.  (If they provided a more specific reason and already closed
 		// the connection, this won't do anything.)
-		ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_InternalError, "Failed to accept connection." );
+		ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_InternalError, "Failed to accept connection." );
 	}
 
 	return eResult;
 }
 
-EResult CSteamNetworkConnectionBase::AcceptConnection( SteamNetworkingMicroseconds usecNow )
+EResult CshreemNetworkConnectionBase::AcceptConnection( shreemNetworkingMicroseconds usecNow )
 {
 	NOTE_UNUSED( usecNow );
 
@@ -2099,29 +2099,29 @@ EResult CSteamNetworkConnectionBase::AcceptConnection( SteamNetworkingMicrosecon
 	return k_EResultFail;
 }
 
-void CSteamNetworkConnectionBase::APICloseConnection( int nReason, const char *pszDebug, bool bEnableLinger )
+void CshreemNetworkConnectionBase::APICloseConnection( int nReason, const char *pszDebug, bool bEnableLinger )
 {
 
 	// If we already know the reason for the problem, we should ignore theirs
-	if ( m_eEndReason == k_ESteamNetConnectionEnd_Invalid || GetState() == k_ESteamNetworkingConnectionState_Connecting || GetState() == k_ESteamNetworkingConnectionState_FindingRoute || GetState() == k_ESteamNetworkingConnectionState_Connected )
+	if ( m_eEndReason == k_EshreemNetConnectionEnd_Invalid || GetState() == k_EshreemNetworkingConnectionState_Connecting || GetState() == k_EshreemNetworkingConnectionState_FindingRoute || GetState() == k_EshreemNetworkingConnectionState_Connected )
 	{
 		if ( nReason == 0 )
 		{
-			nReason = k_ESteamNetConnectionEnd_App_Generic;
+			nReason = k_EshreemNetConnectionEnd_App_Generic;
 		}
-		else if ( nReason < k_ESteamNetConnectionEnd_App_Min || nReason > k_ESteamNetConnectionEnd_AppException_Max )
+		else if ( nReason < k_EshreemNetConnectionEnd_App_Min || nReason > k_EshreemNetConnectionEnd_AppException_Max )
 		{
 			// Use a special value so that we can detect if people have this bug in our analytics
-			nReason = k_ESteamNetConnectionEnd_App_Max;
+			nReason = k_EshreemNetConnectionEnd_App_Max;
 			pszDebug = "Invalid numeric reason code";
 		}
 
-		m_eEndReason = ESteamNetConnectionEnd( nReason );
+		m_eEndReason = EshreemNetConnectionEnd( nReason );
 		if ( m_szEndDebug[0] == '\0' )
 		{
 			if ( pszDebug == nullptr || *pszDebug == '\0' )
 			{
-				if ( nReason >= k_ESteamNetConnectionEnd_AppException_Min )
+				if ( nReason >= k_EshreemNetConnectionEnd_AppException_Min )
 				{
 					pszDebug = "Application closed connection in an unusual way";
 				}
@@ -2137,26 +2137,26 @@ void CSteamNetworkConnectionBase::APICloseConnection( int nReason, const char *p
 	// Check our state
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
 		default:
 			Assert( false );
 			return;
 
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
 			ConnectionState_FinWait();
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connected:
 			if ( bEnableLinger )
 			{
-				SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
-				SetState( k_ESteamNetworkingConnectionState_Linger, usecNow );
+				shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
+				SetState( k_EshreemNetworkingConnectionState_Linger, usecNow );
 				CheckConnectionStateAndSetNextThinkTime( usecNow );
 			}
 			else
@@ -2167,11 +2167,11 @@ void CSteamNetworkConnectionBase::APICloseConnection( int nReason, const char *p
 	}
 }
 
-void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNewState, SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::SetState( EshreemNetworkingConnectionState eNewState, shreemNetworkingMicroseconds usecNow )
 {
 	if ( eNewState == m_eConnectionState )
 		return;
-	const ESteamNetworkingConnectionState eOldState = m_eConnectionState;
+	const EshreemNetworkingConnectionState eOldState = m_eConnectionState;
 	m_eConnectionState = eNewState;
 
 	// Remember when we entered this state
@@ -2184,52 +2184,52 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 			Assert( false );
 			// FALLTHROUGH
 
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_Connected:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 			m_eConnectionWireState = eNewState;
 			break;
 
-		case k_ESteamNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_FinWait:
 
 			// Check where we are coming from
 			switch ( eOldState )
 			{
-				case k_ESteamNetworkingConnectionState_Dead:
-				case k_ESteamNetworkingConnectionState_None:
-				case k_ESteamNetworkingConnectionState_FinWait:
+				case k_EshreemNetworkingConnectionState_Dead:
+				case k_EshreemNetworkingConnectionState_None:
+				case k_EshreemNetworkingConnectionState_FinWait:
 				default:
 					Assert( false );
 					break;
 
-				case k_ESteamNetworkingConnectionState_ClosedByPeer:
-				case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+				case k_EshreemNetworkingConnectionState_ClosedByPeer:
+				case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 					Assert( m_eConnectionWireState == eOldState );
 					m_eConnectionWireState = eOldState;
 					break;
 
-				case k_ESteamNetworkingConnectionState_Linger:
-				case k_ESteamNetworkingConnectionState_Connecting:
-				case k_ESteamNetworkingConnectionState_FindingRoute:
-				case k_ESteamNetworkingConnectionState_Connected:
-					m_eConnectionWireState = k_ESteamNetworkingConnectionState_FinWait;
+				case k_EshreemNetworkingConnectionState_Linger:
+				case k_EshreemNetworkingConnectionState_Connecting:
+				case k_EshreemNetworkingConnectionState_FindingRoute:
+				case k_EshreemNetworkingConnectionState_Connected:
+					m_eConnectionWireState = k_EshreemNetworkingConnectionState_FinWait;
 					break;
 			}
 			break;
 
-		case k_ESteamNetworkingConnectionState_Linger:
-			Assert( eOldState == k_ESteamNetworkingConnectionState_Connected );
-			m_eConnectionWireState = k_ESteamNetworkingConnectionState_Connected;
+		case k_EshreemNetworkingConnectionState_Linger:
+			Assert( eOldState == k_EshreemNetworkingConnectionState_Connected );
+			m_eConnectionWireState = k_EshreemNetworkingConnectionState_Connected;
 			break;
 	}
 
 	// Certain connection options cannot be changed after a certain point
 	bool bLock = false;
-	if ( GetState() == k_ESteamNetworkingConnectionState_Connecting )
+	if ( GetState() == k_EshreemNetworkingConnectionState_Connecting )
 	{
 		if ( m_bConnectionInitiatedRemotely )
 		{
@@ -2252,10 +2252,10 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 		m_connectionConfig.m_IP_AllowWithoutAuth.Lock();
 		m_connectionConfig.m_Unencrypted.Lock();
 		m_connectionConfig.m_SymmetricConnect.Lock();
-		#ifdef STEAMNETWORKINGSOCKETS_ENABLE_SDR
+		#ifdef shreemNETWORKINGSOCKETS_ENABLE_SDR
 			m_connectionConfig.m_SDRClient_DebugTicketAddress.Lock();
 		#endif
-		#ifdef STEAMNETWORKINGSOCKETS_ENABLE_ICE
+		#ifdef shreemNETWORKINGSOCKETS_ENABLE_ICE
 			m_connectionConfig.m_P2P_Transport_ICE_Enable.Lock();
 		#endif
 	}
@@ -2263,8 +2263,8 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 	// Post a notification when certain state changes occur.  Note that
 	// "internal" state changes, where the connection is effectively closed
 	// from the application's perspective, are not relevant
-	const ESteamNetworkingConnectionState eOldAPIState = CollapseConnectionStateToAPIState( eOldState );
-	const ESteamNetworkingConnectionState eNewAPIState = CollapseConnectionStateToAPIState( GetState() );
+	const EshreemNetworkingConnectionState eOldAPIState = CollapseConnectionStateToAPIState( eOldState );
+	const EshreemNetworkingConnectionState eNewAPIState = CollapseConnectionStateToAPIState( GetState() );
 
 	// Internal connection used by the higher-level messages interface?
 	Assert( m_nSupressStateChangeCallbacks >= 0 );
@@ -2273,7 +2273,7 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 		// Check for posting callback, if connection state has changed from an API perspective
 		if ( eOldAPIState != eNewAPIState )
 		{
-			if ( eOldState == k_ESteamNetworkingConnectionState_None && GetState() == k_ESteamNetworkingConnectionState_ProblemDetectedLocally )
+			if ( eOldState == k_EshreemNetworkingConnectionState_None && GetState() == k_EshreemNetworkingConnectionState_ProblemDetectedLocally )
 			{
 				// Do not post callbacks for internal failures during connection creation
 			}
@@ -2286,17 +2286,17 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 
 	// Any time we switch into a state that is closed from an API perspective,
 	// discard any unread received messages
-	if ( eNewAPIState == k_ESteamNetworkingConnectionState_None )
+	if ( eNewAPIState == k_EshreemNetworkingConnectionState_None )
 		m_queueRecvMessages.PurgeMessages();
 
 	// Slam some stuff when we are in various states
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 
 			// Check for leaving connected state
 			if ( m_statsEndToEnd.m_usecWhenStartedConnectedState != 0 && m_statsEndToEnd.m_usecWhenEndedConnectedState == 0 )
@@ -2310,8 +2310,8 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 			SNP_ShutdownConnection();
 			break;
 
-		case k_ESteamNetworkingConnectionState_Linger:
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Connected:
 
 			// Key exchange should be complete
 			Assert( m_bCryptKeysValid );
@@ -2321,7 +2321,7 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 			m_statsEndToEnd.SetPassive( false, m_usecWhenEnteredConnectionState );
 			break;
 
-		case k_ESteamNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
 
 			// Key exchange should be complete.  (We do that when accepting a connection.)
 			Assert( m_bCryptKeysValid );
@@ -2331,7 +2331,7 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 			m_statsEndToEnd.SetPassive( false, m_usecWhenEnteredConnectionState );
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_Connecting:
 
 			// And we shouldn't mark stats object as ready until we go connected
 			Assert( m_statsEndToEnd.IsPassive() );
@@ -2341,8 +2341,8 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 	// Finally, hook for derived class to take action.  But not if we're dead
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
 			break;
 		default:
 			ConnectionStateChanged( eOldState );
@@ -2350,7 +2350,7 @@ void CSteamNetworkConnectionBase::SetState( ESteamNetworkingConnectionState eNew
 	}
 }
 
-void CSteamNetworkConnectionBase::ConnectionStateChanged( ESteamNetworkingConnectionState eOldState )
+void CshreemNetworkConnectionBase::ConnectionStateChanged( EshreemNetworkingConnectionState eOldState )
 {
 
 	// If we have a transport, give it a chance to react to the state change
@@ -2358,7 +2358,7 @@ void CSteamNetworkConnectionBase::ConnectionStateChanged( ESteamNetworkingConnec
 		m_pTransport->TransportConnectionStateChanged( eOldState );
 }
 
-bool CSteamNetworkConnectionBase::ReceivedMessage( const void *pData, int cbData, int64 nMsgNum, int nFlags, SteamNetworkingMicroseconds usecNow )
+bool CshreemNetworkConnectionBase::ReceivedMessage( const void *pData, int cbData, int64 nMsgNum, int nFlags, shreemNetworkingMicroseconds usecNow )
 {
 //	// !TEST! Enable this during connection test to trap bogus messages earlier
 //		struct TestMsg
@@ -2374,7 +2374,7 @@ bool CSteamNetworkConnectionBase::ReceivedMessage( const void *pData, int cbData
 //		Assert( sizeof(*pTestMsg) - sizeof(pTestMsg->m_data) + pTestMsg->m_cbSize == cbData );
 
 	// Create a message
-	CSteamNetworkingMessage *pMsg = CSteamNetworkingMessage::New( this, cbData, nMsgNum, nFlags, usecNow );
+	CshreemNetworkingMessage *pMsg = CshreemNetworkingMessage::New( this, cbData, nMsgNum, nFlags, usecNow );
 	if ( !pMsg )
 	{
 		// Hm.  this failure really is probably a sign that we are in a pretty bad state,
@@ -2392,7 +2392,7 @@ bool CSteamNetworkConnectionBase::ReceivedMessage( const void *pData, int cbData
 	return true;
 }
 
-void CSteamNetworkConnectionBase::ReceivedMessage( CSteamNetworkingMessage *pMsg )
+void CshreemNetworkConnectionBase::ReceivedMessage( CshreemNetworkingMessage *pMsg )
 {
 
 	SpewVerboseGroup( m_connectionConfig.m_LogLevel_Message.Get(), "[%s] RecvMessage MsgNum=%lld sz=%d\n",
@@ -2401,27 +2401,27 @@ void CSteamNetworkConnectionBase::ReceivedMessage( CSteamNetworkingMessage *pMsg
 		pMsg->m_cbSize );
 
 	// Add to end of my queue.
-	pMsg->LinkToQueueTail( &CSteamNetworkingMessage::m_links, &m_queueRecvMessages );
+	pMsg->LinkToQueueTail( &CshreemNetworkingMessage::m_links, &m_queueRecvMessages );
 
 	// Add to the poll group, if we are in one
 	if ( m_pPollGroup )
-		pMsg->LinkToQueueTail( &CSteamNetworkingMessage::m_linksSecondaryQueue, &m_pPollGroup->m_queueRecvMessages );
+		pMsg->LinkToQueueTail( &CshreemNetworkingMessage::m_linksSecondaryQueue, &m_pPollGroup->m_queueRecvMessages );
 }
 
-void CSteamNetworkConnectionBase::PostConnectionStateChangedCallback( ESteamNetworkingConnectionState eOldAPIState, ESteamNetworkingConnectionState eNewAPIState )
+void CshreemNetworkConnectionBase::PostConnectionStateChangedCallback( EshreemNetworkingConnectionState eOldAPIState, EshreemNetworkingConnectionState eNewAPIState )
 {
-	SteamNetConnectionStatusChangedCallback_t c;
+	shreemNetConnectionStatusChangedCallback_t c;
 	ConnectionPopulateInfo( c.m_info );
 	c.m_eOldState = eOldAPIState;
 	c.m_hConn = m_hConnectionSelf;
 
-	// !KLUDGE! For ISteamnetworkingMessages connections, we want to process the callback immediately.
+	// !KLUDGE! For IshreemnetworkingMessages connections, we want to process the callback immediately.
 	void *fnCallback = m_connectionConfig.m_Callback_ConnectionStatusChanged.Get();
 	if ( IsConnectionForMessagesSession() )
 	{
 		if ( fnCallback )
 		{
-			FnSteamNetConnectionStatusChanged fnConnectionStatusChanged = (FnSteamNetConnectionStatusChanged)( fnCallback );
+			FnshreemNetConnectionStatusChanged fnConnectionStatusChanged = (FnshreemNetConnectionStatusChanged)( fnCallback );
 			(*fnConnectionStatusChanged)( &c );
 		}
 		else
@@ -2434,18 +2434,18 @@ void CSteamNetworkConnectionBase::PostConnectionStateChangedCallback( ESteamNetw
 	{
 
 		// Typical codepath - post to a queue
-		m_pSteamNetworkingSocketsInterface->QueueCallback( c, fnCallback );
+		m_pshreemNetworkingSocketsInterface->QueueCallback( c, fnCallback );
 	}
 }
 
-void CSteamNetworkConnectionBase::ConnectionState_ProblemDetectedLocally( ESteamNetConnectionEnd eReason, const char *pszFmt, ... )
+void CshreemNetworkConnectionBase::ConnectionState_ProblemDetectedLocally( EshreemNetConnectionEnd eReason, const char *pszFmt, ... )
 {
 	va_list ap;
 
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
-	Assert( eReason > k_ESteamNetConnectionEnd_AppException_Max );
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
+	Assert( eReason > k_EshreemNetConnectionEnd_AppException_Max );
 	Assert( pszFmt && *pszFmt );
-	if ( m_eEndReason == k_ESteamNetConnectionEnd_Invalid || GetState() == k_ESteamNetworkingConnectionState_Linger )
+	if ( m_eEndReason == k_EshreemNetConnectionEnd_Invalid || GetState() == k_EshreemNetworkingConnectionState_Linger )
 	{
 		m_eEndReason = eReason;
 		va_start(ap, pszFmt);
@@ -2456,30 +2456,30 @@ void CSteamNetworkConnectionBase::ConnectionState_ProblemDetectedLocally( ESteam
 	// Check our state
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
 		default:
 			AssertMsg( false, "[%s] problem (%d) %s, but connection already dead (%d %d %s)",
 				GetDescription(), (int)eReason, pszFmt, GetState(), (int)m_eEndReason, m_szEndDebug );
 			return;
 
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 			// Don't do anything
 			break;
 
-		case k_ESteamNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Linger:
 			ConnectionState_FinWait();
 			return;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connected:
 
 			SpewMsg( "[%s] problem detected locally (%d): %s\n", GetDescription(), (int)m_eEndReason, m_szEndDebug );
 
-			SetState( k_ESteamNetworkingConnectionState_ProblemDetectedLocally, usecNow );
+			SetState( k_EshreemNetworkingConnectionState_ProblemDetectedLocally, usecNow );
 			break;
 	}
 
@@ -2488,29 +2488,29 @@ void CSteamNetworkConnectionBase::ConnectionState_ProblemDetectedLocally( ESteam
 	SetNextThinkTimeASAP();
 }
 
-void CSteamNetworkConnectionBase::ConnectionState_FinWait()
+void CshreemNetworkConnectionBase::ConnectionState_FinWait()
 {
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
 	// Check our state
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
 		default:
 			Assert( false );
 			return;
 
-		case k_ESteamNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_FinWait:
 			break;
 
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_Linger:
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_Connected:
-			SetState( k_ESteamNetworkingConnectionState_FinWait, usecNow );
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connected:
+			SetState( k_EshreemNetworkingConnectionState_FinWait, usecNow );
 
 			// We don't have enough context to know if it's safe to act now.  Just schedule an immediate
 			// wake up call so we will take action at the next safe time
@@ -2519,60 +2519,60 @@ void CSteamNetworkConnectionBase::ConnectionState_FinWait()
 	}
 }
 
-void CSteamNetworkConnectionBase::ConnectionState_ClosedByPeer( int nReason, const char *pszDebug )
+void CshreemNetworkConnectionBase::ConnectionState_ClosedByPeer( int nReason, const char *pszDebug )
 {
 
 	// Check our state
 	switch ( m_eConnectionState )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
 		default:
 			Assert( false );
 			return;
 
-		case k_ESteamNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_FinWait:
 			// Keep hanging out until the fin wait time is up
 			break;
 
-		case k_ESteamNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Linger:
 			// Hang out to gracefully handle any last stray packets,
 			// clean up relay sessions, etc.
 			ConnectionState_FinWait();
 			break;
 
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
 			// Just ignore this.  We detected a problem, but now the peer
 			// is also trying to close the connection.  In any case, we
 			// need to wait for the client code to close the handle
 			break;
 
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 			// We already knew this, we're just waiting for
 			// the client code to clean up the handle.
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connected:
 
 			if ( pszDebug && *pszDebug )
 				V_strcpy_safe( m_szEndDebug, pszDebug );
 			else if ( m_szEndDebug[0] == '\0' )
 				V_strcpy_safe( m_szEndDebug, "The remote host closed the connection." );
-			m_eEndReason = ESteamNetConnectionEnd( nReason );
+			m_eEndReason = EshreemNetConnectionEnd( nReason );
 
 			SpewMsg( "[%s] closed by peer\n", GetDescription() );
 
-			SetState( k_ESteamNetworkingConnectionState_ClosedByPeer, SteamNetworkingSockets_GetLocalTimestamp() );
+			SetState( k_EshreemNetworkingConnectionState_ClosedByPeer, shreemNetworkingSockets_GetLocalTimestamp() );
 			break;
 	}
 }
 
-bool CSteamNetworkConnectionBase::BConnectionState_Connecting( SteamNetworkingMicroseconds usecNow, SteamNetworkingErrMsg &errMsg )
+bool CshreemNetworkConnectionBase::BConnectionState_Connecting( shreemNetworkingMicroseconds usecNow, shreemNetworkingErrMsg &errMsg )
 {
 	// Already failed (and they didn't handle it)?  We should only transition to this state from the initial state
-	if ( GetState() != k_ESteamNetworkingConnectionState_None )
+	if ( GetState() != k_EshreemNetworkingConnectionState_None )
 	{
 		V_sprintf_safe( errMsg, "Unexpected state %d", GetState() );
 		AssertMsg( false, "[%s] %s", GetDescription(), errMsg );
@@ -2596,7 +2596,7 @@ bool CSteamNetworkConnectionBase::BConnectionState_Connecting( SteamNetworkingMi
 	}
 
 	// Set the state
-	SetState( k_ESteamNetworkingConnectionState_Connecting, usecNow );
+	SetState( k_EshreemNetworkingConnectionState_Connecting, usecNow );
 
 	// Schedule a wakeup call ASAP so we can start sending out packets immediately
 	SetNextThinkTimeASAP();
@@ -2605,23 +2605,23 @@ bool CSteamNetworkConnectionBase::BConnectionState_Connecting( SteamNetworkingMi
 	return true;
 }
 
-void CSteamNetworkConnectionBase::ConnectionState_Connected( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::ConnectionState_Connected( shreemNetworkingMicroseconds usecNow )
 {
 	// Check our state
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 		default:
 			Assert( false );
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
 			{
 				// We must receive a packet in order to be connected!
 				Assert( m_statsEndToEnd.m_usecTimeLastRecv > 0 );
@@ -2631,17 +2631,17 @@ void CSteamNetworkConnectionBase::ConnectionState_Connected( SteamNetworkingMicr
 				m_statsEndToEnd.m_usecWhenStartedConnectedState = usecNow;
 
 				// Spew, if this is newsworthy
-				if ( !m_bConnectionInitiatedRemotely || GetState() == k_ESteamNetworkingConnectionState_FindingRoute )
+				if ( !m_bConnectionInitiatedRemotely || GetState() == k_EshreemNetworkingConnectionState_FindingRoute )
 					SpewMsg( "[%s] connected\n", GetDescription() );
 
-				SetState( k_ESteamNetworkingConnectionState_Connected, usecNow );
+				SetState( k_EshreemNetworkingConnectionState_Connected, usecNow );
 
 				SNP_InitializeConnection( usecNow );
 			}
 
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connected:
 			break;
 	}
 
@@ -2649,32 +2649,32 @@ void CSteamNetworkConnectionBase::ConnectionState_Connected( SteamNetworkingMicr
 	SetNextThinkTimeASAP();
 }
 
-void CSteamNetworkConnectionBase::ConnectionState_FindingRoute( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::ConnectionState_FindingRoute( shreemNetworkingMicroseconds usecNow )
 {
 	// Check our state, we really should only transition into this state from one state.
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_Connected:
 		default:
 			Assert( false );
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_Connecting:
 
 			// Spew, if this is newsworthy
 			if ( !m_bConnectionInitiatedRemotely )
 				SpewMsg( "[%s] finding route\n", GetDescription() );
 
-			SetState( k_ESteamNetworkingConnectionState_FindingRoute, usecNow );
+			SetState( k_EshreemNetworkingConnectionState_FindingRoute, usecNow );
 			break;
 
-		case k_ESteamNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
 			break;
 	}
 
@@ -2682,11 +2682,11 @@ void CSteamNetworkConnectionBase::ConnectionState_FindingRoute( SteamNetworkingM
 	SetNextThinkTimeASAP();
 }
 
-void CSteamNetworkConnectionBase::Think( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::Think( shreemNetworkingMicroseconds usecNow )
 {
 	// If we queued ourselves for deletion, now is a safe time to do it.
 	// Self destruct!
-	if ( m_eConnectionState == k_ESteamNetworkingConnectionState_Dead )
+	if ( m_eConnectionState == k_EshreemNetworkingConnectionState_Dead )
 	{
 		delete this;
 		return;
@@ -2703,16 +2703,16 @@ void CSteamNetworkConnectionBase::Think( SteamNetworkingMicroseconds usecNow )
 	CheckConnectionStateAndSetNextThinkTime( usecNow );
 }
 
-void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( shreemNetworkingMicroseconds usecNow )
 {
 	// Assume a default think interval just to make sure we check in periodically
-	SteamNetworkingMicroseconds usecMinNextThinkTime = usecNow + k_nMillion;
+	shreemNetworkingMicroseconds usecMinNextThinkTime = usecNow + k_nMillion;
 
 	// Use a macro so that if we assert, we'll get a real line number
 	#define UpdateMinThinkTime(x) \
 	{ \
 		/* assign into temporary in case x is an expression with side effects */ \
-		SteamNetworkingMicroseconds usecNextThink = (x);  \
+		shreemNetworkingMicroseconds usecNextThink = (x);  \
 		/* Scheduled think time must be in the future.  If some code is setting a think */ \
 		/* time for right now, then it should have just done it. */ \
 		if ( usecNextThink <= usecNow ) { \
@@ -2726,7 +2726,7 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 	// Check our state
 	switch ( m_eConnectionState )
 	{
-		case k_ESteamNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_Dead:
 			// This really shouldn't happen.  But if it does....
 			// We can't be sure that it's safe to delete us now.
 			// Just queue us for deletion ASAP.
@@ -2734,16 +2734,16 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 			SetNextThinkTime( usecNow );
 			return;
 
-		case k_ESteamNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_None:
 		default:
 			// WAT
 			Assert( false );
 			return;
 
-		case k_ESteamNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_FinWait:
 		{
 			// Timeout?
-			SteamNetworkingMicroseconds usecTimeout = m_usecWhenEnteredConnectionState + k_usecFinWaitTimeout;
+			shreemNetworkingMicroseconds usecTimeout = m_usecWhenEnteredConnectionState + k_usecFinWaitTimeout;
 			if ( usecNow >= usecTimeout )
 			{
 				QueueDestroy();
@@ -2755,13 +2755,13 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 		}
 		return;
 
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 		{
 			// We don't send any data packets or keepalives in this state.
 			// We're just waiting for the client API to close us.  Let's check
 			// in once after a pretty lengthy delay, and assert if we're still alive
-			SteamNetworkingMicroseconds usecTimeout = m_usecWhenEnteredConnectionState + 20*k_nMillion;
+			shreemNetworkingMicroseconds usecTimeout = m_usecWhenEnteredConnectionState + 20*k_nMillion;
 			if ( usecNow >= usecTimeout )
 			{
 				SpewBug( "[%s] We are in state %d and have been waiting %.1fs to be cleaned up.  Did you forget to call CloseConnection()?",
@@ -2774,35 +2774,35 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 		}
 		return;
 
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_Connecting:
 		{
 
 			// Timeout?
-			SteamNetworkingMicroseconds usecTimeout = m_usecWhenEnteredConnectionState + (SteamNetworkingMicroseconds)m_connectionConfig.m_TimeoutInitial.Get()*1000;
+			shreemNetworkingMicroseconds usecTimeout = m_usecWhenEnteredConnectionState + (shreemNetworkingMicroseconds)m_connectionConfig.m_TimeoutInitial.Get()*1000;
 			if ( usecNow >= usecTimeout )
 			{
 				// Check if the application just didn't ever respond, it's probably a bug.
 				// We should squawk about this and let them know.
-				if ( m_eConnectionState != k_ESteamNetworkingConnectionState_FindingRoute && m_bConnectionInitiatedRemotely )
+				if ( m_eConnectionState != k_EshreemNetworkingConnectionState_FindingRoute && m_bConnectionInitiatedRemotely )
 				{
 					// Discard this warning for messages sessions.  It's part of the messages API design
 					// that the app can ignore these connections if they do not want to accept them.
 					if ( IsConnectionForMessagesSession() )
 					{
-						ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_Timeout, "%s", "App did not respond to Messages session request in time, discarding." );
+						ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_Timeout, "%s", "App did not respond to Messages session request in time, discarding." );
 					}
 					else
 					{
 						AssertMsg( false, "Application didn't accept or close incoming connection in a reasonable amount of time.  This is probably a bug." );
-						ConnectionState_ProblemDetectedLocally( k_ESteamNetConnectionEnd_Misc_Timeout, "%s", "App didn't accept or close incoming connection in time." );
+						ConnectionState_ProblemDetectedLocally( k_EshreemNetConnectionEnd_Misc_Timeout, "%s", "App didn't accept or close incoming connection in time." );
 					}
 				}
 				else
 				{
 					ConnectionTimedOut( usecNow );
 				}
-				AssertMsg2( GetState() == k_ESteamNetworkingConnectionState_ProblemDetectedLocally, "[%s] ConnectionTimedOut didn't do what it is supposed to, state=%d!", GetDescription(), (int)GetState() );
+				AssertMsg2( GetState() == k_EshreemNetworkingConnectionState_ProblemDetectedLocally, "[%s] ConnectionTimedOut didn't do what it is supposed to, state=%d!", GetDescription(), (int)GetState() );
 				return;
 			}
 
@@ -2810,7 +2810,7 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 			UpdateMinThinkTime( usecTimeout );
 
 			// FInding route?
-			if ( m_eConnectionState == k_ESteamNetworkingConnectionState_FindingRoute )
+			if ( m_eConnectionState == k_EshreemNetworkingConnectionState_FindingRoute )
 			{
 				UpdateMinThinkTime( ThinkConnection_FindingRoute( usecNow ) );
 			}
@@ -2838,7 +2838,7 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 			}
 		} break;
 
-		case k_ESteamNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_Linger:
 
 			// Have we sent everything we wanted to?
 			if ( m_senderState.m_messagesQueued.empty() && m_senderState.m_unackedReliableMessages.empty() )
@@ -2852,11 +2852,11 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 		// |
 		// | otherwise, fall through
 		// V
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connected:
 		{
 			if ( m_pTransport && m_pTransport->BCanSendEndToEndData() )
 			{
-				SteamNetworkingMicroseconds usecNextThinkSNP = SNP_ThinkSendState( usecNow );
+				shreemNetworkingMicroseconds usecNextThinkSNP = SNP_ThinkSendState( usecNow );
 
 				// Set a pretty tight tolerance if SNP wants to wake up at a certain time.
 				UpdateMinThinkTime( usecNextThinkSNP );
@@ -2890,7 +2890,7 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 		{
 
 			// When will the timeout hit?
-			SteamNetworkingMicroseconds usecEndToEndConnectionTimeout = std::max( m_statsEndToEnd.m_usecWhenTimeoutStarted, m_statsEndToEnd.m_usecTimeLastRecv ) + (SteamNetworkingMicroseconds)m_connectionConfig.m_TimeoutConnected.Get()*1000;
+			shreemNetworkingMicroseconds usecEndToEndConnectionTimeout = std::max( m_statsEndToEnd.m_usecWhenTimeoutStarted, m_statsEndToEnd.m_usecTimeLastRecv ) + (shreemNetworkingMicroseconds)m_connectionConfig.m_TimeoutConnected.Get()*1000;
 
 			// Time to give up?
 			if ( usecNow >= usecEndToEndConnectionTimeout )
@@ -2911,7 +2911,7 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 
 					// Save state for assert
 					#ifdef DBGFLAG_ASSERT
-					ESteamNetworkingConnectionState eOldState = GetState();
+					EshreemNetworkingConnectionState eOldState = GetState();
 					#endif
 
 					// Check for connection-type-specific handling
@@ -2919,8 +2919,8 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 
 					// Make sure that worked
 					AssertMsg3(
-						GetState() == k_ESteamNetworkingConnectionState_ProblemDetectedLocally
-						|| ( eOldState == k_ESteamNetworkingConnectionState_Linger && GetState() == k_ESteamNetworkingConnectionState_FinWait ),
+						GetState() == k_EshreemNetworkingConnectionState_ProblemDetectedLocally
+						|| ( eOldState == k_EshreemNetworkingConnectionState_Linger && GetState() == k_EshreemNetworkingConnectionState_FinWait ),
 						"[%s] ConnectionTimedOut didn't do what it is supposed to! (%d -> %d)", GetDescription(), (int)eOldState, (int)GetState() );
 					return;
 				}
@@ -2935,7 +2935,7 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 		{
 
 			// Urgent keepalive because we are timing out?
-			SteamNetworkingMicroseconds usecStatsNextThinkTime = k_nThinkTime_Never;
+			shreemNetworkingMicroseconds usecStatsNextThinkTime = k_nThinkTime_Never;
 			EStatsReplyRequest eReplyRequested;
 			const char *pszStatsReason = m_statsEndToEnd.GetSendReasonOrUpdateNextThinkTime( usecNow, eReplyRequested, usecStatsNextThinkTime );
 			if ( pszStatsReason )
@@ -2971,21 +2971,21 @@ void CSteamNetworkConnectionBase::CheckConnectionStateAndSetNextThinkTime( Steam
 	#undef UpdateMinThinkTime
 }
 
-void CSteamNetworkConnectionBase::ThinkConnection( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::ThinkConnection( shreemNetworkingMicroseconds usecNow )
 {
 }
 
-void CSteamNetworkConnectionBase::ProcessSNPPing( int msPing, RecvPacketContext_t &ctx )
+void CshreemNetworkConnectionBase::ProcessSNPPing( int msPing, RecvPacketContext_t &ctx )
 {
 	m_statsEndToEnd.m_ping.ReceivedPing( msPing, ctx.m_usecNow );
 }
 
-SteamNetworkingMicroseconds CSteamNetworkConnectionBase::ThinkConnection_FindingRoute( SteamNetworkingMicroseconds usecNow )
+shreemNetworkingMicroseconds CshreemNetworkConnectionBase::ThinkConnection_FindingRoute( shreemNetworkingMicroseconds usecNow )
 {
 	return k_nThinkTime_Never;
 }
 
-SteamNetworkingMicroseconds CSteamNetworkConnectionBase::ThinkConnection_ClientConnecting( SteamNetworkingMicroseconds usecNow )
+shreemNetworkingMicroseconds CshreemNetworkConnectionBase::ThinkConnection_ClientConnecting( shreemNetworkingMicroseconds usecNow )
 {
 	Assert( !m_bConnectionInitiatedRemotely );
 
@@ -2996,7 +2996,7 @@ SteamNetworkingMicroseconds CSteamNetworkConnectionBase::ThinkConnection_ClientC
 		return usecNow + k_nMillion/20; // Nope, check back in just a bit.
 
 	// When to send next retry.
-	SteamNetworkingMicroseconds usecRetry = m_usecWhenSentConnectRequest + k_usecConnectRetryInterval;
+	shreemNetworkingMicroseconds usecRetry = m_usecWhenSentConnectRequest + k_usecConnectRetryInterval;
 	if ( usecNow < usecRetry )
 		return usecRetry; // attempt already in flight.  Wait until it's time to retry
 
@@ -3008,20 +3008,20 @@ SteamNetworkingMicroseconds CSteamNetworkConnectionBase::ThinkConnection_ClientC
 	return m_usecWhenSentConnectRequest + k_usecConnectRetryInterval;
 }
 
-void CSteamNetworkConnectionBase::ConnectionTimedOut( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::ConnectionTimedOut( shreemNetworkingMicroseconds usecNow )
 {
-	ESteamNetConnectionEnd nReasonCode;
+	EshreemNetConnectionEnd nReasonCode;
 	ConnectionEndDebugMsg msg;
 
 	// Set some generic defaults.
-	nReasonCode = k_ESteamNetConnectionEnd_Misc_Timeout;
+	nReasonCode = k_EshreemNetConnectionEnd_Misc_Timeout;
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_Connecting:
 			// Should use this more specific reason code at somepoint, when I add an API to get localized error messages
 			//if ( !m_bConnectionInitiatedRemotely && m_statsEndToEnd.m_usecTimeLastRecv == 0 )
 			//{
-			//	nReasonCode = k_ESteamNetConnectionEnd_Misc_ServerNeverReplied;
+			//	nReasonCode = k_EshreemNetConnectionEnd_Misc_ServerNeverReplied;
 			//	V_strcpy_safe( msg, "" );
 			//}
 			//else
@@ -3030,8 +3030,8 @@ void CSteamNetworkConnectionBase::ConnectionTimedOut( SteamNetworkingMicrosecond
 			//}
 			break;
 
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-			nReasonCode = k_ESteamNetConnectionEnd_Misc_P2P_Rendezvous;
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+			nReasonCode = k_EshreemNetConnectionEnd_Misc_P2P_Rendezvous;
 			V_strcpy_safe( msg, "Timed out attempting to negotiate rendezvous" );
 			break;
 
@@ -3047,17 +3047,17 @@ void CSteamNetworkConnectionBase::ConnectionTimedOut( SteamNetworkingMicrosecond
 	ConnectionState_ProblemDetectedLocally( nReasonCode, "%s", msg );
 }
 
-void CSteamNetworkConnectionBase::GuessTimeoutReason( ESteamNetConnectionEnd &nReasonCode, ConnectionEndDebugMsg &msg, SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionBase::GuessTimeoutReason( EshreemNetConnectionEnd &nReasonCode, ConnectionEndDebugMsg &msg, shreemNetworkingMicroseconds usecNow )
 {
 	// No enlightenments at base class
 }
 
-void CSteamNetworkConnectionBase::UpdateSpeeds( int nTXSpeed, int nRXSpeed )
+void CshreemNetworkConnectionBase::UpdateSpeeds( int nTXSpeed, int nRXSpeed )
 {
 	m_statsEndToEnd.UpdateSpeeds( nTXSpeed, nRXSpeed );
 }
 
-void CSteamNetworkConnectionBase::UpdateMTUFromConfig()
+void CshreemNetworkConnectionBase::UpdateMTUFromConfig()
 {
 	int newMTUPacketSize = m_connectionConfig.m_MTU_PacketSize.Get();
 	if ( newMTUPacketSize == m_cbMTUPacketSize )
@@ -3075,11 +3075,11 @@ void CSteamNetworkConnectionBase::UpdateMTUFromConfig()
 	}
 
 	m_cbMTUPacketSize = m_connectionConfig.m_MTU_PacketSize.Get();
-	m_cbMaxPlaintextPayloadSend = m_cbMTUPacketSize - ( k_cbSteamNetworkingSocketsMaxUDPMsgLen - k_cbSteamNetworkingSocketsMaxPlaintextPayloadSend );
-	m_cbMaxMessageNoFragment = m_cbMaxPlaintextPayloadSend - k_cbSteamNetworkingSocketsNoFragmentHeaderReserve;
+	m_cbMaxPlaintextPayloadSend = m_cbMTUPacketSize - ( k_cbshreemNetworkingSocketsMaxUDPMsgLen - k_cbshreemNetworkingSocketsMaxPlaintextPayloadSend );
+	m_cbMaxMessageNoFragment = m_cbMaxPlaintextPayloadSend - k_cbshreemNetworkingSocketsNoFragmentHeaderReserve;
 
 	// Max size of a reliable segment.  This is designed such that a reliable
-	// message of size k_cbSteamNetworkingSocketsMaxMessageNoFragment
+	// message of size k_cbshreemNetworkingSocketsMaxMessageNoFragment
 	// won't get fragmented, except perhaps in an exceedingly degenerate
 	// case.  (Even in this case, the protocol will function properly, it
 	// will just potentially fragment the message.)  We shouldn't make any
@@ -3087,28 +3087,28 @@ void CSteamNetworkConnectionBase::UpdateMTUFromConfig()
 	//
 	// 1 byte - message header
 	// 3 bytes - varint encode msgnum gap between previous reliable message.  (Gap could be greater, but this would be really unusual.)
-	// 1 byte - size remainder bytes (assuming message is k_cbSteamNetworkingSocketsMaxMessageNoFragment, we only need a single size overflow byte)
+	// 1 byte - size remainder bytes (assuming message is k_cbshreemNetworkingSocketsMaxMessageNoFragment, we only need a single size overflow byte)
 	m_cbMaxReliableMessageSegment = m_cbMaxMessageNoFragment + 5;
 }
 
-CSteamNetworkConnectionP2P *CSteamNetworkConnectionBase::AsSteamNetworkConnectionP2P()
+CshreemNetworkConnectionP2P *CshreemNetworkConnectionBase::AsshreemNetworkConnectionP2P()
 {
 	return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// CSteamNetworkConnectionPipe
+// CshreemNetworkConnectionPipe
 //
 /////////////////////////////////////////////////////////////////////////////
 
-bool CSteamNetworkConnectionPipe::APICreateSocketPair( CSteamNetworkingSockets *pSteamNetworkingSocketsInterface, CSteamNetworkConnectionPipe *pConn[2], const SteamNetworkingIdentity pIdentity[2] )
+bool CshreemNetworkConnectionPipe::APICreateSocketPair( CshreemNetworkingSockets *pshreemNetworkingSocketsInterface, CshreemNetworkConnectionPipe *pConn[2], const shreemNetworkingIdentity pIdentity[2] )
 {
-	SteamDatagramErrMsg errMsg;
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemDatagramErrMsg errMsg;
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
-	pConn[1] = new CSteamNetworkConnectionPipe( pSteamNetworkingSocketsInterface, pIdentity[0] );
-	pConn[0] = new CSteamNetworkConnectionPipe( pSteamNetworkingSocketsInterface, pIdentity[1] );
+	pConn[1] = new CshreemNetworkConnectionPipe( pshreemNetworkingSocketsInterface, pIdentity[0] );
+	pConn[0] = new CshreemNetworkConnectionPipe( pshreemNetworkingSocketsInterface, pIdentity[1] );
 	if ( !pConn[0] || !pConn[1] )
 	{
 failed:
@@ -3128,11 +3128,11 @@ failed:
 	// Do generic base class initialization
 	for ( int i = 0 ; i < 2 ; ++i )
 	{
-		CSteamNetworkConnectionPipe *p = pConn[i];
-		CSteamNetworkConnectionPipe *q = pConn[1-i];
+		CshreemNetworkConnectionPipe *p = pConn[i];
+		CshreemNetworkConnectionPipe *q = pConn[1-i];
 		if ( !p->BInitConnection( usecNow, 0, nullptr, errMsg ) )
 		{
-			AssertMsg1( false, "CSteamNetworkConnectionPipe::BInitConnection failed.  %s", errMsg );
+			AssertMsg1( false, "CshreemNetworkConnectionPipe::BInitConnection failed.  %s", errMsg );
 			goto failed;
 		}
 		p->m_identityRemote = q->m_identityLocal;
@@ -3147,8 +3147,8 @@ failed:
 	// Tie the connections to each other, and mark them as connected
 	for ( int i = 0 ; i < 2 ; ++i )
 	{
-		CSteamNetworkConnectionPipe *p = pConn[i];
-		CSteamNetworkConnectionPipe *q = pConn[1-i];
+		CshreemNetworkConnectionPipe *p = pConn[i];
+		CshreemNetworkConnectionPipe *q = pConn[1-i];
 		p->m_identityRemote = q->m_identityLocal;
 		p->m_unConnectionIDRemote = q->m_unConnectionIDLocal;
 		if ( !p->BRecvCryptoHandshake( q->m_msgSignedCertLocal, q->m_msgSignedCryptLocal, i==0 ) )
@@ -3170,20 +3170,20 @@ failed:
 	return true;
 }
 
-CSteamNetworkConnectionPipe *CSteamNetworkConnectionPipe::CreateLoopbackConnection(
-	CSteamNetworkingSockets *pClientInstance, int nOptions, const SteamNetworkingConfigValue_t *pOptions,
-	CSteamNetworkListenSocketBase *pListenSocket,
-	SteamNetworkingErrMsg &errMsg
+CshreemNetworkConnectionPipe *CshreemNetworkConnectionPipe::CreateLoopbackConnection(
+	CshreemNetworkingSockets *pClientInstance, int nOptions, const shreemNetworkingConfigValue_t *pOptions,
+	CshreemNetworkListenSocketBase *pListenSocket,
+	shreemNetworkingErrMsg &errMsg
 ) {
-	SteamNetworkingMicroseconds usecNow = SteamNetworkingSockets_GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecNow = shreemNetworkingSockets_GetLocalTimestamp();
 
-	CSteamNetworkingSockets *pServerInstance = pListenSocket->m_pSteamNetworkingSocketsInterface;
+	CshreemNetworkingSockets *pServerInstance = pListenSocket->m_pshreemNetworkingSocketsInterface;
 
-	CSteamNetworkConnectionPipe *pClient = new CSteamNetworkConnectionPipe( pClientInstance, pClientInstance->InternalGetIdentity() );
-	CSteamNetworkConnectionPipe *pServer = new CSteamNetworkConnectionPipe( pServerInstance, pServerInstance->InternalGetIdentity() );
+	CshreemNetworkConnectionPipe *pClient = new CshreemNetworkConnectionPipe( pClientInstance, pClientInstance->InternalGetIdentity() );
+	CshreemNetworkConnectionPipe *pServer = new CshreemNetworkConnectionPipe( pServerInstance, pServerInstance->InternalGetIdentity() );
 	if ( !pClient || !pServer )
 	{
-		V_strcpy_safe( errMsg, "new CSteamNetworkConnectionPipe failed" );
+		V_strcpy_safe( errMsg, "new CshreemNetworkConnectionPipe failed" );
 failed:
 		if ( pClient )
 			pClient->ConnectionDestroySelfNow();
@@ -3214,9 +3214,9 @@ failed:
 	return pClient;
 }
 
-CSteamNetworkConnectionPipe::CSteamNetworkConnectionPipe( CSteamNetworkingSockets *pSteamNetworkingSocketsInterface, const SteamNetworkingIdentity &identity )
-: CSteamNetworkConnectionBase( pSteamNetworkingSocketsInterface )
-, CConnectionTransport( *static_cast<CSteamNetworkConnectionBase*>( this ) ) // connection and transport object are the same
+CshreemNetworkConnectionPipe::CshreemNetworkConnectionPipe( CshreemNetworkingSockets *pshreemNetworkingSocketsInterface, const shreemNetworkingIdentity &identity )
+: CshreemNetworkConnectionBase( pshreemNetworkingSocketsInterface )
+, CConnectionTransport( *static_cast<CshreemNetworkConnectionBase*>( this ) ) // connection and transport object are the same
 , m_pPartner( nullptr )
 {
 	m_identityLocal = identity;
@@ -3234,35 +3234,35 @@ CSteamNetworkConnectionPipe::CSteamNetworkConnectionPipe( CSteamNetworkingSocket
 	m_connectionConfig.m_SendRateMax.Set( nRate );
 }
 
-CSteamNetworkConnectionPipe::~CSteamNetworkConnectionPipe()
+CshreemNetworkConnectionPipe::~CshreemNetworkConnectionPipe()
 {
 	Assert( !m_pPartner );
 }
 
-void CSteamNetworkConnectionPipe::GetConnectionTypeDescription( ConnectionTypeDescription_t &szDescription ) const
+void CshreemNetworkConnectionPipe::GetConnectionTypeDescription( ConnectionTypeDescription_t &szDescription ) const
 {
 	V_strcpy_safe( szDescription, "pipe" );
 }
 
-void CSteamNetworkConnectionPipe::InitConnectionCrypto( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionPipe::InitConnectionCrypto( shreemNetworkingMicroseconds usecNow )
 {
 	// Always use unsigned cert, since we won't be doing any real crypto anyway
 	SetLocalCertUnsigned();
 }
 
-EUnsignedCert CSteamNetworkConnectionPipe::AllowRemoteUnsignedCert()
+EUnsignedCert CshreemNetworkConnectionPipe::AllowRemoteUnsignedCert()
 {
 	// It's definitely us, and we trust ourselves, right?
 	return k_EUnsignedCert_Allow;
 }
 
-EUnsignedCert CSteamNetworkConnectionPipe::AllowLocalUnsignedCert()
+EUnsignedCert CshreemNetworkConnectionPipe::AllowLocalUnsignedCert()
 {
 	// It's definitely us, and we trust ourselves, right?  Don't even try to get a cert
 	return k_EUnsignedCert_Allow;
 }
 
-int64 CSteamNetworkConnectionPipe::_APISendMessageToConnection( CSteamNetworkingMessage *pMsg, SteamNetworkingMicroseconds usecNow, bool *pbThinkImmediately )
+int64 CshreemNetworkConnectionPipe::_APISendMessageToConnection( CshreemNetworkingMessage *pMsg, shreemNetworkingMicroseconds usecNow, bool *pbThinkImmediately )
 {
 	NOTE_UNUSED( pbThinkImmediately );
 	if ( !m_pPartner )
@@ -3293,7 +3293,7 @@ int64 CSteamNetworkConnectionPipe::_APISendMessageToConnection( CSteamNetworking
 	return nMsgNum;
 }
 
-bool CSteamNetworkConnectionPipe::BBeginAccept( CSteamNetworkListenSocketBase *pListenSocket, SteamNetworkingMicroseconds usecNow, SteamDatagramErrMsg &errMsg )
+bool CshreemNetworkConnectionPipe::BBeginAccept( CshreemNetworkListenSocketBase *pListenSocket, shreemNetworkingMicroseconds usecNow, shreemDatagramErrMsg &errMsg )
 {
 
 	// Ordinary connections usually learn the client identity and connection ID at this point
@@ -3311,7 +3311,7 @@ bool CSteamNetworkConnectionPipe::BBeginAccept( CSteamNetworkListenSocketBase *p
 	// Receive the crypto info that is in the client's
 	if ( !BRecvCryptoHandshake( m_pPartner->m_msgSignedCertLocal, m_pPartner->m_msgSignedCryptLocal, true ) )
 	{
-		Assert( GetState() == k_ESteamNetworkingConnectionState_ProblemDetectedLocally );
+		Assert( GetState() == k_EshreemNetworkingConnectionState_ProblemDetectedLocally );
 		V_sprintf_safe( errMsg, "Failed crypto init.  %s", m_szEndDebug );
 		return false;
 	}
@@ -3320,7 +3320,7 @@ bool CSteamNetworkConnectionPipe::BBeginAccept( CSteamNetworkListenSocketBase *p
 	return BConnectionState_Connecting( usecNow, errMsg );
 }
 
-EResult CSteamNetworkConnectionPipe::AcceptConnection( SteamNetworkingMicroseconds usecNow )
+EResult CshreemNetworkConnectionPipe::AcceptConnection( shreemNetworkingMicroseconds usecNow )
 {
 	if ( !m_pPartner )
 	{
@@ -3344,7 +3344,7 @@ EResult CSteamNetworkConnectionPipe::AcceptConnection( SteamNetworkingMicrosecon
 	return k_EResultOK;
 }
 
-void CSteamNetworkConnectionPipe::FakeSendStats( SteamNetworkingMicroseconds usecNow, int cbPktSize )
+void CshreemNetworkConnectionPipe::FakeSendStats( shreemNetworkingMicroseconds usecNow, int cbPktSize )
 {
 	if ( !m_pPartner )
 		return;
@@ -3364,7 +3364,7 @@ void CSteamNetworkConnectionPipe::FakeSendStats( SteamNetworkingMicroseconds use
 	m_statsEndToEnd.TrackSentPacket( cbPktSize );
 }
 
-void CSteamNetworkConnectionPipe::SendEndToEndStatsMsg( EStatsReplyRequest eRequest, SteamNetworkingMicroseconds usecNow, const char *pszReason )
+void CshreemNetworkConnectionPipe::SendEndToEndStatsMsg( EStatsReplyRequest eRequest, shreemNetworkingMicroseconds usecNow, const char *pszReason )
 {
 	NOTE_UNUSED( eRequest );
 	NOTE_UNUSED( pszReason );
@@ -3391,7 +3391,7 @@ void CSteamNetworkConnectionPipe::SendEndToEndStatsMsg( EStatsReplyRequest eRequ
 	m_statsEndToEnd.PeerAckedInstantaneous( usecNow );
 }
 
-bool CSteamNetworkConnectionPipe::BCanSendEndToEndConnectRequest() const
+bool CshreemNetworkConnectionPipe::BCanSendEndToEndConnectRequest() const
 {
 	// We should only ask this question if we still have a chance of connecting.
 	// Once we detach from partner, we should switch the connection state, and
@@ -3400,7 +3400,7 @@ bool CSteamNetworkConnectionPipe::BCanSendEndToEndConnectRequest() const
 	return m_pPartner != nullptr;
 }
 
-bool CSteamNetworkConnectionPipe::BCanSendEndToEndData() const
+bool CshreemNetworkConnectionPipe::BCanSendEndToEndData() const
 {
 	// We should only ask this question if we still have a chance of connecting.
 	// Once we detach from partner, we should switch the connection state, and
@@ -3409,65 +3409,65 @@ bool CSteamNetworkConnectionPipe::BCanSendEndToEndData() const
 	return m_pPartner != nullptr;
 }
 
-void CSteamNetworkConnectionPipe::SendEndToEndConnectRequest( SteamNetworkingMicroseconds usecNow )
+void CshreemNetworkConnectionPipe::SendEndToEndConnectRequest( shreemNetworkingMicroseconds usecNow )
 {
 	// Send a "packet"
 	FakeSendStats( usecNow, 0 );
 }
 
-bool CSteamNetworkConnectionPipe::SendDataPacket( SteamNetworkingMicroseconds usecNow )
+bool CshreemNetworkConnectionPipe::SendDataPacket( shreemNetworkingMicroseconds usecNow )
 {
-	AssertMsg( false, "CSteamNetworkConnectionPipe connections shouldn't try to send 'packets'!" );
+	AssertMsg( false, "CshreemNetworkConnectionPipe connections shouldn't try to send 'packets'!" );
 	return false;
 }
 
-int CSteamNetworkConnectionPipe::SendEncryptedDataChunk( const void *pChunk, int cbChunk, SendPacketContext_t &ctx )
+int CshreemNetworkConnectionPipe::SendEncryptedDataChunk( const void *pChunk, int cbChunk, SendPacketContext_t &ctx )
 {
-	AssertMsg( false, "CSteamNetworkConnectionPipe connections shouldn't try to send 'packets'!" );
+	AssertMsg( false, "CshreemNetworkConnectionPipe connections shouldn't try to send 'packets'!" );
 	return -1;
 }
 
-void CSteamNetworkConnectionPipe::TransportPopulateConnectionInfo( SteamNetConnectionInfo_t &info ) const
+void CshreemNetworkConnectionPipe::TransportPopulateConnectionInfo( shreemNetConnectionInfo_t &info ) const
 {
 	CConnectionTransport::TransportPopulateConnectionInfo( info );
-	info.m_eTransportKind = k_ESteamNetTransport_LoopbackBuffers;
+	info.m_eTransportKind = k_EshreemNetTransport_LoopbackBuffers;
 }
 
-void CSteamNetworkConnectionPipe::ConnectionStateChanged( ESteamNetworkingConnectionState eOldState )
+void CshreemNetworkConnectionPipe::ConnectionStateChanged( EshreemNetworkingConnectionState eOldState )
 {
-	CSteamNetworkConnectionBase::ConnectionStateChanged( eOldState );
+	CshreemNetworkConnectionBase::ConnectionStateChanged( eOldState );
 
 	switch ( GetState() )
 	{
-		case k_ESteamNetworkingConnectionState_FindingRoute:
-		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: // What local "problem" could we have detected??
+		case k_EshreemNetworkingConnectionState_FindingRoute:
+		case k_EshreemNetworkingConnectionState_ProblemDetectedLocally: // What local "problem" could we have detected??
 		default:
 			AssertMsg1( false, "Invalid state %d", GetState() );
 			// FALLTHROUGH
-		case k_ESteamNetworkingConnectionState_None:
-		case k_ESteamNetworkingConnectionState_Dead:
-		case k_ESteamNetworkingConnectionState_FinWait:
-		case k_ESteamNetworkingConnectionState_Linger:
+		case k_EshreemNetworkingConnectionState_None:
+		case k_EshreemNetworkingConnectionState_Dead:
+		case k_EshreemNetworkingConnectionState_FinWait:
+		case k_EshreemNetworkingConnectionState_Linger:
 			if ( m_pPartner )
 			{
-				CSteamNetworkConnectionPipe *pPartner = m_pPartner;
+				CshreemNetworkConnectionPipe *pPartner = m_pPartner;
 				m_pPartner = nullptr; // clear pointer now, to prevent recursion
 				pPartner->ConnectionState_ClosedByPeer( m_eEndReason, m_szEndDebug );
 			}
 			break;
 
-		case k_ESteamNetworkingConnectionState_Connecting:
-		case k_ESteamNetworkingConnectionState_Connected:
+		case k_EshreemNetworkingConnectionState_Connecting:
+		case k_EshreemNetworkingConnectionState_Connected:
 			Assert( m_pPartner );
 			break;
 
-		case k_ESteamNetworkingConnectionState_ClosedByPeer:
+		case k_EshreemNetworkingConnectionState_ClosedByPeer:
 
 			// If we have a partner, they should be the ones initiating this.
 			// (In the code directly above.)
 			if ( m_pPartner )
 			{
-				Assert( CollapseConnectionStateToAPIState( m_pPartner->GetState() ) == k_ESteamNetworkingConnectionState_None );
+				Assert( CollapseConnectionStateToAPIState( m_pPartner->GetState() ) == k_EshreemNetworkingConnectionState_None );
 				Assert( m_pPartner->m_pPartner == nullptr );
 				m_pPartner = nullptr;
 			}
@@ -3475,11 +3475,11 @@ void CSteamNetworkConnectionPipe::ConnectionStateChanged( ESteamNetworkingConnec
 	}
 }
 
-void CSteamNetworkConnectionPipe::DestroyTransport()
+void CshreemNetworkConnectionPipe::DestroyTransport()
 {
 	// Using the same object for connection and transport
 	TransportFreeResources();
 	m_pTransport = nullptr;
 }
 
-} // namespace SteamNetworkingSocketsLib
+} // namespace shreemNetworkingSocketsLib

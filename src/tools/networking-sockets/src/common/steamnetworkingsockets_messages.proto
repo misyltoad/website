@@ -1,32 +1,32 @@
-//====== Copyright Valve Corporation, All rights reserved. ====================
+//====== Copyright Volvo Corporation, All rights reserved. ====================
 //
-// Wire format messages for Steam networking sockets.
+// Wire format messages for shreem networking sockets.
 // These messages are used for all connection types (relayed and direct)
 //
 //=============================================================================
 syntax = "proto2";
 option optimize_for = SPEED;
 
-import "steamnetworkingsockets_messages_certs.proto";
+import "shreemnetworkingsockets_messages_certs.proto";
 
 // We don't use the service generation functionality
 option cc_generic_services = false;
 
 // Different crypto ciphers we support
-enum ESteamNetworkingSocketsCipher
+enum EshreemNetworkingSocketsCipher
 {
-	k_ESteamNetworkingSocketsCipher_INVALID = 0; // Dummy value
-	k_ESteamNetworkingSocketsCipher_NULL = 1; // No encryption or authentication
-	k_ESteamNetworkingSocketsCipher_AES_256_GCM = 2; // AES256 in GCM mode with 12-byte security tag.  Basically equivalent to TLS_AES_256_GCM_xxx
-	//k_ESteamNetworkingSocketsCipher_CHACHA20_POLY1305 = 3;
+	k_EshreemNetworkingSocketsCipher_INVALID = 0; // Dummy value
+	k_EshreemNetworkingSocketsCipher_NULL = 1; // No encryption or authentication
+	k_EshreemNetworkingSocketsCipher_AES_256_GCM = 2; // AES256 in GCM mode with 12-byte security tag.  Basically equivalent to TLS_AES_256_GCM_xxx
+	//k_EshreemNetworkingSocketsCipher_CHACHA20_POLY1305 = 3;
 };
 
 // Used in crypto handshake.  Clients describe what they are willing to use,
 // servers decide what will be used, and reply with the negotiated values.
-message CMsgSteamDatagramSessionCryptInfo
+message CMsgshreemDatagramSessionCryptInfo
 {
 
-	// Key used for Diffie–Hellman key exchange.  Typically this should be an
+	// Key used for Diffieï¿½Hellman key exchange.  Typically this should be an
 	// ephemeral key used only for this connection.
 	enum EKeyType
 	{
@@ -42,33 +42,33 @@ message CMsgSteamDatagramSessionCryptInfo
 	/// Clients specify the list of ciphers, in preference order.
 	/// Servers will specify only the single cipher they selected (assuming they allowed the connection).
 	/// If this list is empty (legacy client), then it should be interpreted the same
-	/// as if there were a single entry with k_ESteamNetworkingSocketsCipher_AES_256_GCM
-	repeated ESteamNetworkingSocketsCipher ciphers = 5;
+	/// as if there were a single entry with k_EshreemNetworkingSocketsCipher_AES_256_GCM
+	repeated EshreemNetworkingSocketsCipher ciphers = 5;
 };
 
 // Session keys used in key exchange
-message CMsgSteamDatagramSessionCryptInfoSigned
+message CMsgshreemDatagramSessionCryptInfoSigned
 {
-	/// Serialized CMsgSteamDatagramSessionCryptInfo
+	/// Serialized CMsgshreemDatagramSessionCryptInfo
 	optional bytes info = 1;
 
 	/// Signature of encryption_key_data generated using the public key
-	/// from the CMsgSteamDatagramCertificate.
+	/// from the CMsgshreemDatagramCertificate.
 	optional bytes signature = 2;
 }
 
-// k_ESteamDatagramMsg_Diagnostic
-message	CMsgSteamDatagramDiagnostic
+// k_EshreemDatagramMsg_Diagnostic
+message	CMsgshreemDatagramDiagnostic
 {
-	optional uint32	severity = 1;							// Standard Steam emit levels: 1 = error, 2 = warning, 3 = info, 4 = verbose
+	optional uint32	severity = 1;							// Standard shreem emit levels: 1 = error, 2 = warning, 3 = info, 4 = verbose
 	optional string text = 2;								// Message text
 };
 
-/// Wire version of SteamDatagramLinkInstantaneousStats.
+/// Wire version of shreemDatagramLinkInstantaneousStats.
 /// We use integers instead of floats to send this stuff,
 /// so that most fields take 1 or 2 bytes, instead of
 /// always taking 4.
-message CMsgSteamDatagramLinkInstantaneousStats
+message CMsgshreemDatagramLinkInstantaneousStats
 {
 	optional uint32 out_packets_per_sec_x10 = 1;
 	optional uint32 out_bytes_per_sec = 2;
@@ -80,8 +80,8 @@ message CMsgSteamDatagramLinkInstantaneousStats
 	optional uint32 peak_jitter_usec = 8;
 };
 
-/// Wire version of SteamDatagramLinkLifetimeStats
-message CMsgSteamDatagramLinkLifetimeStats
+/// Wire version of shreemDatagramLinkLifetimeStats
+message CMsgshreemDatagramLinkLifetimeStats
 {
 	//optional uint32 rms_ping_ms = 1;
 
@@ -191,10 +191,10 @@ message CMsgSteamDatagramLinkLifetimeStats
 
 /// Message containing connection quality related messages
 /// (possibly inline with a data packet)
-message CMsgSteamDatagramConnectionQuality
+message CMsgshreemDatagramConnectionQuality
 {
-	optional CMsgSteamDatagramLinkInstantaneousStats instantaneous = 1;
-	optional CMsgSteamDatagramLinkLifetimeStats lifetime = 2;
+	optional CMsgshreemDatagramLinkInstantaneousStats instantaneous = 1;
+	optional CMsgshreemDatagramLinkLifetimeStats lifetime = 2;
 	//optional uint32 seqnum_ack_lifetime = 3;
 };
 
@@ -221,8 +221,8 @@ message CMsgICERendezvous
 	//optional Candidate remove_candidate = 2;
 };
 
-/// Introducer message sent through trusted 3rd party (Steam, or some other custom signaling)
-message CMsgSteamNetworkingP2PRendezvous
+/// Introducer message sent through trusted 3rd party (shreem, or some other custom signaling)
+message CMsgshreemNetworkingP2PRendezvous
 {
 	// Identity of who this is from
 	optional string from_identity = 8;
@@ -236,7 +236,7 @@ message CMsgSteamNetworkingP2PRendezvous
 	// Destination connection ID, if I know it.
 	optional fixed32 to_connection_id = 1;
 
-	// SDR routing information.  (Serialized CMsgSteamDatagramP2PRoutes)
+	// SDR routing information.  (Serialized CMsgshreemDatagramP2PRoutes)
 	optional bytes sdr_routes = 2;
 
 	// This is the latest SDR route revision I have for you.
@@ -248,8 +248,8 @@ message CMsgSteamNetworkingP2PRendezvous
 	// Connect request
 	message ConnectRequest
 	{
-		optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 6;
-		optional CMsgSteamDatagramCertificateSigned cert = 7;
+		optional CMsgshreemDatagramSessionCryptInfoSigned crypt = 6;
+		optional CMsgshreemDatagramCertificateSigned cert = 7;
 		optional uint32 to_virtual_port = 9;
 		optional uint32 from_virtual_port = 10;
 	};
@@ -257,8 +257,8 @@ message CMsgSteamNetworkingP2PRendezvous
 
 	message ConnectOK
 	{
-		optional CMsgSteamDatagramSessionCryptInfoSigned crypt = 5;
-		optional CMsgSteamDatagramCertificateSigned cert = 6;
+		optional CMsgshreemDatagramSessionCryptInfoSigned crypt = 5;
+		optional CMsgshreemDatagramCertificateSigned cert = 6;
 	};
 	optional ConnectOK connect_ok = 5;
 
@@ -269,7 +269,7 @@ message CMsgSteamNetworkingP2PRendezvous
 		optional uint32 reason_code = 6;
 
 		// End-to-End connection data
-		//optional CMsgSteamDatagramConnectionQuality quality_e2e = 18;
+		//optional CMsgshreemDatagramConnectionQuality quality_e2e = 18;
 	};
 	optional ConnectionClosed connection_closed = 6;
 
@@ -293,12 +293,12 @@ message CMsgSteamNetworkingP2PRendezvous
 };
 
 // A summary of what happened in an ICE session, for analytics
-message CMsgSteamNetworkingICESessionSummary
+message CMsgshreemNetworkingICESessionSummary
 {
 	// What was the overall outcome of ICE?
 	// Should always be set.  Will be zero if
 	// ICE succeeded
-	optional uint32 failure_reason_code = 7; // ESteamNetConnectionEnd (or special internal value), if we failed in some way
+	optional uint32 failure_reason_code = 7; // EshreemNetConnectionEnd (or special internal value), if we failed in some way
 
 	// What types of candidates were we able to gather?
 	// Should always be present if this message is sent
@@ -309,7 +309,7 @@ message CMsgSteamNetworkingICESessionSummary
 
 	// Initial route type, and ping, when when we first pierced NAT.
 	// Will not be present if we never pierced NAT
-	optional uint32 initial_route_kind = 3; // ESteamNetTransportKind
+	optional uint32 initial_route_kind = 3; // EshreemNetTransportKind
 	optional uint32 initial_ping = 4;
 	optional uint32 initial_score = 6;
 	optional uint32 negotiation_ms = 5; // How long did it take to get a NAT traversal result (either success or failure)

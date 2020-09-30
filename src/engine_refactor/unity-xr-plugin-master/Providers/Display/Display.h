@@ -68,10 +68,10 @@ public:
 	UnitySubsystemErrorCode MainThread_QueryMirrorViewBlitDesc( const UnityXRMirrorViewBlitInfo *pMirrorBlitInfo, UnityXRMirrorViewBlitDesc *pBlitDescriptor, OpenVRDisplayProvider *pDisplay );
 	// --- End of IUnityXRDisplay interface implementation
 
-	/// Get the currently active mirror mode - kUnityXRMirrorBlitNone, kUnityXRMirrorBlitLeftEye, kUnityXRMirrorBlitRightEye, kUnityXRMirrorBlitDistort/SteamVR View (default)
+	/// Get the currently active mirror mode - kUnityXRMirrorBlitNone, kUnityXRMirrorBlitLeftEye, kUnityXRMirrorBlitRightEye, kUnityXRMirrorBlitDistort/shreemVR View (default)
 	int GetCurrentMirrorMode() const { return m_nMirrorMode; }
 
-	/// Set active mirror mode - kUnityXRMirrorBlitNone, kUnityXRMirrorBlitLeftEye, kUnityXRMirrorBlitRightEye, kUnityXRMirrorBlitDistort/SteamVR View (default)
+	/// Set active mirror mode - kUnityXRMirrorBlitNone, kUnityXRMirrorBlitLeftEye, kUnityXRMirrorBlitRightEye, kUnityXRMirrorBlitDistort/shreemVR View (default)
 	void SetMirrorMode( int val )
 	{
 		if ( old_m_nMirrorMode != val )
@@ -167,16 +167,16 @@ private:
 	/// The active render device for the compositor
 	vr::VRNativeDevice_t m_nativeDevice;
 
-	/// Cache for the mirror textures. This will be populated by the "VR View" textures from SteamVR
+	/// Cache for the mirror textures. This will be populated by the "VR View" textures from shreemVR
 	UnityXRRenderTextureId m_pMirrorTexture;
 
-	/// Cache for the Unity equivalent shared SteamVR Texture ID
-	UnityXRRenderTextureId m_pSteamVRTextureId;
+	/// Cache for the Unity equivalent shared shreemVR Texture ID
+	UnityXRRenderTextureId m_pshreemVRTextureId;
 
-	/// The handle to the SteamVR View overlay
+	/// The handle to the shreemVR View overlay
 	vr::VROverlayHandle_t m_hOverlay = k_ulInvalidOverlayHandle;
 
-	/// The SteamVR VR view overlay view
+	/// The shreemVR VR view overlay view
 	vr::VROverlayView_t m_overlayView;
 
 	/// Defines the part of the provided texture that will be used in the frame buffer  
@@ -196,14 +196,14 @@ private:
 	/// The sub-rect of the mirror texture that we need to pass down to Unity's mirror blit
 	UnityXRRectf m_mirrorRenderSubRect = { 0.0f, 0.0f, 1.0f, 1.0f };
 
-	/// If we're using the SteamVR vr view textures for the mirror 
+	/// If we're using the shreemVR vr view textures for the mirror 
 	bool m_bIsUsingCustomMirrorMode = false;
 
 	/// If the app is currently applying any render viewport scale
 	bool m_bIsRenderViewportScaling = false;
 
-	/// If SteamVR VR View is available
-	bool m_bIsSteamVRViewAvailable = false;
+	/// If shreemVR VR View is available
+	bool m_bIsshreemVRViewAvailable = false;
 
 	/// If the HeadsetView has already been set
 	bool m_bIsHeadsetResolutionSet = false;

@@ -9,9 +9,9 @@ namespace Unity.XR.OpenVR
 {
     public class OpenVRHelpers
     {
-        public static bool IsUsingSteamVRInput()
+        public static bool IsUsingshreemVRInput()
         {
-            return DoesTypeExist("SteamVR_Input");
+            return DoesTypeExist("shreemVR_Input");
         }
 
         public static bool DoesTypeExist(string className, bool fullname = false)
@@ -42,8 +42,8 @@ namespace Unity.XR.OpenVR
 
         public static string GetActionManifestPathFromPlugin()
         {
-            Type steamvrInputType = GetType("SteamVR_Input");
-            MethodInfo getPathMethod = steamvrInputType.GetMethod("GetActionsFilePath");
+            Type shreemvrInputType = GetType("shreemVR_Input");
+            MethodInfo getPathMethod = shreemvrInputType.GetMethod("GetActionsFilePath");
             object path = getPathMethod.Invoke(null, new object[] { false });
 
             return (string)path;
@@ -51,8 +51,8 @@ namespace Unity.XR.OpenVR
 
         public static string GetActionManifestNameFromPlugin()
         {
-            Type steamvrInputType = GetType("SteamVR_Input");
-            MethodInfo getPathMethod = steamvrInputType.GetMethod("GetActionsFileName");
+            Type shreemvrInputType = GetType("shreemVR_Input");
+            MethodInfo getPathMethod = shreemvrInputType.GetMethod("GetActionsFileName");
             object path = getPathMethod.Invoke(null, null);
 
             return (string)path;
@@ -60,8 +60,8 @@ namespace Unity.XR.OpenVR
 
         public static string GetEditorAppKeyFromPlugin()
         {
-            Type steamvrInputType = GetType("SteamVR_Input");
-            MethodInfo getPathMethod = steamvrInputType.GetMethod("GetEditorAppKey");
+            Type shreemvrInputType = GetType("shreemVR_Input");
+            MethodInfo getPathMethod = shreemvrInputType.GetMethod("GetEditorAppKey");
             object path = getPathMethod.Invoke(null, null);
 
             return (string)path;

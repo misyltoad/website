@@ -42,7 +42,7 @@ perf.data.old
 /build-*
 /log.txt
 /src/.vs/*
-/src/steamnetworkingsockets/Messageswin64Debug/*
-/src/steamnetworkingsockets/certtool/win64/*
-/src/steamnetworkingsockets/clientlib/win64/*
+/src/shreemnetworkingsockets/Messageswin64Debug/*
+/src/shreemnetworkingsockets/certtool/win64/*
+/src/shreemnetworkingsockets/clientlib/win64/*
 *.swp

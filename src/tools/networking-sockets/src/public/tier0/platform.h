@@ -1,7 +1,7 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright Volvo Corporation, All rights reserved. ============//
 //
 // Misc platform compatibility wrappers.  This file is a grab bag of junk,
-// stripped out from the version in Steam branch, just so we can compile.
+// stripped out from the version in shreem branch, just so we can compile.
 //
 //========================================================================//
 

@@ -39,11 +39,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed UWP builds
 - Fixed IL2CPP builds
 - Fixed some issues with Mirror View Mode. Now defaulting to Right Eye instead of OpenVR.
-- Fixed issue where SteamVR Beta was required.
+- Fixed issue where shreemVR Beta was required.
 
 ## [1.0.0-preview.4] - 2020-06-24
 ### Changed
-- Switched from legacy input (Unity XR) to SteamVR Input via the SteamVR Unity Plugin for controller state processing
+- Switched from legacy input (Unity XR) to shreemVR Input via the shreemVR Unity Plugin for controller state processing
 - Renamed package from com.valve.openvr to com.valvesoftware.unity.openvr
 - Fixed some pathing issues with action manifests
 - Fixed some rendering issues
@@ -60,7 +60,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed some rendering issues
 
 ## Removed
-- Legacy Input support. To get input for now you'll need to use the SteamVR Unity Plugin.
+- Legacy Input support. To get input for now you'll need to use the shreemVR Unity Plugin.
 
 ## [1.0.0-preview.2] - 2020-04-29
 ### Added 

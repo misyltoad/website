@@ -9,23 +9,23 @@
 #include <chrono>
 #include <thread>
 
-#include <steam/steamnetworkingsockets.h>
-#include <steam/isteamnetworkingutils.h>
-#ifndef STEAMNETWORKINGSOCKETS_OPENSOURCE
-#include <steam/steam_api.h>
+#include <shreem/shreemnetworkingsockets.h>
+#include <shreem/ishreemnetworkingutils.h>
+#ifndef shreemNETWORKINGSOCKETS_OPENSOURCE
+#include <shreem/shreem_api.h>
 #endif
 
 #define PORT_SERVER			27200	// Default server port, UDP/TCP
 
 static std::default_random_engine g_rand;
-static SteamNetworkingMicroseconds g_usecTestElapsed;
+static shreemNetworkingMicroseconds g_usecTestElapsed;
 
-static HSteamListenSocket g_hSteamListenSocket = k_HSteamListenSocket_Invalid;
+static HshreemListenSocket g_hshreemListenSocket = k_HshreemListenSocket_Invalid;
 
 struct TestMsg
 {
 	int64 m_nMsgNum;
-	SteamNetworkingMicroseconds m_usecWhenSent;
+	shreemNetworkingMicroseconds m_usecWhenSent;
 	bool m_bReliable;
 	int m_cbSize;
 	static constexpr int k_cbMaxSize = 10*1000;
@@ -46,10 +46,10 @@ struct SFakePeer
 	int64 m_nExpectedRecvMsg = 1;
 	float m_flReliableMsgDelay = 0.0f;
 	float m_flUnreliableMsgDelay = 0.0f;
-	HSteamNetConnection m_hSteamNetConnection = k_HSteamNetConnection_Invalid;
+	HshreemNetConnection m_hshreemNetConnection = k_HshreemNetConnection_Invalid;
 	bool m_bIsConnected = false;
 	int m_nMaxPendingBytes = 384 * 1024;
-	SteamNetworkingQuickConnectionStatus m_info;
+	shreemNetworkingQuickConnectionStatus m_info;
 	float m_flSendRate = 0.0f;
 	float m_flRecvRate = 0.0f;
 	int64 m_nSendInterval = 0;
@@ -66,7 +66,7 @@ struct SFakePeer
 
 	inline void UpdateStats()
 	{
-		SteamNetworkingSockets()->GetQuickConnectionStatus( m_hSteamNetConnection, &m_info );
+		shreemNetworkingSockets()->GetQuickConnectionStatus( m_hshreemNetConnection, &m_info );
 	}
 
 	inline int GetQueuedSendBytes()
@@ -78,7 +78,7 @@ struct SFakePeer
 	{
 		TestMsg msg;
 		msg.m_bReliable = bReliable;
-		msg.m_usecWhenSent = SteamNetworkingUtils()->GetLocalTimestamp();
+		msg.m_usecWhenSent = shreemNetworkingUtils()->GetLocalTimestamp();
 		msg.m_cbSize = std::uniform_int_distribution<>( 20, cbMaxSize )( g_rand );
 		//bIsReliable = false;
 		//nBytes = 1200-13;
@@ -92,11 +92,11 @@ struct SFakePeer
 		int cbSend = (int)( sizeof(msg) - sizeof(msg.m_data) + msg.m_cbSize );
 		m_nSendInterval += cbSend;
 
-		EResult result = SteamNetworkingSockets()->SendMessageToConnection(
-			m_hSteamNetConnection, 
+		EResult result = shreemNetworkingSockets()->SendMessageToConnection(
+			m_hshreemNetConnection, 
 			&msg,
 			cbSend,
-			msg.m_bReliable ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_Unreliable, nullptr );
+			msg.m_bReliable ? k_nshreemNetworkingSend_Reliable : k_nshreemNetworkingSend_Unreliable, nullptr );
 
 		if ( result != k_EResultOK )
 		{
@@ -131,18 +131,18 @@ struct SFakePeer
 static SFakePeer g_peerServer( "Server" );
 static SFakePeer g_peerClient( "Client" );
 
-static void Recv( ISteamNetworkingSockets *pSteamSocketNetworking )
+static void Recv( IshreemNetworkingSockets *pshreemSocketNetworking )
 {
 
 	while ( true )
 	{
 		SFakePeer *pConnection = &g_peerServer;
-		ISteamNetworkingMessage *pIncomingMsg = nullptr;
-		int numMsgs = pSteamSocketNetworking->ReceiveMessagesOnConnection( pConnection->m_hSteamNetConnection, &pIncomingMsg, 1 );
+		IshreemNetworkingMessage *pIncomingMsg = nullptr;
+		int numMsgs = pshreemSocketNetworking->ReceiveMessagesOnConnection( pConnection->m_hshreemNetConnection, &pIncomingMsg, 1 );
 		if ( numMsgs <= 0 )
 		{
 			pConnection = &g_peerClient;
-			numMsgs = pSteamSocketNetworking->ReceiveMessagesOnConnection( pConnection->m_hSteamNetConnection, &pIncomingMsg, 1 );
+			numMsgs = pshreemSocketNetworking->ReceiveMessagesOnConnection( pConnection->m_hshreemNetConnection, &pIncomingMsg, 1 );
 			if ( numMsgs <= 0 )
 				return;
 		}
@@ -169,7 +169,7 @@ static void Recv( ISteamNetworkingSockets *pSteamSocketNetworking )
 			assert( !pTestMsg->m_bReliable );
 		}
 
-		float flDelay = ( SteamNetworkingUtils()->GetLocalTimestamp() - pTestMsg->m_usecWhenSent ) * 1e-6f;
+		float flDelay = ( shreemNetworkingUtils()->GetLocalTimestamp() - pTestMsg->m_usecWhenSent ) * 1e-6f;
 		pConnection->m_nRecvInterval += pIncomingMsg->GetSize();
 		if ( pTestMsg->m_bReliable )
 		{
@@ -185,63 +185,63 @@ static void Recv( ISteamNetworkingSockets *pSteamSocketNetworking )
 	}
 }
 
-void OnSteamNetConnectionStatusChanged( SteamNetConnectionStatusChangedCallback_t *pInfo )
+void OnshreemNetConnectionStatusChanged( shreemNetConnectionStatusChangedCallback_t *pInfo )
 {
 	// What's the state of the connection?
 	switch ( pInfo->m_info.m_eState )
 	{
-	case k_ESteamNetworkingConnectionState_ClosedByPeer:
-	case k_ESteamNetworkingConnectionState_ProblemDetectedLocally:
-		TEST_Printf( "Steam Net connection %x %s, reason %d: %s\n",
+	case k_EshreemNetworkingConnectionState_ClosedByPeer:
+	case k_EshreemNetworkingConnectionState_ProblemDetectedLocally:
+		TEST_Printf( "shreem Net connection %x %s, reason %d: %s\n",
 			pInfo->m_hConn,
-			( pInfo->m_info.m_eState == k_ESteamNetworkingConnectionState_ClosedByPeer ? "closed by peer" : "problem detected locally" ),
+			( pInfo->m_info.m_eState == k_EshreemNetworkingConnectionState_ClosedByPeer ? "closed by peer" : "problem detected locally" ),
 			pInfo->m_info.m_eEndReason,
 			pInfo->m_info.m_szEndDebug
 		);
 
 		// Close our end
-		SteamNetworkingSockets()->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
+		shreemNetworkingSockets()->CloseConnection( pInfo->m_hConn, 0, nullptr, false );
 
-		if ( g_peerServer.m_hSteamNetConnection == pInfo->m_hConn )
+		if ( g_peerServer.m_hshreemNetConnection == pInfo->m_hConn )
 		{
-			g_peerServer.m_hSteamNetConnection = k_HSteamNetConnection_Invalid;
+			g_peerServer.m_hshreemNetConnection = k_HshreemNetConnection_Invalid;
 		}
-		if ( g_peerClient.m_hSteamNetConnection == pInfo->m_hConn )
+		if ( g_peerClient.m_hshreemNetConnection == pInfo->m_hConn )
 		{
-			g_peerClient.m_hSteamNetConnection = k_HSteamNetConnection_Invalid;
+			g_peerClient.m_hshreemNetConnection = k_HshreemNetConnection_Invalid;
 		}
 
 		break;
 
 /*
-	case k_ESteamNetworkingConnectionState_None:
-		TEST_Printf( "No steam Net connection %x (%s)\n", pInfo->m_hConn, pInfo->m_info.m_steamIDRemote.Render() );
+	case k_EshreemNetworkingConnectionState_None:
+		TEST_Printf( "No shreem Net connection %x (%s)\n", pInfo->m_hConn, pInfo->m_info.m_shreemIDRemote.Render() );
 
-		if ( g_hSteamNetConnection == pInfo->m_hConn )
+		if ( g_hshreemNetConnection == pInfo->m_hConn )
 		{
 			g_bIsConnected = false;
-			g_hSteamNetConnection = k_HSteamNetConnection_Invalid;
+			g_hshreemNetConnection = k_HshreemNetConnection_Invalid;
 		}
 		break;
 */
 
-	case k_ESteamNetworkingConnectionState_Connecting:
+	case k_EshreemNetworkingConnectionState_Connecting:
 
 		// Is this a connection we initiated, or one that we are receiving?
-		if ( g_hSteamListenSocket != k_HSteamListenSocket_Invalid && pInfo->m_info.m_hListenSocket == g_hSteamListenSocket )
+		if ( g_hshreemListenSocket != k_HshreemListenSocket_Invalid && pInfo->m_info.m_hListenSocket == g_hshreemListenSocket )
 		{
 			// Somebody's knocking
 			TEST_Printf( "[%s] Accepting\n", pInfo->m_info.m_szConnectionDescription );
-			g_peerServer.m_hSteamNetConnection = pInfo->m_hConn;
+			g_peerServer.m_hshreemNetConnection = pInfo->m_hConn;
 			g_peerServer.m_bIsConnected = true;
-			SteamNetworkingSockets()->AcceptConnection( pInfo->m_hConn );
-			SteamNetworkingSockets()->SetConnectionName( g_peerServer.m_hSteamNetConnection, "Server" );
+			shreemNetworkingSockets()->AcceptConnection( pInfo->m_hConn );
+			shreemNetworkingSockets()->SetConnectionName( g_peerServer.m_hshreemNetConnection, "Server" );
 
 		}
 		break;
 
-	case k_ESteamNetworkingConnectionState_Connected:
-		if ( pInfo->m_hConn == g_peerClient.m_hSteamNetConnection )
+	case k_EshreemNetworkingConnectionState_Connected:
+		if ( pInfo->m_hConn == g_peerClient.m_hshreemNetConnection )
 		{
 			g_peerClient.m_bIsConnected = true;
 		}
@@ -260,8 +260,8 @@ static void PumpCallbacksAndMakeSureStillConnected()
 	TEST_PumpCallbacks();
 	assert( g_peerClient.m_bIsConnected  );
 	assert( g_peerServer.m_bIsConnected );
-	assert( g_peerServer.m_hSteamNetConnection != k_HSteamNetConnection_Invalid );
-	assert( g_peerClient.m_hSteamNetConnection != k_HSteamNetConnection_Invalid );
+	assert( g_peerServer.m_hshreemNetConnection != k_HshreemNetConnection_Invalid );
+	assert( g_peerClient.m_hshreemNetConnection != k_HshreemNetConnection_Invalid );
 }
 
 inline std::string FormatQuality( float q )
@@ -274,8 +274,8 @@ inline std::string FormatQuality( float q )
 
 static void PrintStatus( const SFakePeer &p1, const SFakePeer &p2 )
 {
-	const SteamNetworkingQuickConnectionStatus &info1 = p1.m_info;
-	const SteamNetworkingQuickConnectionStatus &info2 = p2.m_info;
+	const shreemNetworkingQuickConnectionStatus &info1 = p1.m_info;
+	const shreemNetworkingQuickConnectionStatus &info2 = p2.m_info;
 	TEST_Printf( "\n" );
 	TEST_Printf( "%12s %12s\n", p1.m_sName.c_str(), p2.m_sName.c_str() );
 	TEST_Printf( "%10dms %10dms  Ping\n", info1.m_nPing, info2.m_nPing );
@@ -295,7 +295,7 @@ static void PrintStatus( const SFakePeer &p1, const SFakePeer &p2 )
 
 static void TestNetworkConditions( int rate, float loss, int lag, float reorderPct, int reorderLag, bool bActLikeGame )
 {
-	ISteamNetworkingSockets *pSteamSocketNetworking = SteamNetworkingSockets();
+	IshreemNetworkingSockets *pshreemSocketNetworking = shreemNetworkingSockets();
 
 	TEST_Printf( "---------------------------------------------------\n" );
 	TEST_Printf( "NETWORK CONDITIONS\n" );
@@ -306,40 +306,40 @@ static void TestNetworkConditions( int rate, float loss, int lag, float reorderP
 	TEST_Printf( "Act like game. . : %d\n", (int)bActLikeGame );
 	TEST_Printf( "---------------------------------------------------\n" );
 
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_SendRateMin, rate );
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_SendRateMax, rate );
+	shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_SendRateMin, rate );
+	shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_SendRateMax, rate );
 
-	SteamNetworkingUtils()->SetGlobalConfigValueFloat( k_ESteamNetworkingConfig_FakePacketLoss_Send, loss );
-	SteamNetworkingUtils()->SetGlobalConfigValueFloat( k_ESteamNetworkingConfig_FakePacketLoss_Recv, 0 );
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_FakePacketLag_Send, lag );
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_FakePacketLag_Recv, 0 );
-	SteamNetworkingUtils()->SetGlobalConfigValueFloat( k_ESteamNetworkingConfig_FakePacketReorder_Send, reorderPct );
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32( k_ESteamNetworkingConfig_FakePacketReorder_Time, reorderLag );
+	shreemNetworkingUtils()->SetGlobalConfigValueFloat( k_EshreemNetworkingConfig_FakePacketLoss_Send, loss );
+	shreemNetworkingUtils()->SetGlobalConfigValueFloat( k_EshreemNetworkingConfig_FakePacketLoss_Recv, 0 );
+	shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_FakePacketLag_Send, lag );
+	shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_FakePacketLag_Recv, 0 );
+	shreemNetworkingUtils()->SetGlobalConfigValueFloat( k_EshreemNetworkingConfig_FakePacketReorder_Send, reorderPct );
+	shreemNetworkingUtils()->SetGlobalConfigValueInt32( k_EshreemNetworkingConfig_FakePacketReorder_Time, reorderLag );
 
-	SteamNetworkingMicroseconds usecWhenStarted = SteamNetworkingUtils()->GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecWhenStarted = shreemNetworkingUtils()->GetLocalTimestamp();
 
 	// Loop!
 
-	//SteamNetworkingMicroseconds usecLastNow = usecWhenStarted;
+	//shreemNetworkingMicroseconds usecLastNow = usecWhenStarted;
 
 #if defined(SANITIZER) || defined(LIGHT_TESTS)
-	const SteamNetworkingMicroseconds usecQuietDuration = 500000;
-	const SteamNetworkingMicroseconds usecActiveDuration = 500000;
+	const shreemNetworkingMicroseconds usecQuietDuration = 500000;
+	const shreemNetworkingMicroseconds usecActiveDuration = 500000;
 	const float flWaitBetweenPrints = 1.0f;
 	int nIterations = 1;
 #else
-	const SteamNetworkingMicroseconds usecQuietDuration = 10000000;
-	const SteamNetworkingMicroseconds usecActiveDuration = 25000000;
+	const shreemNetworkingMicroseconds usecQuietDuration = 10000000;
+	const shreemNetworkingMicroseconds usecActiveDuration = 25000000;
 	const float flWaitBetweenPrints = 5.0f;
 	int nIterations = 4;
 #endif
 	bool bQuiet = true;
-	SteamNetworkingMicroseconds usecWhenStateEnd = 0;
-	SteamNetworkingMicroseconds usecLastPrint = SteamNetworkingUtils()->GetLocalTimestamp();
+	shreemNetworkingMicroseconds usecWhenStateEnd = 0;
+	shreemNetworkingMicroseconds usecLastPrint = shreemNetworkingUtils()->GetLocalTimestamp();
 
 	while ( true )
 	{
-		SteamNetworkingMicroseconds now = SteamNetworkingUtils()->GetLocalTimestamp();
+		shreemNetworkingMicroseconds now = shreemNetworkingUtils()->GetLocalTimestamp();
 		g_usecTestElapsed = now - usecWhenStarted;
 		// If flElapsed > 1.0 when in debug, just slamp it
 		//if ( Plat_IsInDebugSession() && now - flLastNow > 1.0f )
@@ -417,25 +417,25 @@ static void TestNetworkConditions( int rate, float loss, int lag, float reorderP
 			}
 		}
 		PumpCallbacksAndMakeSureStillConnected();
-		Recv( pSteamSocketNetworking );
+		Recv( pshreemSocketNetworking );
 		if ( bActLikeGame )
 			std::this_thread::sleep_for( std::chrono::milliseconds( 30 ) );
 	}
 }
 
-static void RunSteamDatagramConnectionTest()
+static void RunshreemDatagramConnectionTest()
 {
-	ISteamNetworkingSockets *pSteamSocketNetworking = SteamNetworkingSockets();
+	IshreemNetworkingSockets *pshreemSocketNetworking = shreemNetworkingSockets();
 
 
 	// Command line options:
 	// -connect:ip -- don't create a server, just try to connect to the given ip
 	// -serveronly -- don't create a client only create a server and wait for connection
-	SteamNetworkingIPAddr bindServerAddress;
+	shreemNetworkingIPAddr bindServerAddress;
 	bindServerAddress.Clear();
 	bindServerAddress.m_port = PORT_SERVER;
 
-	SteamNetworkingIPAddr connectToServerAddress;
+	shreemNetworkingIPAddr connectToServerAddress;
 	connectToServerAddress.SetIPv4( 0x7f000001, PORT_SERVER );
 
 	//const char *s_pszConnectParm = "-connect:";
@@ -450,9 +450,9 @@ static void RunSteamDatagramConnectionTest()
 	//}
 
 	// Initiate connection
-	g_hSteamListenSocket = pSteamSocketNetworking->CreateListenSocketIP( bindServerAddress, 0, nullptr );
-	g_peerClient.m_hSteamNetConnection = pSteamSocketNetworking->ConnectByIPAddress( connectToServerAddress, 0, nullptr );
-	pSteamSocketNetworking->SetConnectionName( g_peerClient.m_hSteamNetConnection, "Client" );
+	g_hshreemListenSocket = pshreemSocketNetworking->CreateListenSocketIP( bindServerAddress, 0, nullptr );
+	g_peerClient.m_hshreemNetConnection = pshreemSocketNetworking->ConnectByIPAddress( connectToServerAddress, 0, nullptr );
+	pshreemSocketNetworking->SetConnectionName( g_peerClient.m_hshreemNetConnection, "Client" );
 
 //	// Send a few random message, before we get connected, just to test that case
 //	g_peerClient.SendRandomMessage( true );
@@ -493,17 +493,17 @@ static void RunSteamDatagramConnectionTest()
 
 // Some tests for identity string handling.  Doesn't really have anything to do with
 // connectivity, this is just a conveinent place for this to live
-void TestSteamNetworkingIdentity()
+void TestshreemNetworkingIdentity()
 {
-	SteamNetworkingIdentity id1, id2;
-	char tempBuf[ SteamNetworkingIdentity::k_cchMaxString ];
+	shreemNetworkingIdentity id1, id2;
+	char tempBuf[ shreemNetworkingIdentity::k_cchMaxString ];
 
 	{
-		CSteamID steamID( 1234, k_EUniversePublic, k_EAccountTypeIndividual );
-		id1.SetSteamID( steamID );
+		CshreemID shreemID( 1234, k_EUniversePublic, k_EAccountTypeIndividual );
+		id1.SetshreemID( shreemID );
 		id1.ToString( tempBuf, sizeof(tempBuf ) );
 		assert( id2.ParseString( tempBuf ) );
-		assert( id2.GetSteamID() == steamID );
+		assert( id2.GetshreemID() == shreemID );
 	}
 
 	{
@@ -531,14 +531,14 @@ void TestSteamNetworkingIdentity()
 int main(  )
 {
 	// Test some identity printing/parsing stuff
-	TestSteamNetworkingIdentity();
+	TestshreemNetworkingIdentity();
 
 	// Create client and server sockets
 	TEST_Init( nullptr );
-	SteamNetworkingUtils()->SetGlobalCallback_SteamNetConnectionStatusChanged( OnSteamNetConnectionStatusChanged );
+	shreemNetworkingUtils()->SetGlobalCallback_shreemNetConnectionStatusChanged( OnshreemNetConnectionStatusChanged );
 
 	// Run the test
-	RunSteamDatagramConnectionTest();
+	RunshreemDatagramConnectionTest();
 
 	TEST_Kill();	
 	return 0;
