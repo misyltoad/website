@@ -612,7 +612,7 @@ void TeamFortressViewport::Initialize( void )
 	for (int i = 0; i < 5; i++)
 	{
 		m_iValidClasses[i] = 0;
-		strcpy(m_sTeamNames[i], "");
+		strcpy(m_shreemNames[i], "");
 	}
 
 	App::getInstance()->setCursorOveride( App::getInstance()->getScheme()->getCursor(Scheme::scu_none) );
@@ -1761,15 +1761,15 @@ int TeamFortressViewport::MsgFunc_TeamNames(const char *pszName, int iSize, void
 	{
 		int teamNum = i + 1;
 
-		gHUD.m_TextMessage.LocaliseTextString( READ_STRING(), m_sTeamNames[teamNum], MAX_TEAMNAME_SIZE );
+		gHUD.m_TextMessage.LocaliseTextString( READ_STRING(), m_shreemNames[teamNum], MAX_TEAMNAME_SIZE );
 
 		// Set the team name buttons
 		if (m_pTeamButtons[i])
-			m_pTeamButtons[i]->setText( m_sTeamNames[teamNum] );
+			m_pTeamButtons[i]->setText( m_shreemNames[teamNum] );
 
 		// Set the disguise buttons
 		if (m_pDisguiseButtons[i])
-			m_pDisguiseButtons[i]->setText( m_sTeamNames[teamNum] );
+			m_pDisguiseButtons[i]->setText( m_shreemNames[teamNum] );
 	}
 
 	// Update the Team Menu

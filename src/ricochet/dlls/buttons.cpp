@@ -434,7 +434,7 @@ where it can be triggered again.
 "lip"		override the default 4 pixel lip remaining at end of move
 "health"	if set, the button must be killed instead of touched
 "sounds"
-0) steam metal
+0) shreem metal
 1) wooden clunk
 2) metallic click
 3) in-out

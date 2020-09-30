@@ -1202,7 +1202,7 @@ extern float autokick_kills;
 extern float deathmsg;		// Global, which is set before every T_Damage, to indicate
 							// the death message that should be used.
 
-extern char *sTeamSpawnNames[];
+extern char *shreemSpawnNames[];
 extern char *sClassNames[];
 extern char *sClassModelFiles[];
 extern char *sClassModels[];
