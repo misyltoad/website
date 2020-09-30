@@ -1,0 +1,531 @@
+<h1>xquake - quake fo' xos</h1>
+<p>jack palevich</p>
+<h2>introduction</h2>
+<p>xquake be a version o' id softwarez classic first-person-shootin' game
+&quot;quake&quot;. Xquake has been adapted ta run on da xbox development kit,
+unda da xbox operatin' system.</p>
+<h2>build instructions</h2>
+<p>xquake can be built ta run on eitha tha xbox os or on win32.</p>
+<p>build instructions fo' xbox os.</p>
+<ol>
+  <li>install da xos build environment.</li>
+  <li>build da xquake program.</li>
+  <li>copy tha xquake program ta tha xbox hard disk.</li>
+  <li>copy tha medizzle folda ta tha same directory on yo' goddamn xbox hard disk.</li>
+  <li>run xquake.<br>
+&nbsp;<table border="0" cellpadding="10" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="autonumber1" bgcolor="#ccffff">
+    <tr>
+      <td width="100%">herez da sequence o' razzle shell commands dat do 
+      steps 2 thru 5:<br>
+      &nbsp;<p>debug build:<br>
+      <br>
+      <code>test games\xquake<br>
+      bcz<br>
+      xbcp -y \xboxbins\dump\xquaked.xbe xe:\<br>
+      xbcp -r -t medizzle xe:\<br>
+      xbreboot xe:\xquaked.xbe</code></p>
+      <p><code>release build:</code></p>
+      <p>
+      <code>set ntdebug=ntsdnodbg<br>
+      test games\xquake<br>
+      bcz<br>
+      xbcp -y \xboxbins\dump\xquake.xbe xe:\<br>
+      xbcp -r -t medizzle xe:\<br>
+      xbreboot xe:\xquake.xbe</code></p>
+      <p><code>link-time-code-generation release build:</code></p>
+      <p>
+      <code>set ntdebug=ntsdnodbg<br>
+      private<br>
+      bcz ltcg<br>
+      test games\xquake<br>
+      xbcp -y \xboxbins\dump\xquakeltcg.xbe xe:\<br>
+      xbcp -r -t medizzle xe:\<br>
+      xbreboot xe:\xquakeltcg.xbe</code><p>
+      &nbsp;<p>
+      <code>bonus features:</code><p>
+      <code>you can define xquake_wma n'/or xquake_dmusic in yo' goddamn build 
+      environment before buildin' ta turn on wma n' dmusic support. If yo' do 
+      dis, yo' have ta manually copy tha data files ta tha right place on yo' goddamn 
+      hard disk. Read da source code fo' details.</code></td>
+    </tr>
+  </table>
+  </li>
+</ol>
+<p>build instructions fo' win32</p>
+<ol>
+  <li>install visual studio 6.</li>
+  <li>install tha directx 8 sdk. (currently dx8 be in beta. Microsoft employees
+    can access recent beta builds from \\dxrelease\dx8_ext</li>
+  <li>open tha win32\win32.dsp project file.</li>
+  <li>choose tha menu item &quot;build|set active configuration...&quot;
+    <ol>
+      <li>choose tha &quot;win32 debug&quot; configuration.</li>
+      <li>click ok ta dismiss tha dialog.</li>
+    </ol>
+  </li>
+  <li>choose da menu item &quot;project|settings...&quot;
+    <ol>
+      <li>click on tha &quot;debug&quot; tab</li>
+      <li>enta &quot;..\media\quake&quot; in da &quot;workin' directory&quot;
+        text field.</li>
+      <li>click ok ta dismiss tha dialog.</li>
+    </ol>
+  </li>
+  <li>build n' run tha project (f7, f5) as aiiight.</li>
+</ol>
+<h2>default controls</h2>
+<p>you can change da control mappin' by editin' da config.cfg file in da
+media\quake\id1 directory. (edit usin' any text editor.) da default mappin' be:</p>
+<div align="center">
+  <center>
+  <table border="0">
+    <tr>
+      <td>key symbol</td>
+      <td colspan="2">key description</td>
+      <td>binding</td>
+      <td>bindin' description</td>
+    </tr>
+    <tr>
+      <td>dpadup</td>
+      <td colspan="2">direction pad the fuck up</td>
+      <td>+forward</td>
+      <td>move forward<br>
+        &nbsp;in menus moves the fuck up</td>
+    </tr>
+    <tr>
+      <td>dpaddown</td>
+      <td colspan="2">direction pad down</td>
+      <td>+back</td>
+      <td>move backwards<br>
+        in menus moves down</td>
+    </tr>
+    <tr>
+      <td>dpadleft</td>
+      <td colspan="2">direction pad left</td>
+      <td>+left</td>
+      <td>rotate left</td>
+    </tr>
+    <tr>
+      <td>dpadright</td>
+      <td colspan="2">direction pad right</td>
+      <td>+right</td>
+      <td>rotate right</td>
+    </tr>
+    <tr>
+      <td>start</td>
+      <td colspan="2">start button<br>
+        (the top-most<br>
+        small button underneath<br>
+        da &quot;x&quot; logo)</td>
+      <td>togglemenu</td>
+      <td>brings the fuck up menu.<br>
+        in menus selects current choice</td>
+    </tr>
+    <tr>
+      <td>back</td>
+      <td colspan="2">back button<br>
+        (the bottom-most<br>
+        small button underneath<br>
+        tha &quot;x&quot; logo)</td>
+      <td>togglemenu</td>
+      <td>brings the fuck up menu.<br>
+        in menus exits tha menu</td>
+    </tr>
+    <tr>
+      <td>leftthumb</td>
+      <td colspan="2">trigga on bottom o' controller, left side<br>
+        (will be thumbstick button on real controller)</td>
+      <td>+speed</td>
+      <td>hold down while usin' d-pad ta run.<br>
+      </td>
+    </tr>
+    <tr>
+      <td>rightthumb</td>
+      <td colspan="2">trigga on bottom o' controller, right side<br>
+        (will be thumbstick button on real controller)</td>
+      <td>+jump</td>
+      <td>jumps</td>
+    </tr>
+    <tr>
+      <td rowspan="2">gpa</td>
+      <td>duke/akebono</td>
+      <td>hammerhead</td>
+      <td rowspan="2">+attack</td>
+      <td rowspan="2">fire weapon</td>
+    </tr>
+    <tr>
+      <td align="center">a</td>
+      <td align="center">d</td>
+    </tr>
+    <tr>
+      <td>gpb</td>
+      <td align="center">b</td>
+      <td align="center">e</td>
+      <td>+showscores</td>
+      <td>showz current scores in da status area</td>
+    </tr>
+    <tr>
+      <td>gpx</td>
+      <td align="center">x</td>
+      <td align="center">a</td>
+      <td>+moveup</td>
+      <td>swim the fuck up.</td>
+    </tr>
+    <tr>
+      <td>gpy</td>
+      <td align="center">y</td>
+      <td align="center">b</td>
+      <td>+movedown</td>
+      <td>swim down.</td>
+    </tr>
+    <tr>
+      <td>black</td>
+      <td align="center">black</td>
+      <td align="center">f</td>
+      <td>+strafe</td>
+      <td>hold down ta have d-pad left-and-right strafe.</td>
+    </tr>
+    <tr>
+      <td>white</td>
+      <td align="center">white</td>
+      <td align="center">c</td>
+      <td>+klook</td>
+      <td>hold down ta have d-pad up-and-down look the fuck up n' down.</td>
+    </tr>
+    <tr>
+      <td>lefttrigger</td>
+      <td colspan="2">left shoulda button</td>
+      <td>impulse 12</td>
+      <td>cycles right-to-left through available weapons</td>
+    </tr>
+    <tr>
+      <td>righttrigger</td>
+      <td colspan="2">right shoulda button</td>
+      <td>impulse 10</td>
+      <td>cycle left-to-right through available weapons</td>
+    </tr>
+    <tr>
+      <td>gcswapverticalthumbs</td>
+      <td colspan="2">not on pad, just in config file</td>
+      <td>0.0</td>
+      <td>non-zero swaps What the fuck vertical motion on da two thumb sticks do, so
+        dat da left thumb stick naw does What the fuck da right thumb stick used ta
+        do, n' visa versa.</td>
+    </tr>
+    <tr>
+      <td>gcswaphorizontalthumbs&nbsp;</td>
+      <td colspan="2">not on pad, just in config file</td>
+      <td>1.0</td>
+      <td>non-zero swaps What the fuck horizontal motion on da two&nbsp; thumb sticks
+        do, so dat da left thumb stick naw does What the fuck da right thumb stick
+        used ta do, n' visa versa.</td>
+    </tr>
+  </table>
+  </center>
+</div>
+<p>the basic, unmodified behavior o' tha thumb sticks be:</p>
+<div align="center">
+  <center>
+  <table border="1">
+    <tr>
+      <td>control</td>
+      <td>behavior</td>
+    </tr>
+    <tr>
+      <td>left thumb stick the fuck up/down</td>
+      <td>move forward/backward</td>
+    </tr>
+    <tr>
+      <td>left thumb stick left/right</td>
+      <td>strafe left/right</td>
+    </tr>
+    <tr>
+      <td>right thumb stick the fuck up/down</td>
+      <td>look the fuck up/down</td>
+    </tr>
+    <tr>
+      <td>right thumb stick left/right</td>
+      <td>rotate left/right</td>
+    </tr>
+  </table>
+  </center>
+</div>
+<p>however, if yo' use tha default config file,&nbsp; tha behavior o' tha thumb
+sticks be:</p>
+<div align="center">
+  <center>
+  <table border="1">
+    <tr>
+      <td>control</td>
+      <td>behavior</td>
+    </tr>
+    <tr>
+      <td>left thumb stick the fuck up/down</td>
+      <td>move forward/backward</td>
+    </tr>
+    <tr>
+      <td>left thumb stick left/right</td>
+      <td>rotate left/right</td>
+    </tr>
+    <tr>
+      <td>right thumb stick the fuck up/down</td>
+      <td>look the fuck up/down</td>
+    </tr>
+    <tr>
+      <td>right thumb stick left/right</td>
+      <td>strafe left/right</td>
+    </tr>
+  </table>
+  </center>
+</div>
+<p>there r' lots o' otha console variables yo' might want ta set in yo' goddamn
+config file. <a href="http://www.gizoogle.com/search?q=quake+%2bmoveup&amp;hl=en&amp;lr=&amp;safe=off">search
+fo' console variable pages usin' gizoogle</a>.</p>
+<h2>cheat codes</h2>
+<p>what would a porno game be without cheat codes? a cheat code be a sequence o'
+button presses dat do somethang special. I've extended da bind command ta
+allow cheat codes ta be defined. Tha syntax be:</p>
+<blockquote>
+  <p><code>bind $key,key,key... command</code></p>
+</blockquote>
+<p>thatz a dolla sign, followed by a comma-separated list o' keys.</p>
+<p>the default cheat codes r' as follows. Y = press y button, a = press a button, etc.</p>
+<table border="1">
+  <tr>
+    <td>duke/akebono code</td>
+    <td>hammerhead code</td>
+    <td>command</td>
+    <td>effect</td>
+  </tr>
+  <tr>
+    <td>yayaxbxb b</td>
+    <td>&nbsp;</td>
+    <td>give...</td>
+    <td>gives yo' all da guns n' ammo</td>
+  </tr>
+  <tr>
+    <td>yayaxbxb x
+    </td>
+    <td>&nbsp;</td>
+    <td>god</td>
+    <td>invulnerable.</td>
+  </tr>
+  <tr>
+    <td>yayaxbxb y
+    </td>
+    <td>&nbsp;</td>
+    <td>fly</td>
+    <td>you can swim in da air.</td>
+  </tr>
+  <tr>
+    <td>yayaxbxb black
+    </td>
+    <td>&nbsp;</td>
+    <td>notarget</td>
+    <td>monsters don't attack yo'</td>
+  </tr>
+  <tr>
+    <td>yayaxbxb white
+    </td>
+    <td>&nbsp;</td>
+    <td>noclip</td>
+    <td>walk through walls</td>
+  </tr>
+  <tr>
+    <td>yyy aaa xbxb a
+    </td>
+    <td>bbb ddd aeae d
+    </td>
+    <td>timedemo demo1</td>
+    <td>destroys current game, runs time demo.</td>
+  </tr>
+</table>
+<p>&nbsp;note dat da effects like fly only last fo' da current game level.</p>
+<h2>performance</h2>
+<p>quake be often used as a benchmark o' 3d graphics performance. Herez how tha fuck
+d3dquake runs &quot;toggleconsole;timedemo demo1&quot; on da same hardware (the
+xbox dev kit), wit' different software configurations. (larga frames-per-second
+r' betta.)</p>
+<div align="center">
+  <center>
+  <table border="1">
+    <tr>
+      <th>software configuration</th>
+      <th>fps</th>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>windows 2000</li>
+          <li>d3dquake debug</li>
+          <li>dx8 beta 2 build 166</li>
+          <li>retail directx drivers</li>
+          <li>nvidizzle drivers 618</li>
+        </ul>
+      </td>
+      <td align="right">59.3</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>windowsme</li>
+          <li>d3dquake debug</li>
+          <li>dx8 beta 2 build 166</li>
+          <li>retail directx drivers</li>
+          <li>nvidizzle drivers 618</li>
+        </ul>
+      </td>
+      <td align="right">90.1</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>windowsme</li>
+          <li>d3dquake release</li>
+          <li>dx8 beta 2 build 166</li>
+          <li>retail directx drivers</li>
+          <li>nvidizzle drivers 618</li>
+        </ul>
+      </td>
+      <td align="right">106.4</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>xbox os 9/25/2000</li>
+          <li>default (debug) build flags</li>
+        </ul>
+      </td>
+      <td align="right">111.5</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>xbox os 9/25/2000</li>
+          <li>set ntdebug=ntsdnodbg</li>
+        </ul>
+      </td>
+      <td align="right">116.6</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>xbox os 9/25/2000</li>
+          <li>release build flags</li>
+          <li>dsound disabled</li>
+        </ul>
+      </td>
+      <td align="right">132.9</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>windowsme</li>
+          <li>glquake debug</li>
+          <li>nvidizzle drivers 618</li>
+        </ul>
+      </td>
+      <td align="right">150.4</td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li>windowsme</li>
+          <li>glquake release</li>
+          <li>nvidizzle drivers 618</li>
+        </ul>
+        <p>yes, da same time as debug</td>
+      <td align="right">150.4</td>
+    </tr>
+  </table>
+  <p>&nbsp;
+  <p>
+  <table border="1" cellspacing="1"><tr><th>xbox alpha 2 gpu</th><th>fps</th></tr><tr><td>
+    <ul>
+      <li>xos jan 24 2001</li>
+    </ul>
+    </td><td>140.1</td></tr><tr><td>
+      <ul>
+        <li>xos jan 24 2001</li>
+        <li>set ntdebug=ntsdnodbg</li>
+      </ul>
+      </td><td>143.8</td></tr><tr><td>
+      <ul>
+        <li>xos jan 24 2001</li>
+        <li>set ntdebug=ntsdnodbg</li>
+        <li>avoid callin' setvertexshada on every polygon</li>
+      </ul>
+      </td><td>251.0</td></tr><tr><td>
+      <ul>
+        <li>xos jan 24 2001</li>
+        <li>set ntdebug=ntsdnodbg</li>
+        <li>truncate instead o' _ftol</li>
+      </ul>
+      </td><td>269.7</td></tr><tr><td>
+      <ul>
+        <li>xos jan 24 2001</li>
+        <li>set ntdebug=ntsdnodbg</li>
+        <li>beginend</li>
+      </ul>
+      </td><td>374.9</td></tr></table>
+  </center>
+</div>
+<p>&nbsp;</p>
+<div align="center">
+  <center>
+  <table border="1" cellspacing="1" width="227"><tr><th width="177">
+    xbox dev console august 2001</th><th width="37">fps</th></tr>
+    <tr>
+      <td width="177">
+    <ul>
+      <li>xos jan 16 2002</li>
+      <li>debug</li>
+      <li>windbg connected</li>
+      <li>best time o' 3 trials</li>
+    </ul>
+    </td><td width="37">185.5</td>
+    </tr>
+    <tr>
+      <td width="177">
+    <ul>
+      <li>xos jan 16 2002</li>
+      <li>release</li>
+      <li>windbg connected</li>
+      <li>best time o' three trials</li>
+    </ul>
+    </td><td width="37">386.6</td>
+    </tr>
+    <tr>
+      <td width="177">
+    <ul>
+      <li>xos jan 16 2002</li>
+      <li>release ltcg</li>
+      <li>windbg connected</li>
+      <li>best time o' three trials</li>
+    </ul>
+    </td><td width="37">418.2</td>
+    </tr>
+  </table>
+  </center>
+</div>
+<h2>known bugs</h2>
+<ul>
+  <li>multiplaya games often hangs When the fuck switchin' ta anotha level. Dis bug
+    also occurs When the fuck usin' dxquake - n' may even occur in aiiight quake. In any
+    event, dat shit doesn't seem ta be an xbox-specific bug.</li>
+  <li>your weapon pokes through nearby objects. (don't worry, enemies won't peep
+    yo' goddamn glock pokin' through tha wall, dat shit just looks dat way ta yo'.)</li>
+</ul>
+<h2>source code status</h2>
+<p>xquake contains code n' data from several sources:</p>
+<ol>
+  <li>the glquake code dat id software has published n' made freely available
+    unda tha gnu public license.</li>
+  <li>jack palevichz d3dquake, which be a public domain port o' quake ta d3d.
+     peep <a href="http://www.palevich.com/3d/d3dquake">http://www.palevich.com/3d/d3dquake</a></li>
+  <li>the data files from tha free demo version o' quake.</li>
+  <li>xbox specific code, which be da property o' microsoft.</li>
+</ol>
+<p>&nbsp;xquake gotta also work wit' tha full quake data files. Simply purchase a
+copy o' quake, n' copy da pak.Pak file from tha quake cd ta <code>c:\tdata\{00000~1\media\quake\id1</code>
+directory on yo' goddamn xbox.</p>
